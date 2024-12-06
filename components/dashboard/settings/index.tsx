@@ -7,6 +7,7 @@ import { User } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import GeneralDetails from './components/general-details';
 import PersonalDetails from './components/personal-details';
+import ProfilePictures from './components/profile-pictures';
 
 interface Props {
   user: User | null | undefined;
@@ -77,7 +78,7 @@ export default function Settings(props: Props) {
                 : 'text-gray-500'
                 }`}
             >
-              Preferences
+              Pictures
             </button>
           </div>
 
@@ -85,7 +86,7 @@ export default function Settings(props: Props) {
           <div className="mt-4">
             {activeTab === 'general' && <GeneralDetails user={props.user} userDetails={{}} />}
             {activeTab === 'personal' && <PersonalDetails user={props.user} userDetails={{}} />}
-            {activeTab === 'preferences' && <Preferences />}
+            {activeTab === 'preferences' && <ProfilePictures user={props.user} userDetails={{}} />}
           </div>
         </Card>
       </div>
