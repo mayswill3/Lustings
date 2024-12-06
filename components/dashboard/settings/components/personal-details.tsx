@@ -1,15 +1,16 @@
 /*eslint-disable*/
 'use client';
 
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { User } from '@supabase/supabase-js';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/utils/supabase/client';
 import { getURL, getStatusRedirect } from '@/utils/helpers';
 import { Input } from '@/components/ui/input';
+import { Tiptap } from '@/components/Tiptap';
 
 interface Props {
     user: User | null | undefined;
@@ -26,7 +27,31 @@ export default function PersonalDetails(props: Props) {
     console.log(props.user);
     console.log(props.userDetails);
     const router = useRouter();
+    const [userMetadata, setUserMetadata] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const tiptapRef = useRef<{
+        getSummary: () => string;
+        getDetails: () => string;
+    }>(null);
+
+    // Fetch user metadata on load
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const {
+                data: { user },
+                error,
+            } = await supabase.auth.getUser();
+
+            if (error) {
+                console.error('Error fetching user:', error);
+            } else {
+                setUserMetadata(user?.user_metadata || {});
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -46,6 +71,9 @@ export default function PersonalDetails(props: Props) {
         const withPreferences = Array.from(formData.getAll('with')).map((preference) =>
             preference.toString()
         );
+        // Get data from Tiptap
+        const summary = tiptapRef.current?.getSummary() || '';
+        const details = tiptapRef.current?.getDetails() || '';
 
         // Include Personal Details in Metadata
         const { error } = await supabase.auth.updateUser({
@@ -58,6 +86,8 @@ export default function PersonalDetails(props: Props) {
                     activities,
                     with: withPreferences, // Add "With" preferences
                 },
+                summary,
+                details,
                 // ...other metadata updates
             },
         });
@@ -307,7 +337,8 @@ export default function PersonalDetails(props: Props) {
                         )}
                     </div>
                 </div>
-
+                <Tiptap ref={tiptapRef} initialSummary={userMetadata?.summary || ''}
+                    initialDetails={userMetadata?.details || ''} />
                 <Button
                     type="submit"
                     className="w-full mt-4 flex justify-center rounded-lg px-4 py-2 text-base font-medium"
