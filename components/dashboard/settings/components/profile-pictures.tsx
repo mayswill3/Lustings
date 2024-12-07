@@ -3,8 +3,8 @@ import { createClient } from '@/utils/supabase/client';
 import { User } from '@supabase/supabase-js';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
+import GalleryUploader from './gallery-uploader';
 
 const supabase = createClient();
 
@@ -40,13 +40,24 @@ export default function ProfilePictureUploader({ user }: Props) {
 
         if (selectedFile) {
             try {
-                const filename = nanoid();
-                const fileExtension = selectedFile.name.split('.').pop();
-                const fullFilename = `${user.id}_${index}_${filename}.${fileExtension}`;
+                // Improved filename generation
+                const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
+
+                // Validate file extension
+                const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+                if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
+                    toast.error('Unsupported file type. Please use JPG, PNG, WEBP, or GIF.');
+                    return;
+                }
+
+                // Create a more meaningful filename
+                const fullFilename = `user_${user.id}/profile_pic_${index + 1}.${fileExtension}`;
 
                 const { data, error } = await supabase.storage
                     .from('profile-pictures')
-                    .upload(fullFilename, selectedFile);
+                    .upload(fullFilename, selectedFile, {
+                        upsert: true // This will replace existing files
+                    });
 
                 if (error) {
                     console.error(`Error uploading file ${index + 1}:`, error.message);
@@ -126,62 +137,65 @@ export default function ProfilePictureUploader({ user }: Props) {
     }
 
     return (
-        <div className="container mx-auto mt-8 max-w-[800px]">
-            <h2 className="text-xl font-extrabold text-zinc-950 dark:text-white mb-6">
-                Profile Pictures
-            </h2>
+        <>
+            <div className="container mx-auto mt-8 max-w-[800px]">
+                <h2 className="text-xl font-extrabold text-zinc-950 dark:text-white mb-6">
+                    Profile Pictures
+                </h2>
 
-            <div className="grid grid-cols-3 gap-4">
-                {profilePics.map((pic, index) => (
-                    <div key={index} className="flex flex-col items-center">
-                        <div>
-                            <input
-                                type="file"
-                                ref={inputRefs[index]}
-                                accept="image/*"
-                                className="hidden"
-                                id={`file-input-${index}`}
-                                onChange={() => handleUpload(index)}
-                            />
-                            <label
-                                htmlFor={`file-input-${index}`}
-                                className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
-                            >
-                                Choose File
-                            </label>
-                        </div>
-                        {pic ? (
-                            <div className="mt-4 relative">
-                                <Image
-                                    src={pic}
-                                    alt={`Profile pic ${index + 1}`}
-                                    width={120}
-                                    height={120}
-                                    className="w-28 h-28 object-cover rounded-full border border-gray-300"
+                <div className="grid grid-cols-3 gap-4">
+                    {profilePics.map((pic, index) => (
+                        <div key={index} className="flex flex-col items-center">
+                            <div>
+                                <input
+                                    type="file"
+                                    ref={inputRefs[index]}
+                                    accept="image/*"
+                                    className="hidden"
+                                    id={`file-input-${index}`}
+                                    onChange={() => handleUpload(index)}
                                 />
-                                <button
-                                    onClick={() => clearFile(index)}
-                                    className="mt-2 text-sm text-red-600 hover:underline"
+                                <label
+                                    htmlFor={`file-input-${index}`}
+                                    className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
                                 >
-                                    Remove
-                                </button>
+                                    Choose File
+                                </label>
                             </div>
-                        ) : (
-                            <div className="mt-4 w-28 h-28 flex items-center justify-center bg-gray-100 border border-dashed border-gray-300 rounded-full">
-                                <span className="text-gray-400 text-sm">No Image</span>
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+                            {pic ? (
+                                <div className="mt-4 relative">
+                                    <Image
+                                        src={pic}
+                                        alt={`Profile pic ${index + 1}`}
+                                        width={120}
+                                        height={120}
+                                        className="w-28 h-28 object-cover rounded-full border border-gray-300"
+                                    />
+                                    <button
+                                        onClick={() => clearFile(index)}
+                                        className="mt-2 text-sm text-red-600 hover:underline"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="mt-4 w-28 h-28 flex items-center justify-center bg-gray-100 border border-dashed border-gray-300 rounded-full">
+                                    <span className="text-gray-400 text-sm">No Image</span>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
 
-            <Button
-                onClick={handleSubmit}
-                className="w-full mt-6 flex justify-center rounded-lg px-4 py-2 text-base font-medium"
-                disabled={isSubmitting || uploadedUrls.every((url) => url === null)}
-            >
-                {isSubmitting ? 'Saving...' : 'Save Profile Pictures'}
-            </Button>
-        </div>
+                <Button
+                    onClick={handleSubmit}
+                    className="w-full mt-6 flex justify-center rounded-lg px-4 py-2 text-base font-medium"
+                    disabled={isSubmitting || uploadedUrls.every((url) => url === null)}
+                >
+                    {isSubmitting ? 'Saving...' : 'Save Profile Pictures'}
+                </Button>
+            </div>
+            <GalleryUploader user={user} userDetails={{}} />
+        </>
     );
 }
