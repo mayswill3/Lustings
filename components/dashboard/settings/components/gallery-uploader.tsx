@@ -7,10 +7,11 @@ import { toast } from 'sonner';
 const supabase = createClient();
 
 interface Props {
-    user: User | null | undefined;
+    user: { id: string } | null | undefined;
+    userDetails: { profile_pictures?: (string | null)[] } | null;
 }
 
-export default function GalleryUploader({ user }: Props) {
+export default function GalleryUploader(props: Props) {
     const [freeGallery, setFreeGallery] = useState<(string | null)[]>([]);
     const [privateGallery, setPrivateGallery] = useState<(string | null)[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,16 +20,28 @@ export default function GalleryUploader({ user }: Props) {
 
     // Fetch galleries from user metadata on mount
     useEffect(() => {
-        if (user?.user_metadata?.freeGallery) {
-            setFreeGallery(user.user_metadata.freeGallery);
-        }
-        if (user?.user_metadata?.privateGallery) {
-            setPrivateGallery(user.user_metadata.privateGallery);
-        }
-    }, [user]);
+        const fetchGalleries = async () => {
+            if (!props.user) return;
+
+            const { data, error } = await supabase
+                .from('users')
+                .select('free_gallery, private_gallery')
+                .eq('id', props.user.id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching gallery data:', error);
+            } else {
+                setFreeGallery(data?.free_gallery || []);
+                setPrivateGallery(data?.private_gallery || []);
+            }
+        };
+
+        fetchGalleries();
+    }, [props.user]);
 
     const handleUpload = async (index: number, gallery: 'free' | 'private') => {
-        if (!user) {
+        if (!props.user) {
             toast.error('Please log in to upload images');
             return;
         }
@@ -47,7 +60,7 @@ export default function GalleryUploader({ user }: Props) {
                     return;
                 }
 
-                const fullFilename = `${gallery}-gallery/user_${user.id}/image_${Date.now()}.${fileExtension}`;
+                const fullFilename = `${gallery}-gallery/user_${props.user.id}/image_${Date.now()}.${fileExtension}`;
 
                 const { data, error } = await supabase.storage
                     .from(`${gallery}-gallery`)
@@ -67,7 +80,20 @@ export default function GalleryUploader({ user }: Props) {
                 newGallery[index] = file?.publicUrl || null;
                 gallery === 'free' ? setFreeGallery(newGallery) : setPrivateGallery(newGallery);
 
-                toast.success(`Image uploaded to ${gallery} gallery successfully!`);
+                // Update the users table
+                const updateData =
+                    gallery === 'free' ? { free_gallery: newGallery } : { private_gallery: newGallery };
+                const { error: updateError } = await supabase
+                    .from('users')
+                    .update(updateData)
+                    .eq('id', props.user.id);
+
+                if (updateError) {
+                    console.error(`Error saving ${gallery} gallery to database:`, updateError.message);
+                    toast.error(`Failed to save ${gallery} gallery to database`);
+                } else {
+                    toast.success(`Image uploaded to ${gallery} gallery successfully!`);
+                }
             } catch (err) {
                 console.error(`Unexpected error uploading file to ${gallery} gallery:`, err);
                 toast.error(`Unexpected error occurred while uploading to ${gallery} gallery`);
@@ -81,32 +107,28 @@ export default function GalleryUploader({ user }: Props) {
 
         gallery === 'free' ? setFreeGallery(galleryState) : setPrivateGallery(galleryState);
 
-        const updateData = gallery === 'free' ? { freeGallery: galleryState } : { privateGallery: galleryState };
+        const updateData = gallery === 'free' ? { free_gallery: galleryState } : { private_gallery: galleryState };
 
         try {
-            const { error } = await supabase.auth.updateUser({ data: updateData });
+            const { error } = await supabase
+                .from('users')
+                .update(updateData)
+                .eq('id', props.user.id);
+
             if (error) {
-                console.error(`Error updating ${gallery} gallery metadata:`, error.message);
-                toast.error(`Failed to update ${gallery} gallery metadata`);
+                console.error(`Error updating ${gallery} gallery in database:`, error.message);
+                toast.error(`Failed to update ${gallery} gallery in database`);
             } else {
                 toast.success(`Image removed from ${gallery} gallery successfully!`);
             }
         } catch (err) {
-            console.error('Unexpected error updating gallery metadata:', err);
+            console.error('Unexpected error updating gallery:', err);
             toast.error('Unexpected error occurred');
         }
     };
 
-    const addImageSlot = (gallery: 'free' | 'private') => {
-        if (gallery === 'free') {
-            setFreeGallery([...freeGallery, null]);
-        } else {
-            setPrivateGallery([...privateGallery, null]);
-        }
-    };
-
     const handleSubmit = async () => {
-        if (!user) {
+        if (!props.user) {
             toast.error('Please log in to save your galleries');
             return;
         }
@@ -114,25 +136,18 @@ export default function GalleryUploader({ user }: Props) {
         setIsSubmitting(true);
 
         try {
-            const { error: freeError } = await supabase.auth.updateUser({
-                data: { freeGallery },
-            });
+            const { error } = await supabase
+                .from('users')
+                .update({
+                    free_gallery: freeGallery,
+                    private_gallery: privateGallery,
+                })
+                .eq('id', props.user.id);
 
-            if (freeError) {
-                console.error('Error saving free gallery:', freeError);
-                toast.error('Failed to save free gallery');
-            }
-
-            const { error: privateError } = await supabase.auth.updateUser({
-                data: { privateGallery },
-            });
-
-            if (privateError) {
-                console.error('Error saving private gallery:', privateError);
-                toast.error('Failed to save private gallery');
-            }
-
-            if (!freeError && !privateError) {
+            if (error) {
+                console.error('Error saving galleries:', error);
+                toast.error('Failed to save galleries');
+            } else {
                 toast.success('Galleries saved successfully!');
             }
         } catch (err) {
@@ -141,6 +156,14 @@ export default function GalleryUploader({ user }: Props) {
         }
 
         setIsSubmitting(false);
+    };
+
+    const addImageSlot = (gallery: 'free' | 'private') => {
+        if (gallery === 'free') {
+            setFreeGallery([...freeGallery, null]); // Adds an empty slot for new uploads
+        } else {
+            setPrivateGallery([...privateGallery, null]);
+        }
     };
 
     return (
@@ -156,7 +179,7 @@ export default function GalleryUploader({ user }: Props) {
                                 <>
                                     <img src={image} alt={`Free gallery ${index + 1}`} className="w-28 h-28" />
                                     <button
-                                        onClick={() => deleteImage(index, 'free')}
+                                        onClick={() => deleteImage(index, 'free')} // Deletes from state and database
                                         className="mt-2 text-sm text-red-600 hover:underline"
                                     >
                                         Delete
@@ -166,11 +189,11 @@ export default function GalleryUploader({ user }: Props) {
                                 <>
                                     <input
                                         type="file"
-                                        ref={(el) => (freeInputRefs.current[index] = el!)}
+                                        ref={(el) => (freeInputRefs.current[index] = el!)} // Input reference for uploads
                                         accept="image/*"
                                         className="hidden"
                                         id={`free-file-input-${index}`}
-                                        onChange={() => handleUpload(index, 'free')}
+                                        onChange={() => handleUpload(index, 'free')} // Uploads to state and database
                                     />
                                     <label
                                         htmlFor={`free-file-input-${index}`}
@@ -182,6 +205,7 @@ export default function GalleryUploader({ user }: Props) {
                             )}
                         </div>
                     ))}
+
                 </div>
                 <Button onClick={() => addImageSlot('free')} className="mt-4">
                     Add Image

@@ -12,11 +12,60 @@ create table users (
   -- The customer's billing address, stored in JSON format.
   billing_address jsonb,
   -- Stores your customer's payment instruments.
-  payment_method jsonb
+  payment_method jsonb,
+  -- Location details, stored in JSON format.
+  location jsonb,
+  -- Privacy settings, stored in JSON format.
+  privacy jsonb,
+  -- User preferences, stored in JSON format.
+  preferences jsonb,
+  -- personal_details, stored in JSON format.
+  personal_details jsonb,
+  -- profile_pictures, stored in JSON format.
+  profile_pictures jsonb,
+  -- free_gallery, stored in JSON format.
+  free_gallery jsonb,
+  -- private_gallery, stored in JSON format.
+  private_gallery jsonb,
+  summary text,
+  details text;
+  -- Automatically track creation and update times.
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
 );
+
+-- Enable row-level security
 alter table users enable row level security;
-create policy "Can view own user data." on users for select using (auth.uid() = id);
-create policy "Can update own user data." on users for update using (auth.uid() = id);
+
+-- Policy: Users can view their own data
+create policy "Can view own user data." 
+on users 
+for select 
+using (auth.uid() = id);
+
+-- Policy: Users can update their own data
+create policy "Can update own user data." 
+on users 
+for update 
+using (auth.uid() = id)
+with check (
+  auth.uid() = id
+);
+
+-- Trigger: Automatically update `updated_at` timestamp
+create or replace function update_updated_at_column()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger update_users_updated_at
+before update on users
+for each row
+execute function update_updated_at_column();
+
  
 /**
 * This trigger automatically creates a user entry when a new user signs up via Supabase Auth.

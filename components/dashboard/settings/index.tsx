@@ -84,9 +84,9 @@ export default function Settings(props: Props) {
 
           {/* Tab Content */}
           <div className="mt-4">
-            {activeTab === 'general' && <GeneralDetails user={props.user} userDetails={{}} />}
-            {activeTab === 'personal' && <PersonalDetails user={props.user} userDetails={{}} />}
-            {activeTab === 'preferences' && <ProfilePictures user={props.user} userDetails={{}} />}
+            {activeTab === 'general' && <GeneralDetails user={props.user} userDetails={props.userDetails} />}
+            {activeTab === 'personal' && <PersonalDetails user={props.user} userDetails={props.userDetails} />}
+            {activeTab === 'preferences' && <ProfilePictures user={props.user} userDetails={props.userDetails} />}
           </div>
         </Card>
       </div>

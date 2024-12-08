@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { User } from '@supabase/supabase-js';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -9,25 +8,31 @@ import GalleryUploader from './gallery-uploader';
 const supabase = createClient();
 
 interface Props {
-    user: User | null | undefined;
+    user: { id: string } | null | undefined;
+    userDetails: { profile_pictures?: (string | null)[] } | null;
 }
 
-export default function ProfilePictureUploader({ user }: Props) {
-    const [profilePics, setProfilePics] = useState<(string | null)[]>([null, null, null]);
-    const [uploadedUrls, setUploadedUrls] = useState<(string | null)[]>([null, null, null]);
+export default function ProfilePictureUploader({ user, userDetails }: Props) {
+    const [profilePics, setProfilePics] = useState<(string | null)[]>(
+        userDetails?.profile_pictures ?? [null, null, null]
+    );
+    const [uploadedUrls, setUploadedUrls] = useState<(string | null)[]>(
+        userDetails?.profile_pictures ?? [null, null, null]
+    );
     const [isSubmitting, setIsSubmitting] = useState(false);
     const inputRefs = [
         useRef<HTMLInputElement>(null),
         useRef<HTMLInputElement>(null),
-        useRef<HTMLInputElement>(null)
+        useRef<HTMLInputElement>(null),
     ];
 
     useEffect(() => {
-        if (user?.user_metadata?.profilePictures) {
-            setProfilePics(user.user_metadata.profilePictures);
-            setUploadedUrls(user.user_metadata.profilePictures);
+        // Update the state when userDetails change
+        if (userDetails?.profile_pictures) {
+            setProfilePics(userDetails.profile_pictures);
+            setUploadedUrls(userDetails.profile_pictures);
         }
-    }, [user]);
+    }, [userDetails]);
 
     const handleUpload = async (index: number) => {
         if (!user) {
@@ -40,7 +45,6 @@ export default function ProfilePictureUploader({ user }: Props) {
 
         if (selectedFile) {
             try {
-                // Improved filename generation
                 const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
 
                 // Validate file extension
@@ -50,13 +54,13 @@ export default function ProfilePictureUploader({ user }: Props) {
                     return;
                 }
 
-                // Create a more meaningful filename
+                // Create filename
                 const fullFilename = `user_${user.id}/profile_pic_${index + 1}.${fileExtension}`;
 
                 const { data, error } = await supabase.storage
                     .from('profile-pictures')
                     .upload(fullFilename, selectedFile, {
-                        upsert: true // This will replace existing files
+                        upsert: true,
                     });
 
                 if (error) {
@@ -112,11 +116,12 @@ export default function ProfilePictureUploader({ user }: Props) {
                 return;
             }
 
-            const { error } = await supabase.auth.updateUser({
-                data: {
-                    profilePictures: uploadedUrls
-                }
-            });
+            const { error } = await supabase
+                .from('users')
+                .update({
+                    profile_pictures: validUrls,
+                })
+                .eq('id', user.id);
 
             if (error) {
                 console.error('Error saving profile pictures:', error);
@@ -195,7 +200,7 @@ export default function ProfilePictureUploader({ user }: Props) {
                     {isSubmitting ? 'Saving...' : 'Save Profile Pictures'}
                 </Button>
             </div>
-            <GalleryUploader user={user} userDetails={{}} />
+            <GalleryUploader user={user} userDetails={userDetails} />
         </>
     );
 }

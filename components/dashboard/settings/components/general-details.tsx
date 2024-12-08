@@ -35,66 +35,60 @@ export default function GeneralDetails(props: Props) {
         // Get all form data
         const formData = new FormData(e.currentTarget);
 
-        // Extract details from the form
+        // Extract details for `auth.users`
         const fullName = formData.get('fullName')?.toString().trim();
-        const firstName = formData.get('firstName')?.toString().trim();
-        const lastName = formData.get('lastName')?.toString().trim();
         const newEmail = formData.get('newEmail')?.toString().trim();
-        const country = formData.get('country')?.toString().trim();
-        const region = formData.get('region')?.toString().trim();
-        const county = formData.get('county')?.toString().trim();
-        const town = formData.get('town')?.toString().trim();
-        const postcode = formData.get('postcode')?.toString().trim();
-        const nearestStation = formData.get('nearestStation')?.toString().trim();
-        const hideProfilePictures = formData.get('hideProfilePictures') === 'on';
-        const allowSearch = formData.get('allowSearch') === 'on';
-        const escortsInCalls = formData.get('escortsInCalls') === 'on';
-        const escortsOutCalls = formData.get('escortsOutCalls') === 'on';
-        const webcamDirectCam = formData.get('webcamDirectCam') === 'on';
-        const phoneChatDirectChat = formData.get('phoneChatDirectChat') === 'on';
-        const dominant = formData.get('dominant') === 'on';
-        const submissive = formData.get('submissive') === 'on';
 
-        // Combine all data to update user metadata
-        const { error } = await supabase.auth.updateUser({
-            email: newEmail,
-            data: {
-                full_name: fullName,
-                first_name: firstName,
-                last_name: lastName,
-                location: {
-                    country,
-                    region,
-                    county,
-                    town,
-                    postcode,
-                    nearest_station: nearestStation,
+        // Extract details for `users` table
+        const location = {
+            country: formData.get('country')?.toString().trim(),
+            region: formData.get('region')?.toString().trim(),
+            county: formData.get('county')?.toString().trim(),
+            town: formData.get('town')?.toString().trim(),
+            postcode: formData.get('postcode')?.toString().trim(),
+            nearest_station: formData.get('nearestStation')?.toString().trim(),
+        };
+        const privacy = {
+            hideProfilePictures: formData.get('hideProfilePictures') === 'on',
+        };
+        const preferences = {
+            allowSearch: formData.get('allowSearch') === 'on',
+            interests: {
+                escorts: {
+                    inCalls: formData.get('escortsInCalls') === 'on',
+                    outCalls: formData.get('escortsOutCalls') === 'on',
                 },
-                privacy: {
-                    hideProfilePictures,
-                },
-                preferences: {
-                    allowSearch,
-                    interests: {
-                        escorts: {
-                            inCalls: escortsInCalls,
-                            outCalls: escortsOutCalls,
-                        },
-                        webcamDirectCam,
-                        phoneChatDirectChat,
-                        alternativePractices: {
-                            dominant,
-                            submissive,
-                        },
-                    },
+                webcamDirectCam: formData.get('webcamDirectCam') === 'on',
+                phoneChatDirectChat: formData.get('phoneChatDirectChat') === 'on',
+                alternativePractices: {
+                    dominant: formData.get('dominant') === 'on',
+                    submissive: formData.get('submissive') === 'on',
                 },
             },
-        });
+        };
 
-        if (error) {
-            console.error('Error updating profile:', error);
-        } else {
+        try {
+            // Update `auth.users`
+            if (fullName || newEmail) {
+                const { error } = await supabase.auth.updateUser({
+                    email: newEmail,
+                    data: { full_name: fullName },
+                });
+                if (error) throw error;
+            }
+
+            // Update `users` table
+            const { error } = await supabase.from('users').update({
+                location,
+                privacy,
+                preferences,
+            }).eq('id', props.user?.id);
+
+            if (error) throw error;
+
             console.log('Profile updated successfully');
+        } catch (error) {
+            console.error('Error updating profile:', error);
         }
 
         setIsSubmitting(false);
@@ -104,16 +98,16 @@ export default function GeneralDetails(props: Props) {
         <div className="relative mx-auto max-w-screen-lg flex flex-col lg:pt-[100px] lg:pb-[100px]">
             <div className="flex items-center mb-8">
                 <Avatar className="min-h-[68px] min-w-[68px]">
-                    <AvatarImage src={props.user?.user_metadata.avatar_url} />
+                    <AvatarImage src={props.userDetails?.avatar_url} />
                     <AvatarFallback className="text-2xl font-bold dark:text-zinc-950">
-                        {props.user.user_metadata.full_name
-                            ? `${props.user.user_metadata.full_name[0]}`
-                            : `${props.user?.user_metadata.email[0].toUpperCase()}`}
+                        {props.userDetails?.full_name
+                            ? `${props.userDetails.full_name[0]}`
+                            : `${props.user?.email[0]?.toUpperCase()}`}
                     </AvatarFallback>
                 </Avatar>
                 <div className="ml-4">
                     <p className="text-2xl font-extrabold text-zinc-950 dark:text-white">
-                        {props.user.user_metadata.full_name}
+                        {props.userDetails?.full_name}
                     </p>
                     <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
                         CEO and Founder
@@ -174,7 +168,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="country"
-                                defaultValue={props.user?.user_metadata?.location?.country ?? ''}
+                                defaultValue={props.userDetails?.location?.country ?? ''}
                             />
                         </label>
                         <label className="flex flex-col">
@@ -182,7 +176,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="region"
-                                defaultValue={props.user?.user_metadata?.location?.region ?? ''}
+                                defaultValue={props.userDetails?.location?.region ?? ''}
                             />
                         </label>
                         <label className="flex flex-col">
@@ -190,7 +184,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="county"
-                                defaultValue={props.user?.user_metadata?.location?.county ?? ''}
+                                defaultValue={props.userDetails?.location?.county ?? ''}
                             />
                         </label>
                         <label className="flex flex-col">
@@ -198,7 +192,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="town"
-                                defaultValue={props.user?.user_metadata?.location?.town ?? ''}
+                                defaultValue={props.userDetails?.location?.town ?? ''}
                             />
                         </label>
                         <label className="flex flex-col">
@@ -206,7 +200,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="postcode"
-                                defaultValue={props.user?.user_metadata?.location?.postcode ?? ''}
+                                defaultValue={props.userDetails?.location?.postcode ?? ''}
                             />
                         </label>
                         <label className="flex flex-col">
@@ -214,9 +208,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="nearestStation"
-                                defaultValue={
-                                    props.user?.user_metadata?.location?.nearest_station ?? ''
-                                }
+                                defaultValue={props.userDetails?.location?.nearest_station ?? ''}
                             />
                         </label>
                     </div>
@@ -231,9 +223,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="hideProfilePictures"
-                            defaultChecked={
-                                props.user?.user_metadata?.privacy?.hideProfilePictures ?? false
-                            }
+                            defaultChecked={props.userDetails?.privacy?.hideProfilePictures ?? false}
                         />
                         <span className="ml-2">Hide my profile pictures</span>
                     </label>
@@ -248,9 +238,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="allowSearch"
-                            defaultChecked={
-                                props.user?.user_metadata?.preferences?.allowSearch ?? false
-                            }
+                            defaultChecked={props.userDetails?.preferences?.allowSearch ?? false}
                         />
                         <span className="ml-2">Allow service providers to search for me and view my profile</span>
                     </label>
@@ -259,9 +247,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="escortsInCalls"
-                            defaultChecked={
-                                props.user?.user_metadata?.preferences?.interests?.escorts?.inCalls ?? false
-                            }
+                            defaultChecked={props.userDetails?.preferences?.interests?.escorts?.inCalls ?? false}
                         />
                         <span className="ml-2">In-Calls</span>
                     </label>
@@ -269,9 +255,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="escortsOutCalls"
-                            defaultChecked={
-                                props.user?.user_metadata?.preferences?.interests?.escorts?.outCalls ?? false
-                            }
+                            defaultChecked={props.userDetails?.preferences?.interests?.escorts?.outCalls ?? false}
                         />
                         <span className="ml-2">Out-Calls</span>
                     </label>
@@ -279,9 +263,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="webcamDirectCam"
-                            defaultChecked={
-                                props.user?.user_metadata?.preferences?.interests?.webcamDirectCam ?? false
-                            }
+                            defaultChecked={props.userDetails?.preferences?.interests?.webcamDirectCam ?? false}
                         />
                         <span className="ml-2">I am interested in Webcam & DirectCam</span>
                     </label>
@@ -289,9 +271,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="phoneChatDirectChat"
-                            defaultChecked={
-                                props.user?.user_metadata?.preferences?.interests?.phoneChatDirectChat ?? false
-                            }
+                            defaultChecked={props.userDetails?.preferences?.interests?.phoneChatDirectChat ?? false}
                         />
                         <span className="ml-2">I am interested in Phone Chat & DirectChat</span>
                     </label>
@@ -300,9 +280,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="dominant"
-                            defaultChecked={
-                                props.user?.user_metadata?.preferences?.interests?.alternativePractices?.dominant ?? false
-                            }
+                            defaultChecked={props.userDetails?.preferences?.interests?.alternativePractices?.dominant ?? false}
                         />
                         <span className="ml-2">Dominant</span>
                     </label>
@@ -310,9 +288,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="submissive"
-                            defaultChecked={
-                                props.user?.user_metadata?.preferences?.interests?.alternativePractices?.submissive ?? false
-                            }
+                            defaultChecked={props.userDetails?.preferences?.interests?.alternativePractices?.submissive ?? false}
                         />
                         <span className="ml-2">Submissive</span>
                     </label>
@@ -326,5 +302,6 @@ export default function GeneralDetails(props: Props) {
                 </Button>
             </form>
         </div>
+
     );
 }
