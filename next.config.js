@@ -5,7 +5,7 @@ const nextConfig = {
       'images.unsplash.com',
       'i.ibb.co',
       'scontent.fotp8-1.fna.fbcdn.net',
-      'ugbmuymjizzlcfemxymt.supabase.co' // Added Supabase storage domain
+      'yvojezsxxndkcntfzqlp.supabase.co' // Added Supabase storage domain
     ],
     remotePatterns: [
       {
