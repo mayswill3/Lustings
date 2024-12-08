@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/utils/supabase/client';
 import { getURL, getStatusRedirect } from '@/utils/helpers';
 import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 interface Props {
     user: User | null | undefined;
@@ -68,7 +69,7 @@ export default function GeneralDetails(props: Props) {
         };
 
         try {
-            // Update `auth.users`
+            // Update `auth.users` for fullName and email
             if (fullName || newEmail) {
                 const { error } = await supabase.auth.updateUser({
                     email: newEmail,
@@ -77,22 +78,28 @@ export default function GeneralDetails(props: Props) {
                 if (error) throw error;
             }
 
-            // Update `users` table
-            const { error } = await supabase.from('users').update({
-                location,
-                privacy,
-                preferences,
-            }).eq('id', props.user?.id);
+            // Update `users` table for fullName and other fields
+            const { error } = await supabase
+                .from('users')
+                .update({
+                    full_name: fullName,
+                    location,
+                    privacy,
+                    preferences,
+                })
+                .eq('id', props.user?.id);
 
             if (error) throw error;
 
-            console.log('Profile updated successfully');
+            toast.success('Profile updated successfully');
         } catch (error) {
             console.error('Error updating profile:', error);
+            toast.error('Failed to update profile');
         }
 
         setIsSubmitting(false);
     };
+
 
     return (
         <div className="relative mx-auto max-w-screen-lg flex flex-col lg:pt-[100px] lg:pb-[100px]">
