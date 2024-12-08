@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import { User } from '@supabase/supabase-js';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -8,30 +9,33 @@ import GalleryUploader from './gallery-uploader';
 const supabase = createClient();
 
 interface Props {
-    user: { id: string } | null | undefined;
-    userDetails: { profile_pictures?: (string | null)[] } | null;
+    user: User | null | undefined;
+    userDetails: {
+        profile_pictures?: (string | null)[];
+        id?: string;
+    } | null;
 }
 
 export default function ProfilePictureUploader({ user, userDetails }: Props) {
-    const [profilePics, setProfilePics] = useState<(string | null)[]>(
-        userDetails?.profile_pictures ?? [null, null, null]
-    );
-    const [uploadedUrls, setUploadedUrls] = useState<(string | null)[]>(
-        userDetails?.profile_pictures ?? [null, null, null]
-    );
+    const [profilePics, setProfilePics] = useState<(string | null)[]>([null, null, null]);
+    const [uploadedUrls, setUploadedUrls] = useState<(string | null)[]>([null, null, null]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const inputRefs = [
-        useRef<HTMLInputElement>(null),
-        useRef<HTMLInputElement>(null),
-        useRef<HTMLInputElement>(null),
-    ];
+
+    const inputRefs = useRef<HTMLInputElement[]>([]);
 
     useEffect(() => {
-        // Update the state when userDetails change
-        if (userDetails?.profile_pictures) {
-            setProfilePics(userDetails.profile_pictures);
-            setUploadedUrls(userDetails.profile_pictures);
-        }
+        // Ensure profilePics and uploadedUrls are always 3 slots
+        const pics = userDetails?.profile_pictures || [];
+        setProfilePics([
+            pics[0] || null,
+            pics[1] || null,
+            pics[2] || null,
+        ]);
+        setUploadedUrls([
+            pics[0] || null,
+            pics[1] || null,
+            pics[2] || null,
+        ]);
     }, [userDetails]);
 
     const handleUpload = async (index: number) => {
@@ -40,7 +44,7 @@ export default function ProfilePictureUploader({ user, userDetails }: Props) {
             return;
         }
 
-        const inputElement = inputRefs[index].current;
+        const inputElement = inputRefs.current[index];
         const selectedFile = inputElement?.files?.[0];
 
         if (selectedFile) {
@@ -55,13 +59,11 @@ export default function ProfilePictureUploader({ user, userDetails }: Props) {
                 }
 
                 // Create filename
-                const fullFilename = `user_${user.id}/profile_pic_${index + 1}.${fileExtension}`;
+                const fullFilename = `user_${user?.id}/profile_pic_${index + 1}.${fileExtension}`;
 
                 const { data, error } = await supabase.storage
                     .from('profile-pictures')
-                    .upload(fullFilename, selectedFile, {
-                        upsert: true,
-                    });
+                    .upload(fullFilename, selectedFile, { upsert: true });
 
                 if (error) {
                     console.error(`Error uploading file ${index + 1}:`, error.message);
@@ -73,10 +75,13 @@ export default function ProfilePictureUploader({ user, userDetails }: Props) {
                     .from('profile-pictures')
                     .getPublicUrl(data?.path);
 
+                // Add cache-busting query parameter
+                const updatedUrl = `${file?.publicUrl}?t=${Date.now()}`;
+
                 const newProfilePics = [...profilePics];
                 const newUploadedUrls = [...uploadedUrls];
-                newProfilePics[index] = file?.publicUrl || null;
-                newUploadedUrls[index] = file?.publicUrl || null;
+                newProfilePics[index] = updatedUrl;
+                newUploadedUrls[index] = updatedUrl;
                 setProfilePics(newProfilePics);
                 setUploadedUrls(newUploadedUrls);
 
@@ -88,9 +93,10 @@ export default function ProfilePictureUploader({ user, userDetails }: Props) {
         }
     };
 
+
     const clearFile = (index: number) => {
-        if (inputRefs[index].current) {
-            inputRefs[index].current!.value = '';
+        if (inputRefs.current[index]) {
+            inputRefs.current[index].value = '';
         }
         const newProfilePics = [...profilePics];
         const newUploadedUrls = [...uploadedUrls];
@@ -109,19 +115,15 @@ export default function ProfilePictureUploader({ user, userDetails }: Props) {
         setIsSubmitting(true);
 
         try {
-            const validUrls = uploadedUrls.filter((url) => url !== null);
-            if (validUrls.length === 0) {
-                toast.error('Please upload at least one profile picture');
-                setIsSubmitting(false);
-                return;
-            }
-
             const { error } = await supabase
                 .from('users')
-                .update({
-                    profile_pictures: validUrls,
-                })
-                .eq('id', user.id);
+                .upsert(
+                    {
+                        id: userDetails?.id || user.id,
+                        profile_pictures: uploadedUrls,
+                    },
+                    { onConflict: 'id' }
+                );
 
             if (error) {
                 console.error('Error saving profile pictures:', error);
@@ -154,7 +156,7 @@ export default function ProfilePictureUploader({ user, userDetails }: Props) {
                             <div>
                                 <input
                                     type="file"
-                                    ref={inputRefs[index]}
+                                    ref={(el) => (inputRefs.current[index] = el!)}
                                     accept="image/*"
                                     className="hidden"
                                     id={`file-input-${index}`}
@@ -200,7 +202,7 @@ export default function ProfilePictureUploader({ user, userDetails }: Props) {
                     {isSubmitting ? 'Saving...' : 'Save Profile Pictures'}
                 </Button>
             </div>
-            <GalleryUploader user={user} userDetails={userDetails} />
+            <GalleryUploader user={user} userDetails={userDetails || {}} />
         </>
     );
 }
