@@ -1,10 +1,10 @@
 /*eslint-disable*/
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { User } from '@supabase/supabase-js';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/utils/supabase/client';
@@ -24,10 +24,47 @@ export default function GeneralDetails(props: Props) {
         status: boolean;
         message: string;
     }>();
-    console.log(props.user);
-    console.log(props.userDetails);
+    const [user, setUser] = useState(null);
+    const [userDetails, setUserDetails] = useState(null);
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Fetch User and User Details on Load
+    useEffect(() => {
+        const fetchUserDetails = async () => {
+            try {
+                // Fetch the logged-in user
+                const {
+                    data: { user },
+                    error: userError,
+                } = await supabase.auth.getUser();
+
+                if (userError || !user) {
+                    console.error('Error fetching user:', userError);
+                    return;
+                }
+                setUser(user);
+
+                // Fetch user details from the `users` table
+                const { data: userDetails, error: detailsError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+
+                if (detailsError) {
+                    console.error('Error fetching user details:', detailsError);
+                    return;
+                }
+
+                setUserDetails(userDetails);
+            } catch (error) {
+                console.error('Unexpected error fetching user data:', error);
+            }
+        };
+
+        fetchUserDetails();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -38,6 +75,8 @@ export default function GeneralDetails(props: Props) {
 
         // Extract details for `auth.users`
         const fullName = formData.get('fullName')?.toString().trim();
+        const firstName = formData.get('firstName')?.toString().trim();
+        const lastName = formData.get('lastName')?.toString().trim();
         const newEmail = formData.get('newEmail')?.toString().trim();
 
         // Extract details for `users` table
@@ -69,11 +108,15 @@ export default function GeneralDetails(props: Props) {
         };
 
         try {
-            // Update `auth.users` for fullName and email
-            if (fullName || newEmail) {
+            // Update `auth.users` for fullName, email, firstName, and lastName
+            if (fullName || newEmail || firstName || lastName) {
                 const { error } = await supabase.auth.updateUser({
                     email: newEmail,
-                    data: { full_name: fullName },
+                    data: {
+                        full_name: fullName,
+                        first_name: firstName,
+                        last_name: lastName,
+                    },
                 });
                 if (error) throw error;
             }
@@ -100,6 +143,9 @@ export default function GeneralDetails(props: Props) {
         setIsSubmitting(false);
     };
 
+    if (!userDetails) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="relative mx-auto max-w-screen-lg flex flex-col lg:pt-[100px] lg:pb-[100px]">
@@ -175,7 +221,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="country"
-                                defaultValue={props.userDetails?.location?.country ?? ''}
+                                defaultValue={userDetails?.location?.country ?? ''}
                             />
                         </label>
                         <label className="flex flex-col">
@@ -183,7 +229,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="region"
-                                defaultValue={props.userDetails?.location?.region ?? ''}
+                                defaultValue={userDetails?.location?.region ?? ''}
                             />
                         </label>
                         <label className="flex flex-col">
@@ -191,7 +237,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="county"
-                                defaultValue={props.userDetails?.location?.county ?? ''}
+                                defaultValue={userDetails?.location?.county ?? ''}
                             />
                         </label>
                         <label className="flex flex-col">
@@ -199,7 +245,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="town"
-                                defaultValue={props.userDetails?.location?.town ?? ''}
+                                defaultValue={userDetails?.location?.town ?? ''}
                             />
                         </label>
                         <label className="flex flex-col">
@@ -207,7 +253,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="postcode"
-                                defaultValue={props.userDetails?.location?.postcode ?? ''}
+                                defaultValue={userDetails?.location?.postcode ?? ''}
                             />
                         </label>
                         <label className="flex flex-col">
@@ -215,7 +261,7 @@ export default function GeneralDetails(props: Props) {
                             <Input
                                 type="text"
                                 name="nearestStation"
-                                defaultValue={props.userDetails?.location?.nearest_station ?? ''}
+                                defaultValue={userDetails?.location?.nearest_station ?? ''}
                             />
                         </label>
                     </div>
@@ -230,7 +276,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="hideProfilePictures"
-                            defaultChecked={props.userDetails?.privacy?.hideProfilePictures ?? false}
+                            defaultChecked={userDetails?.privacy?.hideProfilePictures ?? false}
                         />
                         <span className="ml-2">Hide my profile pictures</span>
                     </label>
@@ -245,7 +291,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="allowSearch"
-                            defaultChecked={props.userDetails?.preferences?.allowSearch ?? false}
+                            defaultChecked={userDetails?.preferences?.allowSearch ?? false}
                         />
                         <span className="ml-2">Allow service providers to search for me and view my profile</span>
                     </label>
@@ -254,7 +300,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="escortsInCalls"
-                            defaultChecked={props.userDetails?.preferences?.interests?.escorts?.inCalls ?? false}
+                            defaultChecked={userDetails?.preferences?.interests?.escorts?.inCalls ?? false}
                         />
                         <span className="ml-2">In-Calls</span>
                     </label>
@@ -262,7 +308,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="escortsOutCalls"
-                            defaultChecked={props.userDetails?.preferences?.interests?.escorts?.outCalls ?? false}
+                            defaultChecked={userDetails?.preferences?.interests?.escorts?.outCalls ?? false}
                         />
                         <span className="ml-2">Out-Calls</span>
                     </label>
@@ -270,7 +316,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="webcamDirectCam"
-                            defaultChecked={props.userDetails?.preferences?.interests?.webcamDirectCam ?? false}
+                            defaultChecked={userDetails?.preferences?.interests?.webcamDirectCam ?? false}
                         />
                         <span className="ml-2">I am interested in Webcam & DirectCam</span>
                     </label>
@@ -278,7 +324,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="phoneChatDirectChat"
-                            defaultChecked={props.userDetails?.preferences?.interests?.phoneChatDirectChat ?? false}
+                            defaultChecked={userDetails?.preferences?.interests?.phoneChatDirectChat ?? false}
                         />
                         <span className="ml-2">I am interested in Phone Chat & DirectChat</span>
                     </label>
@@ -287,7 +333,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="dominant"
-                            defaultChecked={props.userDetails?.preferences?.interests?.alternativePractices?.dominant ?? false}
+                            defaultChecked={userDetails?.preferences?.interests?.alternativePractices?.dominant ?? false}
                         />
                         <span className="ml-2">Dominant</span>
                     </label>
@@ -295,7 +341,7 @@ export default function GeneralDetails(props: Props) {
                         <input
                             type="checkbox"
                             name="submissive"
-                            defaultChecked={props.userDetails?.preferences?.interests?.alternativePractices?.submissive ?? false}
+                            defaultChecked={userDetails?.preferences?.interests?.alternativePractices?.submissive ?? false}
                         />
                         <span className="ml-2">Submissive</span>
                     </label>

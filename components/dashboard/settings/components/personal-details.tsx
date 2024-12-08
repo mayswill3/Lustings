@@ -1,7 +1,7 @@
 /*eslint-disable*/
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tiptap } from '@/components/Tiptap';
@@ -9,9 +9,9 @@ import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
 
-interface Props {
-    user: { id: string } | null | undefined;
-    userDetails: {
+export default function PersonalDetails() {
+    const [user, setUser] = useState<{ id: string } | null>(null);
+    const [userDetails, setUserDetails] = useState<{
         personal_details?: {
             dob?: string;
             gender?: string;
@@ -22,24 +22,57 @@ interface Props {
         };
         summary?: string;
         details?: string;
-    } | null;
-}
-
-export default function PersonalDetails(props: Props) {
+    } | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const tiptapRef = useRef<{
         getSummary: () => string;
         getDetails: () => string;
     }>(null);
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                // Fetch user
+                const {
+                    data: { user },
+                    error: userError,
+                } = await supabase.auth.getUser();
+
+                if (userError) {
+                    console.error('Error fetching user:', userError);
+                    return;
+                }
+
+                setUser(user);
+
+                // Fetch userDetails
+                const { data: userDetails, error: detailsError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', user?.id)
+                    .single();
+
+                if (detailsError) {
+                    console.error('Error fetching user details:', detailsError);
+                    return;
+                }
+
+                setUserDetails(userDetails);
+            } catch (error) {
+                console.error('Unexpected error fetching user data:', error);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Get all form data
         const formData = new FormData(e.currentTarget);
 
-        // Extract data for personal details
+        // Extract form data
         const dob = formData.get('dob')?.toString().trim();
         const gender = formData.get('gender')?.toString().trim();
         const trans = formData.get('trans') === 'on';
@@ -47,30 +80,15 @@ export default function PersonalDetails(props: Props) {
         const activities = Array.from(formData.getAll('activities')) as string[];
         const withPreferences = Array.from(formData.getAll('with')) as string[];
 
-        // Construct the personal_details object
-        const personalDetails = {
-            dob,
-            gender,
-            trans,
-            orientation,
-            activities,
-            with: withPreferences,
-        };
-
-        // Get the summary and details from Tiptap
+        const personalDetails = { dob, gender, trans, orientation, activities, with: withPreferences };
         const summary = tiptapRef.current?.getSummary() || '';
         const details = tiptapRef.current?.getDetails() || '';
 
         try {
-            // Update `users` table
             const { error } = await supabase
                 .from('users')
-                .update({
-                    personal_details: personalDetails,
-                    summary,
-                    details,
-                })
-                .eq('id', props.user?.id);
+                .update({ personal_details: personalDetails, summary, details })
+                .eq('id', user?.id);
 
             if (error) throw error;
 
@@ -82,8 +100,12 @@ export default function PersonalDetails(props: Props) {
         setIsSubmitting(false);
     };
 
-    const personalDetails = props.userDetails?.personal_details || {};
-    console.log(props.userDetails)
+    if (!userDetails) {
+        return <div>Loading...</div>;
+    }
+
+    const personalDetails = userDetails.personal_details || {};
+
     return (
         <div className="relative mx-auto max-w-screen-lg flex flex-col lg:pt-[100px] lg:pb-[100px]">
             <h2 className="text-xl font-extrabold text-zinc-950 dark:text-white mb-4">
@@ -282,8 +304,8 @@ export default function PersonalDetails(props: Props) {
                 {/* Tiptap Component */}
                 <Tiptap
                     ref={tiptapRef}
-                    initialSummary={props.userDetails?.summary || ''}
-                    initialDetails={props.userDetails?.details || ''}
+                    initialSummary={userDetails?.summary || ''}
+                    initialDetails={userDetails?.details || ''}
                 />
 
                 <Button

@@ -16,27 +16,56 @@ interface Props {
     } | null;
 }
 
-export default function ProfilePictureUploader({ user, userDetails }: Props) {
+export default function ProfilePictureUploader(props: Props) {
+    const [user, setUser] = useState<User | null>(null);
+    const [userDetails, setUserDetails] = useState<{ profile_pictures?: (string | null)[]; id?: string } | null>(null);
     const [profilePics, setProfilePics] = useState<(string | null)[]>([null, null, null]);
     const [uploadedUrls, setUploadedUrls] = useState<(string | null)[]>([null, null, null]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const inputRefs = useRef<HTMLInputElement[]>([]);
 
+    // Fetch user and userDetails on load
     useEffect(() => {
-        // Ensure profilePics and uploadedUrls are always 3 slots
-        const pics = userDetails?.profile_pictures || [];
-        setProfilePics([
-            pics[0] || null,
-            pics[1] || null,
-            pics[2] || null,
-        ]);
-        setUploadedUrls([
-            pics[0] || null,
-            pics[1] || null,
-            pics[2] || null,
-        ]);
-    }, [userDetails]);
+        const fetchUserData = async () => {
+            try {
+                // Fetch authenticated user
+                const {
+                    data: { user },
+                    error: userError,
+                } = await supabase.auth.getUser();
+
+                if (userError || !user) {
+                    console.error('Error fetching user:', userError);
+                    return;
+                }
+
+                setUser(user);
+
+                // Fetch user details from `users` table
+                const { data: userDetails, error: detailsError } = await supabase
+                    .from('users')
+                    .select('id, profile_pictures')
+                    .eq('id', user.id)
+                    .single();
+
+                if (detailsError) {
+                    console.error('Error fetching user details:', detailsError);
+                    return;
+                }
+
+                setUserDetails(userDetails);
+
+                const pics = userDetails?.profile_pictures || [];
+                setProfilePics([pics[0] || null, pics[1] || null, pics[2] || null]);
+                setUploadedUrls([pics[0] || null, pics[1] || null, pics[2] || null]);
+            } catch (error) {
+                console.error('Unexpected error fetching user data:', error);
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
     const handleUpload = async (index: number) => {
         if (!user) {
