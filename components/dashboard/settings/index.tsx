@@ -5,6 +5,7 @@ import DashboardLayout from '@/components/layout';
 import { Card } from '@/components/ui/card';
 import { User } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
+import { Settings2, User as UserIcon, Camera, Home, Sliders } from 'lucide-react';
 import GeneralDetails from './components/general-details';
 import PersonalDetails from './components/personal-details';
 import ProfilePictures from './components/profile-pictures';
@@ -14,10 +15,30 @@ interface Props {
   userDetails: { [x: string]: any } | null;
 }
 
+interface TabButtonProps {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}
+
+const TabButton = ({ active, onClick, icon, label }: TabButtonProps) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 border-b-2 hover:text-blue-600 dark:hover:text-blue-400 ${active
+        ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+        : 'border-transparent text-gray-600 dark:text-gray-400'
+      }`}
+  >
+    {icon}
+    {label}
+  </button>
+);
+
 function AccountDetails() {
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Account Details</h2>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Account Details</h2>
       {/* Place the account details form component here */}
     </div>
   );
@@ -25,8 +46,8 @@ function AccountDetails() {
 
 function LocationDetails() {
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Location Details</h2>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Location Details</h2>
       {/* Place the location details form component here */}
     </div>
   );
@@ -34,8 +55,8 @@ function LocationDetails() {
 
 function Preferences() {
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Preferences</h2>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Preferences</h2>
       {/* Place the preferences form component here */}
     </div>
   );
@@ -44,51 +65,71 @@ function Preferences() {
 export default function Settings(props: Props) {
   const [activeTab, setActiveTab] = useState('general');
 
+  const tabs = [
+    {
+      id: 'general',
+      label: 'General Details',
+      icon: <Settings2 className="w-4 h-4" />,
+      component: <GeneralDetails user={props.user} userDetails={props.userDetails} />,
+    },
+    {
+      id: 'personal',
+      label: 'Personal Details',
+      icon: <UserIcon className="w-4 h-4" />,
+      component: <PersonalDetails user={props.user} userDetails={props.userDetails} />,
+    },
+    {
+      id: 'preferences',
+      label: 'Pictures',
+      icon: <Camera className="w-4 h-4" />,
+      component: <ProfilePictures user={props.user} userDetails={props.userDetails} />,
+    },
+  ];
+
   return (
-    <DashboardLayout user={props.user}
+    <DashboardLayout
+      user={props.user}
       userDetails={props.userDetails}
       title="Account Settings"
-      description="Profile settings.">
-      <div className="relative mx-auto max-w-screen-lg flex flex-col lg:pt-[100px] lg:pb-[100px]">
-        <Card className="w-full p-6">
-          {/* Tabs */}
-          <div className="flex border-b mb-4">
-            <button
-              onClick={() => setActiveTab('general')}
-              className={`px-4 py-2 text-lg ${activeTab === 'general'
-                ? 'border-b-2 border-blue-500 text-blue-500'
-                : 'text-gray-500'
-                }`}
-            >
-              General Details
-            </button>
-            <button
-              onClick={() => setActiveTab('personal')}
-              className={`px-4 py-2 text-lg ${activeTab === 'personal'
-                ? 'border-b-2 border-blue-500 text-blue-500'
-                : 'text-gray-500'
-                }`}
-            >
-              Personal Details
-            </button>
-            <button
-              onClick={() => setActiveTab('preferences')}
-              className={`px-4 py-2 text-lg ${activeTab === 'preferences'
-                ? 'border-b-2 border-blue-500 text-blue-500'
-                : 'text-gray-500'
-                }`}
-            >
-              Pictures
-            </button>
-          </div>
+      description="Profile settings."
+    >
+      <div className="min-h-screen bg-gray-50 dark:bg-zinc-900">
+        <div className="relative mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Manage your account settings and preferences
+                </p>
+              </div>
+            </div>
 
-          {/* Tab Content */}
-          <div className="mt-4">
-            {activeTab === 'general' && <GeneralDetails user={props.user} userDetails={props.userDetails} />}
-            {activeTab === 'personal' && <PersonalDetails user={props.user} userDetails={props.userDetails} />}
-            {activeTab === 'preferences' && <ProfilePictures user={props.user} userDetails={props.userDetails} />}
+            {/* Main Content */}
+            <Card className="overflow-hidden bg-white dark:bg-zinc-800 shadow-sm">
+              {/* Tabs Navigation */}
+              <div className="border-b border-gray-200 dark:border-zinc-700">
+                <div className="flex overflow-x-auto">
+                  {tabs.map((tab) => (
+                    <TabButton
+                      key={tab.id}
+                      active={activeTab === tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      icon={tab.icon}
+                      label={tab.label}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Tab Content */}
+              <div className="p-6">
+                {tabs.find((tab) => tab.id === activeTab)?.component}
+              </div>
+            </Card>
           </div>
-        </Card>
+        </div>
       </div>
     </DashboardLayout>
   );

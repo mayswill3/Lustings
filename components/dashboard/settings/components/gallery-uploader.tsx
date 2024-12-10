@@ -3,6 +3,8 @@ import { createClient } from '@/utils/supabase/client';
 import { User } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { ImagePlus, Trash2, Lock, Globe, Plus } from 'lucide-react';
+import Image from 'next/image';
 
 const supabase = createClient();
 
@@ -18,7 +20,6 @@ export default function GalleryUploader(props: Props) {
     const freeInputRefs = useRef<HTMLInputElement[]>([]);
     const privateInputRefs = useRef<HTMLInputElement[]>([]);
 
-    // Fetch galleries from user metadata on mount
     useEffect(() => {
         const fetchGalleries = async () => {
             if (!props.user) return;
@@ -80,7 +81,6 @@ export default function GalleryUploader(props: Props) {
                 newGallery[index] = file?.publicUrl || null;
                 gallery === 'free' ? setFreeGallery(newGallery) : setPrivateGallery(newGallery);
 
-                // Update the users table
                 const updateData =
                     gallery === 'free' ? { free_gallery: newGallery } : { private_gallery: newGallery };
                 const { error: updateError } = await supabase
@@ -89,13 +89,11 @@ export default function GalleryUploader(props: Props) {
                     .eq('id', props.user.id);
 
                 if (updateError) {
-                    console.error(`Error saving ${gallery} gallery to database:`, updateError.message);
                     toast.error(`Failed to save ${gallery} gallery to database`);
                 } else {
                     toast.success(`Image uploaded to ${gallery} gallery successfully!`);
                 }
             } catch (err) {
-                console.error(`Unexpected error uploading file to ${gallery} gallery:`, err);
                 toast.error(`Unexpected error occurred while uploading to ${gallery} gallery`);
             }
         }
@@ -116,13 +114,11 @@ export default function GalleryUploader(props: Props) {
                 .eq('id', props.user.id);
 
             if (error) {
-                console.error(`Error updating ${gallery} gallery in database:`, error.message);
                 toast.error(`Failed to update ${gallery} gallery in database`);
             } else {
                 toast.success(`Image removed from ${gallery} gallery successfully!`);
             }
         } catch (err) {
-            console.error('Unexpected error updating gallery:', err);
             toast.error('Unexpected error occurred');
         }
     };
@@ -145,13 +141,11 @@ export default function GalleryUploader(props: Props) {
                 .eq('id', props.user.id);
 
             if (error) {
-                console.error('Error saving galleries:', error);
                 toast.error('Failed to save galleries');
             } else {
                 toast.success('Galleries saved successfully!');
             }
         } catch (err) {
-            console.error('Unexpected error:', err);
             toast.error('An unexpected error occurred');
         }
 
@@ -160,106 +154,106 @@ export default function GalleryUploader(props: Props) {
 
     const addImageSlot = (gallery: 'free' | 'private') => {
         if (gallery === 'free') {
-            setFreeGallery([...freeGallery, null]); // Adds an empty slot for new uploads
+            setFreeGallery([...freeGallery, null]);
         } else {
             setPrivateGallery([...privateGallery, null]);
         }
     };
 
+    const GallerySection = ({ type, images, inputRefs }: {
+        type: 'free' | 'private',
+        images: (string | null)[],
+        inputRefs: React.MutableRefObject<HTMLInputElement[]>
+    }) => (
+        <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 shadow-lg mb-8">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                    {type === 'free' ? (
+                        <Globe className="w-5 h-5 text-green-500" />
+                    ) : (
+                        <Lock className="w-5 h-5 text-purple-500" />
+                    )}
+                    <h3 className="text-lg font-bold">
+                        {type === 'free' ? 'Public Gallery' : 'Private Gallery'}
+                    </h3>
+                </div>
+                <Button
+                    onClick={() => addImageSlot(type)}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                >
+                    <Plus className="w-4 h-4" />
+                    Add Image
+                </Button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {images.map((image, index) => (
+                    <div
+                        key={index}
+                        className="aspect-square relative group bg-gray-50 dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 p-2"
+                    >
+                        {image ? (
+                            <div className="relative w-full h-full">
+                                <Image
+                                    src={image}
+                                    alt={`${type} gallery ${index + 1}`}
+                                    layout="fill"
+                                    objectFit="cover"
+                                    className="rounded-lg"
+                                />
+                                <button
+                                    onClick={() => deleteImage(index, type)}
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <input
+                                    type="file"
+                                    ref={(el) => (inputRefs.current[index] = el!)}
+                                    accept="image/*"
+                                    className="hidden"
+                                    id={`${type}-file-input-${index}`}
+                                    onChange={() => handleUpload(index, type)}
+                                />
+                                <label
+                                    htmlFor={`${type}-file-input-${index}`}
+                                    className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+                                >
+                                    <ImagePlus className="w-8 h-8 text-gray-400 mb-2" />
+                                    <span className="text-sm text-gray-500">Upload Image</span>
+                                </label>
+                            </>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
     return (
-        <div className="mt-8">
-            <h2 className="text-xl font-extrabold text-zinc-950 dark:text-white mb-6">Galleries</h2>
-
-            <div className="mb-6">
-                <h3 className="text-lg font-bold mb-2">Free Gallery</h3>
-                <div className="grid grid-cols-3 gap-4">
-                    {freeGallery.map((image, index) => (
-                        <div key={index} className="flex flex-col items-center">
-                            {image ? (
-                                <>
-                                    <img src={image} alt={`Free gallery ${index + 1}`} className="w-28 h-28" />
-                                    <button
-                                        onClick={() => deleteImage(index, 'free')} // Deletes from state and database
-                                        className="mt-2 text-sm text-red-600 hover:underline"
-                                    >
-                                        Delete
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <input
-                                        type="file"
-                                        ref={(el) => (freeInputRefs.current[index] = el!)} // Input reference for uploads
-                                        accept="image/*"
-                                        className="hidden"
-                                        id={`free-file-input-${index}`}
-                                        onChange={() => handleUpload(index, 'free')} // Uploads to state and database
-                                    />
-                                    <label
-                                        htmlFor={`free-file-input-${index}`}
-                                        className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
-                                    >
-                                        Upload Image
-                                    </label>
-                                </>
-                            )}
-                        </div>
-                    ))}
-
-                </div>
-                <Button onClick={() => addImageSlot('free')} className="mt-4">
-                    Add Image
+        <div className="container mx-auto max-w-6xl px-4 py-8">
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                    Image Galleries
+                </h2>
+                <Button
+                    onClick={handleSubmit}
+                    className="flex items-center gap-2"
+                    disabled={isSubmitting || (freeGallery.every((url) => !url) && privateGallery.every((url) => !url))}
+                >
+                    {isSubmitting ? 'Saving...' : 'Save All Changes'}
                 </Button>
             </div>
 
-            <div className="mb-6">
-                <h3 className="text-lg font-bold mb-2">Private Gallery</h3>
-                <div className="grid grid-cols-3 gap-4">
-                    {privateGallery.map((image, index) => (
-                        <div key={index} className="flex flex-col items-center">
-                            {image ? (
-                                <>
-                                    <img src={image} alt={`Private gallery ${index + 1}`} className="w-28 h-28" />
-                                    <button
-                                        onClick={() => deleteImage(index, 'private')}
-                                        className="mt-2 text-sm text-red-600 hover:underline"
-                                    >
-                                        Delete
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <input
-                                        type="file"
-                                        ref={(el) => (privateInputRefs.current[index] = el!)}
-                                        accept="image/*"
-                                        className="hidden"
-                                        id={`private-file-input-${index}`}
-                                        onChange={() => handleUpload(index, 'private')}
-                                    />
-                                    <label
-                                        htmlFor={`private-file-input-${index}`}
-                                        className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700"
-                                    >
-                                        Upload Image
-                                    </label>
-                                </>
-                            )}
-                        </div>
-                    ))}
-                </div>
-                <Button onClick={() => addImageSlot('private')} className="mt-4">
-                    Add Image
-                </Button>
+            <div className="space-y-6">
+                <GallerySection type="free" images={freeGallery} inputRefs={freeInputRefs} />
+                <GallerySection type="private" images={privateGallery} inputRefs={privateInputRefs} />
             </div>
-
-            <Button
-                onClick={handleSubmit}
-                className="w-full flex justify-center rounded-lg px-4 py-2 text-base font-medium"
-                disabled={isSubmitting || (freeGallery.every((url) => !url) && privateGallery.every((url) => !url))}
-            >
-                {isSubmitting ? 'Saving...' : 'Save Galleries'}
-            </Button>
         </div>
     );
 }

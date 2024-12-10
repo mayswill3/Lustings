@@ -58,9 +58,9 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
     }));
 
     return (
-        <div>
-            <h2 className="text-xl font-extrabold text-zinc-950 dark:text-white mb-6">
-                About Us
+        <div className="mt-8">
+            <h2 className="text-base font-bold text-zinc-950 dark:text-white mb-4">
+                About You
             </h2>
 
             {/* Summary Section */}
@@ -69,7 +69,7 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                     Summary
                 </label>
                 <input
-                    className="w-full border border-gray-300 rounded-lg p-3 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white focus:outline-none"
+                    className="w-full border border-gray-300 rounded-lg p-3 dark:bg-zinc-800 text-sm dark:border-zinc-700 dark:text-white focus:outline-none"
                     type="text"
                     id="name"
                     name="name"

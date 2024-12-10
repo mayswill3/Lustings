@@ -11,6 +11,8 @@ import { createClient } from '@/utils/supabase/client';
 import { getURL, getStatusRedirect } from '@/utils/helpers';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import Toggle from '@/components/ui/toggle';
+import { MapPin, User2, Lock, Settings2 } from 'lucide-react';
 
 interface Props {
     user: User | null | undefined;
@@ -18,6 +20,21 @@ interface Props {
 }
 
 const supabase = createClient();
+
+const SectionHeader = ({ icon, title }: { icon: React.ReactNode; title: string }) => (
+    <div className="flex items-center gap-2 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+        <div className="text-blue-600 dark:text-blue-400">{icon}</div>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
+    </div>
+);
+
+const FormField = ({ label, children }: { label: string; children: React.ReactNode }) => (
+    <label className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full">
+        <span className="min-w-[180px] text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
+        <div className="flex-1">{children}</div>
+    </label>
+);
+
 export default function GeneralDetails(props: Props) {
     // Input States
     const [nameError, setNameError] = useState<{
@@ -144,217 +161,288 @@ export default function GeneralDetails(props: Props) {
     };
 
     if (!userDetails) {
-        return <div>Loading...</div>;
+        return (
+            <div className="min-h-[400px] flex items-center justify-center">
+                <div className="animate-pulse text-gray-500 dark:text-gray-400">Loading...</div>
+            </div>
+        );
     }
 
     return (
-        <div className="relative mx-auto max-w-screen-lg flex flex-col lg:pt-[100px] lg:pb-[100px]">
-            <div className="flex items-center mb-8">
-                <Avatar className="min-h-[68px] min-w-[68px]">
-                    <AvatarImage src={props.userDetails?.avatar_url} />
-                    <AvatarFallback className="text-2xl font-bold dark:text-zinc-950">
-                        {props.userDetails?.full_name
-                            ? `${props.userDetails.full_name[0]}`
-                            : `${props.user?.email[0]?.toUpperCase()}`}
-                    </AvatarFallback>
-                </Avatar>
-                <div className="ml-4">
-                    <p className="text-2xl font-extrabold text-zinc-950 dark:text-white">
-                        {props.userDetails?.full_name}
-                    </p>
-                    <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                        CEO and Founder
-                    </p>
-                </div>
-            </div>
-
-            <form id="settingsForm" onSubmit={handleSubmit}>
-                {/* Account Details */}
-                <div className="mb-8">
-                    <h2 className="text-xl font-extrabold text-zinc-950 dark:text-white mb-4">
-                        Account Details
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <label className="flex flex-col">
-                            Full Name
+        <div className="max-w-4xl mx-auto">
+            <form id="settingsForm" onSubmit={handleSubmit} className="space-y-8">
+                {/* Account Details Section */}
+                <Card className="p-6 shadow-sm">
+                    <SectionHeader icon={<User2 size={24} />} title="Account Details" />
+                    <div className="grid gap-6">
+                        <FormField label="Full Name">
                             <Input
                                 type="text"
                                 name="fullName"
                                 defaultValue={props.user?.user_metadata?.full_name ?? ''}
+                                className="max-w-md"
+                                placeholder="Enter your full name"
                             />
-                        </label>
-                        <label className="flex flex-col">
-                            First Name
+                        </FormField>
+                        <FormField label="First Name">
                             <Input
                                 type="text"
                                 name="firstName"
                                 defaultValue={props.user?.user_metadata?.first_name ?? ''}
+                                className="max-w-md"
+                                placeholder="Enter your first name"
                             />
-                        </label>
-                        <label className="flex flex-col">
-                            Last Name
+                        </FormField>
+                        <FormField label="Last Name">
                             <Input
                                 type="text"
                                 name="lastName"
                                 defaultValue={props.user?.user_metadata?.last_name ?? ''}
+                                className="max-w-md"
+                                placeholder="Enter your last name"
                             />
-                        </label>
-                        <label className="flex flex-col">
-                            Email
+                        </FormField>
+                        <FormField label="Email">
                             <Input
                                 type="email"
                                 name="newEmail"
                                 defaultValue={props.user?.email ?? ''}
+                                className="max-w-md"
+                                placeholder="Enter your email"
                             />
-                        </label>
+                        </FormField>
                     </div>
-                </div>
+                </Card>
 
-                {/* Location Details */}
-                <div className="mb-8">
-                    <h2 className="text-xl font-extrabold text-zinc-950 dark:text-white mb-4">
-                        Location Details
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <label className="flex flex-col">
-                            Country
-                            <Input
-                                type="text"
-                                name="country"
-                                defaultValue={userDetails?.location?.country ?? ''}
-                            />
-                        </label>
-                        <label className="flex flex-col">
-                            Region
-                            <Input
-                                type="text"
-                                name="region"
-                                defaultValue={userDetails?.location?.region ?? ''}
-                            />
-                        </label>
-                        <label className="flex flex-col">
-                            County
-                            <Input
-                                type="text"
-                                name="county"
-                                defaultValue={userDetails?.location?.county ?? ''}
-                            />
-                        </label>
-                        <label className="flex flex-col">
-                            Town
-                            <Input
-                                type="text"
-                                name="town"
-                                defaultValue={userDetails?.location?.town ?? ''}
-                            />
-                        </label>
-                        <label className="flex flex-col">
-                            Postcode
-                            <Input
-                                type="text"
-                                name="postcode"
-                                defaultValue={userDetails?.location?.postcode ?? ''}
-                            />
-                        </label>
-                        <label className="flex flex-col">
-                            Nearest Rail/Tube Station
-                            <Input
-                                type="text"
-                                name="nearestStation"
-                                defaultValue={userDetails?.location?.nearest_station ?? ''}
-                            />
-                        </label>
+                {/* Location Details Section */}
+                <Card className="p-6 shadow-sm">
+                    <SectionHeader icon={<MapPin size={24} />} title="Location Details" />
+                    <div className="grid gap-6">
+                        <div className="grid sm:grid-cols-2 gap-6">
+                            <FormField label="Country">
+                                <Input
+                                    type="text"
+                                    name="country"
+                                    defaultValue={userDetails?.location?.country ?? ''}
+                                    placeholder="Enter country"
+                                />
+                            </FormField>
+                            <FormField label="Region">
+                                <Input
+                                    type="text"
+                                    name="region"
+                                    defaultValue={userDetails?.location?.region ?? ''}
+                                    placeholder="Enter region"
+                                />
+                            </FormField>
+                        </div>
+                        <div className="grid sm:grid-cols-2 gap-6">
+                            <FormField label="County">
+                                <Input
+                                    type="text"
+                                    name="county"
+                                    defaultValue={userDetails?.location?.county ?? ''}
+                                    placeholder="Enter county"
+                                />
+                            </FormField>
+                            <FormField label="Town">
+                                <Input
+                                    type="text"
+                                    name="town"
+                                    defaultValue={userDetails?.location?.town ?? ''}
+                                    placeholder="Enter town"
+                                />
+                            </FormField>
+                        </div>
+                        <div className="grid sm:grid-cols-2 gap-6">
+                            <FormField label="Postcode">
+                                <Input
+                                    type="text"
+                                    name="postcode"
+                                    defaultValue={userDetails?.location?.postcode ?? ''}
+                                    placeholder="Enter postcode"
+                                />
+                            </FormField>
+                            <FormField label="Nearest Station">
+                                <Input
+                                    type="text"
+                                    name="nearestStation"
+                                    defaultValue={userDetails?.location?.nearest_station ?? ''}
+                                    placeholder="Enter nearest station"
+                                />
+                            </FormField>
+                        </div>
                     </div>
-                </div>
+                </Card>
 
-                {/* Privacy Settings */}
-                <div className="mb-8">
-                    <h2 className="text-xl font-extrabold text-zinc-950 dark:text-white mb-4">
-                        Privacy Settings
-                    </h2>
-                    <label className="flex items-center">
-                        <input
-                            type="checkbox"
+                {/* Privacy Settings Section */}
+                <Card className="p-6 shadow-sm">
+                    <SectionHeader icon={<Lock size={24} />} title="Privacy Settings" />
+                    <div className="space-y-4">
+                        <Toggle
                             name="hideProfilePictures"
-                            defaultChecked={userDetails?.privacy?.hideProfilePictures ?? false}
+                            checked={userDetails?.privacy?.hideProfilePictures ?? false}
+                            onCheckedChange={(state) =>
+                                setUserDetails((prev) => ({
+                                    ...prev,
+                                    privacy: { ...prev?.privacy, hideProfilePictures: state },
+                                }))
+                            }
+                            label="Hide my profile pictures"
                         />
-                        <span className="ml-2">Hide my profile pictures</span>
-                    </label>
-                </div>
+                    </div>
+                </Card>
 
-                {/* Profile Preferences */}
-                <div className="mb-8">
-                    <h2 className="text-xl font-extrabold text-zinc-950 dark:text-white mb-4">
-                        Profile Preferences
-                    </h2>
-                    <label className="flex items-center my-2">
-                        <input
-                            type="checkbox"
-                            name="allowSearch"
-                            defaultChecked={userDetails?.preferences?.allowSearch ?? false}
-                        />
-                        <span className="ml-2">Allow service providers to search for me and view my profile</span>
-                    </label>
-                    <p className="font-semibold mt-4">I am interested in Escorts:</p>
-                    <label className="flex items-center my-2">
-                        <input
-                            type="checkbox"
-                            name="escortsInCalls"
-                            defaultChecked={userDetails?.preferences?.interests?.escorts?.inCalls ?? false}
-                        />
-                        <span className="ml-2">In-Calls</span>
-                    </label>
-                    <label className="flex items-center my-2">
-                        <input
-                            type="checkbox"
-                            name="escortsOutCalls"
-                            defaultChecked={userDetails?.preferences?.interests?.escorts?.outCalls ?? false}
-                        />
-                        <span className="ml-2">Out-Calls</span>
-                    </label>
-                    <label className="flex items-center my-2">
-                        <input
-                            type="checkbox"
-                            name="webcamDirectCam"
-                            defaultChecked={userDetails?.preferences?.interests?.webcamDirectCam ?? false}
-                        />
-                        <span className="ml-2">I am interested in Webcam & DirectCam</span>
-                    </label>
-                    <label className="flex items-center my-2">
-                        <input
-                            type="checkbox"
-                            name="phoneChatDirectChat"
-                            defaultChecked={userDetails?.preferences?.interests?.phoneChatDirectChat ?? false}
-                        />
-                        <span className="ml-2">I am interested in Phone Chat & DirectChat</span>
-                    </label>
-                    <p className="font-semibold mt-4">I am interested in Alternative Practices:</p>
-                    <label className="flex items-center my-2">
-                        <input
-                            type="checkbox"
-                            name="dominant"
-                            defaultChecked={userDetails?.preferences?.interests?.alternativePractices?.dominant ?? false}
-                        />
-                        <span className="ml-2">Dominant</span>
-                    </label>
-                    <label className="flex items-center my-2">
-                        <input
-                            type="checkbox"
-                            name="submissive"
-                            defaultChecked={userDetails?.preferences?.interests?.alternativePractices?.submissive ?? false}
-                        />
-                        <span className="ml-2">Submissive</span>
-                    </label>
-                </div>
+                {/* Profile Preferences Section */}
+                <Card className="p-6 shadow-sm">
+                    <SectionHeader icon={<Settings2 size={24} />} title="Profile Preferences" />
+                    <div className="space-y-6">
+                        <div className="space-y-4">
+                            <Toggle
+                                name="allowSearch"
+                                checked={userDetails?.preferences?.allowSearch ?? false}
+                                onCheckedChange={(state) =>
+                                    setUserDetails((prev) => ({
+                                        ...prev,
+                                        preferences: { ...prev?.preferences, allowSearch: state },
+                                    }))
+                                }
+                                label="Allow service providers to search for me and view my profile"
+                            />
+                        </div>
 
-                <Button
-                    type="submit"
-                    className="w-full mt-4 flex justify-center rounded-lg px-4 py-2 text-base font-medium"
-                >
-                    Save All Changes
-                </Button>
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Escort Services</h3>
+                            <div className="ml-4 space-y-3">
+                                <Toggle
+                                    name="escortsInCalls"
+                                    checked={userDetails?.preferences?.interests?.escorts?.inCalls ?? false}
+                                    onCheckedChange={(state) =>
+                                        setUserDetails((prev) => ({
+                                            ...prev,
+                                            preferences: {
+                                                ...prev?.preferences,
+                                                interests: {
+                                                    ...prev?.preferences?.interests,
+                                                    escorts: { ...prev?.preferences?.interests?.escorts, inCalls: state },
+                                                },
+                                            },
+                                        }))
+                                    }
+                                    label="In-Calls"
+                                />
+                                <Toggle
+                                    name="escortsOutCalls"
+                                    checked={userDetails?.preferences?.interests?.escorts?.outCalls ?? false}
+                                    onCheckedChange={(state) =>
+                                        setUserDetails((prev) => ({
+                                            ...prev,
+                                            preferences: {
+                                                ...prev?.preferences,
+                                                interests: {
+                                                    ...prev?.preferences?.interests,
+                                                    escorts: { ...prev?.preferences?.interests?.escorts, outCalls: state },
+                                                },
+                                            },
+                                        }))
+                                    }
+                                    label="Out-Calls"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Communication Services</h3>
+                            <div className="ml-4 space-y-3">
+                                <Toggle
+                                    name="webcamDirectCam"
+                                    checked={userDetails?.preferences?.interests?.webcamDirectCam ?? false}
+                                    onCheckedChange={(state) =>
+                                        setUserDetails((prev) => ({
+                                            ...prev,
+                                            preferences: {
+                                                ...prev?.preferences,
+                                                interests: { ...prev?.preferences?.interests, webcamDirectCam: state },
+                                            },
+                                        }))
+                                    }
+                                    label="Webcam & DirectCam"
+                                />
+                                <Toggle
+                                    name="phoneChatDirectChat"
+                                    checked={userDetails?.preferences?.interests?.phoneChatDirectChat ?? false}
+                                    onCheckedChange={(state) =>
+                                        setUserDetails((prev) => ({
+                                            ...prev,
+                                            preferences: {
+                                                ...prev?.preferences,
+                                                interests: { ...prev?.preferences?.interests, phoneChatDirectChat: state },
+                                            },
+                                        }))
+                                    }
+                                    label="Phone Chat & DirectChat"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Alternative Practices</h3>
+                            <div className="ml-4 space-y-3">
+                                <Toggle
+                                    name="dominant"
+                                    checked={userDetails?.preferences?.interests?.alternativePractices?.dominant ?? false}
+                                    onCheckedChange={(state) =>
+                                        setUserDetails((prev) => ({
+                                            ...prev,
+                                            preferences: {
+                                                ...prev?.preferences,
+                                                interests: {
+                                                    ...prev?.preferences?.interests,
+                                                    alternativePractices: {
+                                                        ...prev?.preferences?.interests?.alternativePractices,
+                                                        dominant: state,
+                                                    },
+                                                },
+                                            },
+                                        }))
+                                    }
+                                    label="Dominant"
+                                />
+                                <Toggle
+                                    name="submissive"
+                                    checked={userDetails?.preferences?.interests?.alternativePractices?.submissive ?? false}
+                                    onCheckedChange={(state) =>
+                                        setUserDetails((prev) => ({
+                                            ...prev,
+                                            preferences: {
+                                                ...prev?.preferences,
+                                                interests: {
+                                                    ...prev?.preferences?.interests,
+                                                    alternativePractices: {
+                                                        ...prev?.preferences?.interests?.alternativePractices,
+                                                        submissive: state,
+                                                    },
+                                                },
+                                            },
+                                        }))
+                                    }
+                                    label="Submissive"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+
+                <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                    <Button
+                        type="submit"
+                        className="w-full flex justify-center items-center gap-2"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Saving Changes...' : 'Save All Changes'}
+                    </Button>
+                </div>
             </form>
         </div>
-
     );
 }
