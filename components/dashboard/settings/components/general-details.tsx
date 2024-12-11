@@ -34,7 +34,7 @@ const FormField = ({ label, children }: { label: string; children: React.ReactNo
         <div className="flex-1">{children}</div>
     </label>
 );
-
+const SERVICE_TYPES = ['Escort Services', 'Webcam Work', 'Phone Chat', 'SMS Chat', 'Content Creator'];
 export default function GeneralDetails(props: Props) {
     // Input States
     const [nameError, setNameError] = useState<{
@@ -45,6 +45,7 @@ export default function GeneralDetails(props: Props) {
     const [userDetails, setUserDetails] = useState(null);
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showServices, setShowServices] = useState(false);
 
     // Fetch User and User Details on Load
     useEffect(() => {
@@ -83,6 +84,12 @@ export default function GeneralDetails(props: Props) {
         fetchUserDetails();
     }, []);
 
+    useEffect(() => {
+        if (userDetails?.member_type === 'Offering Services') {
+            setShowServices(true);
+        }
+    }, [userDetails]);
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -95,6 +102,14 @@ export default function GeneralDetails(props: Props) {
         const firstName = formData.get('firstName')?.toString().trim();
         const lastName = formData.get('lastName')?.toString().trim();
         const newEmail = formData.get('newEmail')?.toString().trim();
+
+        // Get member type and services
+        // Get member type
+        const memberType = formData.get('memberType')?.toString().trim();
+
+        // Extract services from state instead of relying on FormData
+        const services =
+            memberType === 'Offering Services' ? userDetails?.services || [] : [];
 
         // Extract details for `users` table
         const location = {
@@ -133,6 +148,8 @@ export default function GeneralDetails(props: Props) {
                         full_name: fullName,
                         first_name: firstName,
                         last_name: lastName,
+                        member_type: memberType,
+                        location,
                     },
                 });
                 if (error) throw error;
@@ -143,6 +160,8 @@ export default function GeneralDetails(props: Props) {
                 .from('users')
                 .update({
                     full_name: fullName,
+                    member_type: memberType,
+                    services, // Update services correctly
                     location,
                     privacy,
                     preferences,
@@ -174,43 +193,127 @@ export default function GeneralDetails(props: Props) {
                 {/* Account Details Section */}
                 <Card className="p-6 shadow-sm">
                     <SectionHeader icon={<User2 size={24} />} title="Account Details" />
-                    <div className="grid gap-6">
-                        <FormField label="Full Name">
-                            <Input
-                                type="text"
-                                name="fullName"
-                                defaultValue={props.user?.user_metadata?.full_name ?? ''}
-                                className="max-w-md"
-                                placeholder="Enter your full name"
-                            />
-                        </FormField>
-                        <FormField label="First Name">
-                            <Input
-                                type="text"
-                                name="firstName"
-                                defaultValue={props.user?.user_metadata?.first_name ?? ''}
-                                className="max-w-md"
-                                placeholder="Enter your first name"
-                            />
-                        </FormField>
-                        <FormField label="Last Name">
-                            <Input
-                                type="text"
-                                name="lastName"
-                                defaultValue={props.user?.user_metadata?.last_name ?? ''}
-                                className="max-w-md"
-                                placeholder="Enter your last name"
-                            />
-                        </FormField>
-                        <FormField label="Email">
-                            <Input
-                                type="email"
-                                name="newEmail"
-                                defaultValue={props.user?.email ?? ''}
-                                className="max-w-md"
-                                placeholder="Enter your email"
-                            />
-                        </FormField>
+                    <div className="space-y-6">
+                        {/* Basic Info Group */}
+                        <div className="grid gap-6">
+                            <FormField label="Full Name">
+                                <Input
+                                    type="text"
+                                    name="fullName"
+                                    defaultValue={props.user?.user_metadata?.full_name ?? ''}
+                                    className="max-w-md"
+                                    placeholder="Enter your full name"
+                                />
+                            </FormField>
+                            <FormField label="First Name">
+                                <Input
+                                    type="text"
+                                    name="firstName"
+                                    defaultValue={props.user?.user_metadata?.first_name ?? ''}
+                                    className="max-w-md"
+                                    placeholder="Enter your first name"
+                                />
+                            </FormField>
+                            <FormField label="Last Name">
+                                <Input
+                                    type="text"
+                                    name="lastName"
+                                    defaultValue={props.user?.user_metadata?.last_name ?? ''}
+                                    className="max-w-md"
+                                    placeholder="Enter your last name"
+                                />
+                            </FormField>
+                            <FormField label="Email">
+                                <Input
+                                    type="email"
+                                    name="newEmail"
+                                    defaultValue={props.user?.email ?? ''}
+                                    className="max-w-md"
+                                    placeholder="Enter your email"
+                                />
+                            </FormField>
+                        </div>
+
+                        {/* Member Type Group */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                                Member Type Settings
+                            </h3>
+                            <div className="ml-4 space-y-3">
+                                <FormField label="Account Type">
+                                    <select
+                                        name="memberType"
+                                        value={userDetails?.member_type || ''}
+                                        className="w-full max-w-md h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700"
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            setUserDetails((prev) => ({
+                                                ...prev,
+                                                member_type: value,
+                                            }));
+                                            setShowServices(value === 'Offering Services');
+                                        }}
+                                    >
+                                        <option value="">Select Member Type</option>
+                                        <option value="Offering Services">Offering Services</option>
+                                        <option value="Seeking Services">Seeking Services</option>
+                                    </select>
+                                </FormField>
+                            </div>
+                        </div>
+
+                        {/* Services Group - Only shown when "Offering Services" is selected */}
+                        {showServices && (
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                                    Services Offered
+                                </h3>
+                                <div className="ml-4 space-y-3">
+                                    {SERVICE_TYPES.map((service) => (
+                                        <Toggle
+                                            key={service}
+                                            name={service} // Use the service name as the key and identifier
+                                            label={service}
+                                            checked={userDetails?.services?.includes(service) || false}
+                                            onCheckedChange={(checked) => {
+                                                const newServices = checked
+                                                    ? [...(userDetails?.services || []), service]
+                                                    : (userDetails?.services || []).filter((s) => s !== service);
+                                                setUserDetails((prev) => ({
+                                                    ...prev,
+                                                    services: newServices,
+                                                }));
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Country Selection Group */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Country</h3>
+                            <div className="ml-4">
+                                <FormField label="Select Country">
+                                    <select
+                                        name="country"
+                                        defaultValue={userDetails?.country ?? ''}
+                                        className="w-full max-w-md h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700"
+                                    >
+                                        <option value="">Select Country</option>
+                                        {[
+                                            'Afghanistan', 'Albania', 'Algeria', /* ... rest of countries ... */
+                                            'United Kingdom', 'United States', /* ... */
+                                            'Zimbabwe'
+                                        ].map(country => (
+                                            <option key={country} value={country} className="capitalize">
+                                                {country}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </FormField>
+                            </div>
+                        </div>
                     </div>
                 </Card>
 

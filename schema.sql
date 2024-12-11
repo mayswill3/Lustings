@@ -27,6 +27,12 @@ create table users (
   free_gallery jsonb,
   -- private_gallery, stored in JSON format.
   private_gallery jsonb,
+  -- about_you, stored in JSON format.
+  about_you jsonb;
+  -- member_type, stored in JSON format.
+  member_type
+   -- Services offered by the user, stored as an array of text.
+  services TEXT[] DEFAULT ARRAY[]::TEXT[],
   summary text,
   details text;
   -- Automatically track creation and update times.

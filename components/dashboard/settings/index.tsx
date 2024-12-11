@@ -4,11 +4,11 @@ import { useState } from 'react';
 import DashboardLayout from '@/components/layout';
 import { Card } from '@/components/ui/card';
 import { User } from '@supabase/supabase-js';
-import { Button } from '@/components/ui/button';
-import { Settings2, User as UserIcon, Camera, Home, Sliders } from 'lucide-react';
+import { Settings2, User as UserIcon, Camera, Heart } from 'lucide-react';
 import GeneralDetails from './components/general-details';
 import PersonalDetails from './components/personal-details';
 import ProfilePictures from './components/profile-pictures';
+import AboutYou from './components/interview';
 
 interface Props {
   user: User | null | undefined;
@@ -26,41 +26,14 @@ const TabButton = ({ active, onClick, icon, label }: TabButtonProps) => (
   <button
     onClick={onClick}
     className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 border-b-2 hover:text-blue-600 dark:hover:text-blue-400 ${active
-        ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-        : 'border-transparent text-gray-600 dark:text-gray-400'
+      ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+      : 'border-transparent text-gray-600 dark:text-gray-400'
       }`}
   >
     {icon}
     {label}
   </button>
 );
-
-function AccountDetails() {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Account Details</h2>
-      {/* Place the account details form component here */}
-    </div>
-  );
-}
-
-function LocationDetails() {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Location Details</h2>
-      {/* Place the location details form component here */}
-    </div>
-  );
-}
-
-function Preferences() {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Preferences</h2>
-      {/* Place the preferences form component here */}
-    </div>
-  );
-}
 
 export default function Settings(props: Props) {
   const [activeTab, setActiveTab] = useState('general');
@@ -79,7 +52,13 @@ export default function Settings(props: Props) {
       component: <PersonalDetails user={props.user} userDetails={props.userDetails} />,
     },
     {
-      id: 'preferences',
+      id: 'about',
+      label: 'About You',
+      icon: <Heart className="w-4 h-4" />,
+      component: <AboutYou />,
+    },
+    {
+      id: 'pictures',
       label: 'Pictures',
       icon: <Camera className="w-4 h-4" />,
       component: <ProfilePictures user={props.user} userDetails={props.userDetails} />,

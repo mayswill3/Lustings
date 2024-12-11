@@ -246,23 +246,21 @@ export default function PersonalDetails() {
                         defaultValue={personalDetails.orientation || ''}
                     >
                         {options.map((option) => (
-                            <label
-                                key={option}
-                                className="relative"
-                            >
+                            <div key={option} className="flex items-center space-x-2">
                                 <RadioGroup.Item
                                     value={option}
-                                    className="peer sr-only"
+                                    id={`orientation-${option}`}
+                                    className="w-4 h-4 rounded-full border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500"
                                 >
-                                    <RadioGroup.Indicator />
+                                    <RadioGroup.Indicator className="flex items-center justify-center w-full h-full relative after:content-[''] after:block after:w-2 after:h-2 after:rounded-full after:bg-white" />
                                 </RadioGroup.Item>
-                                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg peer-checked:bg-blue-50 peer-checked:ring-2 peer-checked:ring-blue-500 dark:bg-zinc-800 dark:peer-checked:bg-zinc-700 transition-all cursor-pointer">
-                                    <div className="w-4 h-4 rounded-full border-2 border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500"></div>
-                                    <span className="text-gray-800 font-medium capitalize dark:text-white">
-                                        {option.replace('-', ' ')}
-                                    </span>
-                                </div>
-                            </label>
+                                <label
+                                    htmlFor={`orientation-${option}`}
+                                    className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize"
+                                >
+                                    {option.replace('-', ' ')}
+                                </label>
+                            </div>
                         ))}
                     </RadioGroup.Root>
                 </Card>
@@ -274,102 +272,106 @@ export default function PersonalDetails() {
                         title="Activities"
                         subtitle="Please select the activities you're interested in"
                     />
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                            {[
-                                '"A" Levels',
-                                '"A" Levels (at discretion)',
-                                '15 Mins "quickie"',
-                                'Anal Play',
-                                'Bareback*',
-                                'BDSM*',
-                                'BDSM (giving)*',
-                                'BDSM (receiving)*',
-                                'Being Filmed',
-                                'Bukkake',
-                                'Car Meets',
-                                'CIM',
-                                'CIM (at discretion)',
-                                'Cross Dressing',
-                                'Deep Throat',
-                                'Depilation',
-                                'Dinner Dates',
-                                'Disabled Clients',
-                                'Dogging',
-                                'Domination*',
-                                'Domination (giving)*',
-                                'Domination (receiving)*',
-                                'Double Penetration',
-                                'Enema',
-                                'Exhibitionism',
-                                'Face Sitting',
-                                'Facials',
-                                'Female Ejaculation',
-                                'Fetish',
-                                'FFM 3Somes',
-                                'Fingering/Finger Play',
-                                'Food Sex/Sploshing',
-                                'Foot Worship',
-                                'French Kissing',
-                                'French Kissing (discretion)',
-                                'Gang Bangs',
-                                'Hand Relief',
-                                'Humiliation',
-                                'Humiliation (giving)',
-                                'Humiliation (receiving)',
-                                'Lapdancing',
-                                'Massage',
-                                'Milking/Lactating',
-                                'MMF 3Somes',
-                                'Modeling',
-                                'Moresomes',
-                                'Naturism/Nudism',
-                                'Oral',
-                                'Oral without (at discretion)',
-                                'Oral without Protection',
-                                'Parties',
-                                'Penetration (Protected)',
-                                'Pole Dancing',
-                                'Pregnant',
-                                'Prostate Massage',
-                                'Pussy Pumping',
-                                'Receiving Oral',
-                                'Rimming',
-                                'Rimming (giving)',
-                                'Rimming (receiving)',
-                                'Role Play & Fantasy*',
-                                'Sauna / Bath Houses',
-                                'Silent Caller (Phone Chat)',
-                                'Smoking (Fetish)',
-                                'Snowballing',
-                                'Spanking*',
-                                'Spanking (giving)*',
-                                'Spanking (receiving)*',
-                                'Strap On',
-                                'Striptease',
-                                'Sub games*',
-                                'Swallow',
-                                'Swallow (at discretion)',
-                                'Swinging',
-                                'Sybian & Machine Sex',
-                                'Tantric',
-                                'Tie & Tease*',
-                                'Toys',
-                                'Travel Companion',
-                                'Uniforms',
-                                'Unprotected Sex*',
-                                'Voyeurism',
-                                'Watersports*',
-                            ].map((activity) => (
-                                <Toggle
-                                    key={activity}
-                                    name="activities"
-                                    label={activity}
-                                    checked={activities.includes(activity)}
-                                    onCheckedChange={() => toggleActivity(activity)}
-                                />
-                            ))}
+                    <div className="relative">
+                        <div className="max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                {[
+                                    '"A" Levels',
+                                    '"A" Levels (at discretion)',
+                                    '15 Mins "quickie"',
+                                    'Anal Play',
+                                    'Bareback*',
+                                    'BDSM*',
+                                    'BDSM (giving)*',
+                                    'BDSM (receiving)*',
+                                    'Being Filmed',
+                                    'Bukkake',
+                                    'Car Meets',
+                                    'CIM',
+                                    'CIM (at discretion)',
+                                    'Cross Dressing',
+                                    'Deep Throat',
+                                    'Depilation',
+                                    'Dinner Dates',
+                                    'Disabled Clients',
+                                    'Dogging',
+                                    'Domination*',
+                                    'Domination (giving)*',
+                                    'Domination (receiving)*',
+                                    'Double Penetration',
+                                    'Enema',
+                                    'Exhibitionism',
+                                    'Face Sitting',
+                                    'Facials',
+                                    'Female Ejaculation',
+                                    'Fetish',
+                                    'FFM 3Somes',
+                                    'Fingering/Finger Play',
+                                    'Food Sex/Sploshing',
+                                    'Foot Worship',
+                                    'French Kissing',
+                                    'French Kissing (discretion)',
+                                    'Gang Bangs',
+                                    'Hand Relief',
+                                    'Humiliation',
+                                    'Humiliation (giving)',
+                                    'Humiliation (receiving)',
+                                    'Lapdancing',
+                                    'Massage',
+                                    'Milking/Lactating',
+                                    'MMF 3Somes',
+                                    'Modeling',
+                                    'Moresomes',
+                                    'Naturism/Nudism',
+                                    'Oral',
+                                    'Oral without (at discretion)',
+                                    'Oral without Protection',
+                                    'Parties',
+                                    'Penetration (Protected)',
+                                    'Pole Dancing',
+                                    'Pregnant',
+                                    'Prostate Massage',
+                                    'Pussy Pumping',
+                                    'Receiving Oral',
+                                    'Rimming',
+                                    'Rimming (giving)',
+                                    'Rimming (receiving)',
+                                    'Role Play & Fantasy*',
+                                    'Sauna / Bath Houses',
+                                    'Silent Caller (Phone Chat)',
+                                    'Smoking (Fetish)',
+                                    'Snowballing',
+                                    'Spanking*',
+                                    'Spanking (giving)*',
+                                    'Spanking (receiving)*',
+                                    'Strap On',
+                                    'Striptease',
+                                    'Sub games*',
+                                    'Swallow',
+                                    'Swallow (at discretion)',
+                                    'Swinging',
+                                    'Sybian & Machine Sex',
+                                    'Tantric',
+                                    'Tie & Tease*',
+                                    'Toys',
+                                    'Travel Companion',
+                                    'Uniforms',
+                                    'Unprotected Sex*',
+                                    'Voyeurism',
+                                    'Watersports*',
+                                ].map((activity) => (
+                                    <Toggle
+                                        key={activity}
+                                        name="activities"
+                                        label={activity}
+                                        checked={activities.includes(activity)}
+                                        onCheckedChange={() => toggleActivity(activity)}
+                                    />
+                                ))}
+                            </div>
                         </div>
+                        {/* Scroll Fade Effect */}
+                        <div className="absolute bottom-0 left-0 right-2 h-8 bg-gradient-to-t from-white dark:from-zinc-800 to-transparent pointer-events-none" />
                     </div>
                 </Card>
 
