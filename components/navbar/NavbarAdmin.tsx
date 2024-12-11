@@ -16,7 +16,7 @@ export default function AdminNavbar(props: {
     >
       <div className="ml-[6px]">
         <div className="h-6 md:mb-2 md:w-[224px] md:pt-1">
-          <a
+          {/* <a
             className="hidden text-xs font-normal text-zinc-950 hover:underline dark:text-white dark:hover:text-white md:inline"
             href=""
           >
@@ -25,22 +25,22 @@ export default function AdminNavbar(props: {
               {' '}
               /{' '}
             </span>
-          </a>
-          <NavLink
+          </a> */}
+          {/* <NavLink
             className="text-xs font-normal capitalize text-zinc-950 hover:underline dark:text-white dark:hover:text-white"
             href="#"
           >
             {brandText}
-          </NavLink>
+          </NavLink> */}
         </div>
-        <p className="text-md shrink capitalize text-zinc-950 dark:text-white md:text-3xl">
+        {/* <p className="text-md shrink capitalize text-zinc-950 dark:text-white md:text-3xl">
           <NavLink
             href="#"
             className="font-bold capitalize hover:text-zinc-950 dark:hover:text-white"
           >
             {brandText}
           </NavLink>
-        </p>
+        </p> */}
       </div>
       <div className="w-[154px] min-w-max md:ml-auto md:w-[unset]">
         <AdminNavbarLinks />
