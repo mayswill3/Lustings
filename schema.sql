@@ -34,6 +34,7 @@ create table users (
    -- Services offered by the user, stored as an array of text.
   services TEXT[] DEFAULT ARRAY[]::TEXT[],
   phone_number text,
+  nationality text,
   summary text,
   details text;
   -- Automatically track creation and update times.

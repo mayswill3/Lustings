@@ -15,6 +15,7 @@ import GalleryGrid from '@/components/ui/gallery-grid';
 const supabase = createClient();
 
 interface UserDetails {
+    nationality: any;
     id: string;
     full_name: string;
     avatar_url: string | null;
@@ -258,32 +259,8 @@ export default function ProfilePage({ params, user, userDetails }: ProfilePagePr
                                     <h2 className="text-lg font-semibold text-gray-900 dark:text-white">About Me</h2>
                                 </div>
                                 <div className="space-y-6">
-                                    {/* Basic Details */}
-                                    <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-                                        {[
-                                            { label: "Ethnicity", value: fetchedUserDetails.about_you?.ethnicity },
-                                            { label: "Height", value: fetchedUserDetails.about_you?.height },
-                                            { label: "Dress Size", value: fetchedUserDetails.about_you?.dress_size },
-                                            { label: "Chest Size", value: `${fetchedUserDetails.about_you?.chest} ${fetchedUserDetails.about_you?.bra_cup_size} ${fetchedUserDetails.about_you?.breast_type}` },
-                                            { label: "Hair", value: `${fetchedUserDetails.about_you?.hair_color} ${fetchedUserDetails.about_you?.hair_length}` },
-                                            { label: "Eye Colour", value: fetchedUserDetails.about_you?.eye_color },
-                                            { label: "Pubic Hair", value: fetchedUserDetails.about_you?.pubic_hair },
-                                        ].map((detail, index) => (
-                                            detail.value && (
-                                                <div key={index} className="flex items-start">
-                                                    <span className="text-sm text-gray-500 dark:text-gray-400 min-w-[100px]">
-                                                        {detail.label}:
-                                                    </span>
-                                                    <span className="text-sm font-medium text-gray-900 dark:text-gray-200 ml-2">
-                                                        {detail.value}
-                                                    </span>
-                                                </div>
-                                            )
-                                        ))}
-                                    </div>
-
                                     {/* Summary and Details */}
-                                    <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                    <div className="space-y-4">
                                         <div className="text-sm text-gray-600 dark:text-gray-300">
                                             {fetchedUserDetails.summary || 'No summary available'}
                                         </div>
@@ -394,7 +371,7 @@ export default function ProfilePage({ params, user, userDetails }: ProfilePagePr
                                     />
                                     <LocationDetail
                                         label="Nationality"
-                                        value="British"
+                                        value={fetchedUserDetails.nationality}
                                     />
                                     <LocationDetail
                                         label="Member Since"
@@ -404,6 +381,50 @@ export default function ProfilePage({ params, user, userDetails }: ProfilePagePr
                                         label="Last Login"
                                         value="Today"
                                     />
+
+                                    {/* Moved Basic Details */}
+                                    {fetchedUserDetails.about_you?.ethnicity && (
+                                        <LocationDetail
+                                            label="Ethnicity"
+                                            value={fetchedUserDetails.about_you.ethnicity}
+                                        />
+                                    )}
+                                    {fetchedUserDetails.about_you?.height && (
+                                        <LocationDetail
+                                            label="Height"
+                                            value={fetchedUserDetails.about_you.height}
+                                        />
+                                    )}
+                                    {fetchedUserDetails.about_you?.dress_size && (
+                                        <LocationDetail
+                                            label="Dress Size"
+                                            value={fetchedUserDetails.about_you.dress_size}
+                                        />
+                                    )}
+                                    {(fetchedUserDetails.about_you?.chest || fetchedUserDetails.about_you?.bra_cup_size || fetchedUserDetails.about_you?.breast_type) && (
+                                        <LocationDetail
+                                            label="Chest Size"
+                                            value={`${fetchedUserDetails.about_you.chest} ${fetchedUserDetails.about_you.bra_cup_size} ${fetchedUserDetails.about_you.breast_type}`}
+                                        />
+                                    )}
+                                    {(fetchedUserDetails.about_you?.hair_color || fetchedUserDetails.about_you?.hair_length) && (
+                                        <LocationDetail
+                                            label="Hair"
+                                            value={`${fetchedUserDetails.about_you.hair_color} ${fetchedUserDetails.about_you.hair_length}`}
+                                        />
+                                    )}
+                                    {fetchedUserDetails.about_you?.eye_color && (
+                                        <LocationDetail
+                                            label="Eye Colour"
+                                            value={fetchedUserDetails.about_you.eye_color}
+                                        />
+                                    )}
+                                    {fetchedUserDetails.about_you?.pubic_hair && (
+                                        <LocationDetail
+                                            label="Pubic Hair"
+                                            value={fetchedUserDetails.about_you.pubic_hair}
+                                        />
+                                    )}
                                 </div>
                             </ProfileSection>
                         </Card>

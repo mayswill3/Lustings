@@ -106,6 +106,7 @@ export default function GeneralDetails(props: Props) {
         const lastName = formData.get('lastName')?.toString().trim();
         const newEmail = formData.get('newEmail')?.toString().trim();
         const mobileNumber = formData.get('mobileNumber')?.toString().trim(); // Add this line
+        const nationality = formData.get('nationality')?.toString().trim();
 
         // Get member type and services
         // Get member type
@@ -154,7 +155,7 @@ export default function GeneralDetails(props: Props) {
                         last_name: lastName,
                         phone_number: mobileNumber, // Add this line
                         member_type: memberType,
-                        location,
+                        nationality,
                     },
                 });
                 if (error) throw error;
@@ -168,6 +169,7 @@ export default function GeneralDetails(props: Props) {
                     phone_number: mobileNumber, // Add this line
                     member_type: memberType,
                     services, // Update services correctly
+                    nationality,
                     location,
                     privacy,
                     preferences,
@@ -304,18 +306,17 @@ export default function GeneralDetails(props: Props) {
                             )}
                         </div>
 
-                        {/* Location */}
                         <div className="border-t pt-4">
-                            <FormField label="Country">
+                            <FormField label="Nationality">
                                 <select
-                                    name="country"
-                                    defaultValue={userDetails?.country ?? ''}
+                                    name="nationality"
+                                    defaultValue={userDetails?.nationality ?? ''}
                                     className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700"
                                 >
-                                    <option value="">Select Country</option>
-                                    {['United Kingdom', 'United States', 'Canada'].map(country => (
-                                        <option key={country} value={country}>
-                                            {country}
+                                    <option value="">Select Nationality</option>
+                                    {['United Kingdom', 'United States', 'Canada'].map(nationality => (
+                                        <option key={nationality} value={nationality}>
+                                            {nationality}
                                         </option>
                                     ))}
                                 </select>
