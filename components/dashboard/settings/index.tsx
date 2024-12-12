@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout';
 import { Card } from '@/components/ui/card';
 import { User } from '@supabase/supabase-js';
-import { Settings2, User as UserIcon, Camera, Heart } from 'lucide-react';
+import { Settings2, User as UserIcon, Camera, Heart, Map } from 'lucide-react';
 import GeneralDetails from './components/general-details';
 import PersonalDetails from './components/personal-details';
 import ProfilePictures from './components/profile-pictures';
 import AboutYou from './components/interview';
+import Escorts from './components/escorting-options';
 
 interface Props {
   user: User | null | undefined;
@@ -38,7 +39,8 @@ const TabButton = ({ active, onClick, icon, label }: TabButtonProps) => (
 export default function Settings(props: Props) {
   const [activeTab, setActiveTab] = useState('general');
 
-  const tabs = [
+  // Base tabs that are always shown
+  const baseTabs = [
     {
       id: 'general',
       label: 'General Details',
@@ -65,6 +67,26 @@ export default function Settings(props: Props) {
     },
   ];
 
+  // Escorts tab that's conditionally added
+  const escortTab = {
+    id: 'escorts',
+    label: 'Escorts',
+    icon: <Map className="w-4 h-4" />,
+    component: <Escorts user={props.user} userDetails={props.userDetails} />,
+  };
+
+  // Combine tabs based on member_type
+  const tabs = props.user?.user_metadata?.member_type === 'Offering Services'
+    ? [...baseTabs, escortTab]
+    : baseTabs;
+
+  // If current active tab is 'escorts' but user is not offering services, reset to 'general'
+  useEffect(() => {
+    if (activeTab === 'escorts' && props.user?.user_metadata?.member_type !== 'Offering Services') {
+      setActiveTab('general');
+    }
+  }, [props.user?.user_metadata?.member_type, activeTab]);
+  console.log(props.user)
   return (
     <DashboardLayout
       user={props.user}

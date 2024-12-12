@@ -34,7 +34,10 @@ const FormField = ({ label, children }: { label: string; children: React.ReactNo
         <div className="flex-1">{children}</div>
     </label>
 );
-const SERVICE_TYPES = ['Escort Services', 'Webcam Work', 'Phone Chat', 'SMS Chat', 'Content Creator'];
+
+// Will add 'Webcam Work', 'Phone Chat', 'SMS Chat', 'Content Creator' in the future
+const SERVICE_TYPES = ['Escort Services',];
+
 export default function GeneralDetails(props: Props) {
     // Input States
     const [nameError, setNameError] = useState<{
@@ -102,6 +105,7 @@ export default function GeneralDetails(props: Props) {
         const firstName = formData.get('firstName')?.toString().trim();
         const lastName = formData.get('lastName')?.toString().trim();
         const newEmail = formData.get('newEmail')?.toString().trim();
+        const mobileNumber = formData.get('mobileNumber')?.toString().trim(); // Add this line
 
         // Get member type and services
         // Get member type
@@ -148,6 +152,7 @@ export default function GeneralDetails(props: Props) {
                         full_name: fullName,
                         first_name: firstName,
                         last_name: lastName,
+                        phone_number: mobileNumber, // Add this line
                         member_type: memberType,
                         location,
                     },
@@ -160,6 +165,7 @@ export default function GeneralDetails(props: Props) {
                 .from('users')
                 .update({
                     full_name: fullName,
+                    phone_number: mobileNumber, // Add this line
                     member_type: memberType,
                     services, // Update services correctly
                     location,
@@ -186,32 +192,23 @@ export default function GeneralDetails(props: Props) {
             </div>
         );
     }
-
+    console.log(userDetails)
     return (
         <div className="max-w-4xl mx-auto">
             <form id="settingsForm" onSubmit={handleSubmit} className="space-y-8">
                 {/* Account Details Section */}
                 <Card className="p-6 shadow-sm">
                     <SectionHeader icon={<User2 size={24} />} title="Account Details" />
+
+                    {/* Personal Information */}
                     <div className="space-y-6">
-                        {/* Basic Info Group */}
-                        <div className="grid gap-6">
-                            <FormField label="Full Name">
-                                <Input
-                                    type="text"
-                                    name="fullName"
-                                    defaultValue={props.user?.user_metadata?.full_name ?? ''}
-                                    className="max-w-md"
-                                    placeholder="Enter your full name"
-                                />
-                            </FormField>
+                        <div className="grid grid-cols-2 gap-4">
                             <FormField label="First Name">
                                 <Input
                                     type="text"
                                     name="firstName"
                                     defaultValue={props.user?.user_metadata?.first_name ?? ''}
-                                    className="max-w-md"
-                                    placeholder="Enter your first name"
+                                    placeholder="Enter first name"
                                 />
                             </FormField>
                             <FormField label="Last Name">
@@ -219,67 +216,84 @@ export default function GeneralDetails(props: Props) {
                                     type="text"
                                     name="lastName"
                                     defaultValue={props.user?.user_metadata?.last_name ?? ''}
-                                    className="max-w-md"
-                                    placeholder="Enter your last name"
+                                    placeholder="Enter last name"
                                 />
                             </FormField>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <FormField label="Email">
                                 <Input
                                     type="email"
                                     name="newEmail"
                                     defaultValue={props.user?.email ?? ''}
-                                    className="max-w-md"
-                                    placeholder="Enter your email"
+                                    placeholder="Enter email"
+                                />
+                            </FormField>
+                            <FormField label="Mobile Number">
+                                <Input
+                                    type="tel"
+                                    name="mobileNumber"
+                                    defaultValue={props.user?.user_metadata?.phone_number ?? userDetails?.phone_number ?? ''}
+                                    placeholder="Enter mobile number"
                                 />
                             </FormField>
                         </div>
 
-                        {/* Member Type Group */}
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                                Member Type Settings
-                            </h3>
-                            <div className="ml-4 space-y-3">
-                                <FormField label="Account Type">
-                                    <select
-                                        name="memberType"
-                                        value={userDetails?.member_type || ''}
-                                        className="w-full max-w-md h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700"
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            setUserDetails((prev) => ({
-                                                ...prev,
-                                                member_type: value,
-                                            }));
-                                            setShowServices(value === 'Offering Services');
-                                        }}
-                                    >
-                                        <option value="">Select Member Type</option>
-                                        <option value="Offering Services">Offering Services</option>
-                                        <option value="Seeking Services">Seeking Services</option>
-                                    </select>
-                                </FormField>
-                            </div>
-                        </div>
+                        {/* Member Type and Services */}
+                        <div className="border-t pt-4 mt-4">
+                            <FormField label="Account Type">
+                                <select
+                                    name="memberType"
+                                    value={userDetails?.member_type || ''}
+                                    className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700"
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        setUserDetails(prev => ({
+                                            ...prev,
+                                            member_type: value,
+                                            // Reset preferences if not seeking services
+                                            preferences: value === 'Seeking Services'
+                                                ? prev?.preferences
+                                                : {
+                                                    allowSearch: false,
+                                                    interests: {
+                                                        escorts: {
+                                                            inCalls: false,
+                                                            outCalls: false,
+                                                        },
+                                                        webcamDirectCam: false,
+                                                        phoneChatDirectChat: false,
+                                                        alternativePractices: {
+                                                            dominant: false,
+                                                            submissive: false,
+                                                        },
+                                                    },
+                                                }
+                                        }));
+                                        setShowServices(value === 'Offering Services');
+                                    }}
+                                >
+                                    <option value="">Select Member Type</option>
+                                    <option value="Offering Services">Offering Services</option>
+                                    <option value="Seeking Services">Seeking Services</option>
+                                </select>
+                            </FormField>
 
-                        {/* Services Group - Only shown when "Offering Services" is selected */}
-                        {showServices && (
-                            <div className="space-y-4">
-                                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                                    Services Offered
-                                </h3>
-                                <div className="ml-4 space-y-3">
+                            {/* Services Selection */}
+                            {showServices && (
+                                <div className="mt-4 grid grid-cols-2 gap-4">
                                     {SERVICE_TYPES.map((service) => (
                                         <Toggle
                                             key={service}
-                                            name={service} // Use the service name as the key and identifier
+                                            name={service}
                                             label={service}
                                             checked={userDetails?.services?.includes(service) || false}
                                             onCheckedChange={(checked) => {
                                                 const newServices = checked
                                                     ? [...(userDetails?.services || []), service]
                                                     : (userDetails?.services || []).filter((s) => s !== service);
-                                                setUserDetails((prev) => ({
+                                                setUserDetails(prev => ({
                                                     ...prev,
                                                     services: newServices,
                                                 }));
@@ -287,32 +301,25 @@ export default function GeneralDetails(props: Props) {
                                         />
                                     ))}
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
 
-                        {/* Country Selection Group */}
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Country</h3>
-                            <div className="ml-4">
-                                <FormField label="Select Country">
-                                    <select
-                                        name="country"
-                                        defaultValue={userDetails?.country ?? ''}
-                                        className="w-full max-w-md h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700"
-                                    >
-                                        <option value="">Select Country</option>
-                                        {[
-                                            'Afghanistan', 'Albania', 'Algeria', /* ... rest of countries ... */
-                                            'United Kingdom', 'United States', /* ... */
-                                            'Zimbabwe'
-                                        ].map(country => (
-                                            <option key={country} value={country} className="capitalize">
-                                                {country}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </FormField>
-                            </div>
+                        {/* Location */}
+                        <div className="border-t pt-4">
+                            <FormField label="Country">
+                                <select
+                                    name="country"
+                                    defaultValue={userDetails?.country ?? ''}
+                                    className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700"
+                                >
+                                    <option value="">Select Country</option>
+                                    {['United Kingdom', 'United States', 'Canada'].map(country => (
+                                        <option key={country} value={country}>
+                                            {country}
+                                        </option>
+                                    ))}
+                                </select>
+                            </FormField>
                         </div>
                     </div>
                 </Card>
@@ -397,144 +404,146 @@ export default function GeneralDetails(props: Props) {
                 </Card>
 
                 {/* Profile Preferences Section */}
-                <Card className="p-6 shadow-sm">
-                    <SectionHeader icon={<Settings2 size={24} />} title="Profile Preferences" />
-                    <div className="space-y-6">
-                        <div className="space-y-4">
-                            <Toggle
-                                name="allowSearch"
-                                checked={userDetails?.preferences?.allowSearch ?? false}
-                                onCheckedChange={(state) =>
-                                    setUserDetails((prev) => ({
-                                        ...prev,
-                                        preferences: { ...prev?.preferences, allowSearch: state },
-                                    }))
-                                }
-                                label="Allow service providers to search for me and view my profile"
-                            />
-                        </div>
-
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Escort Services</h3>
-                            <div className="ml-4 space-y-3">
+                {userDetails?.member_type === 'Seeking Services' && (
+                    <Card className="p-6 shadow-sm">
+                        <SectionHeader icon={<Settings2 size={24} />} title="Profile Preferences" />
+                        <div className="space-y-6">
+                            <div className="space-y-4">
                                 <Toggle
-                                    name="escortsInCalls"
-                                    checked={userDetails?.preferences?.interests?.escorts?.inCalls ?? false}
+                                    name="allowSearch"
+                                    checked={userDetails?.preferences?.allowSearch ?? false}
                                     onCheckedChange={(state) =>
                                         setUserDetails((prev) => ({
                                             ...prev,
-                                            preferences: {
-                                                ...prev?.preferences,
-                                                interests: {
-                                                    ...prev?.preferences?.interests,
-                                                    escorts: { ...prev?.preferences?.interests?.escorts, inCalls: state },
-                                                },
-                                            },
+                                            preferences: { ...prev?.preferences, allowSearch: state },
                                         }))
                                     }
-                                    label="In-Calls"
-                                />
-                                <Toggle
-                                    name="escortsOutCalls"
-                                    checked={userDetails?.preferences?.interests?.escorts?.outCalls ?? false}
-                                    onCheckedChange={(state) =>
-                                        setUserDetails((prev) => ({
-                                            ...prev,
-                                            preferences: {
-                                                ...prev?.preferences,
-                                                interests: {
-                                                    ...prev?.preferences?.interests,
-                                                    escorts: { ...prev?.preferences?.interests?.escorts, outCalls: state },
-                                                },
-                                            },
-                                        }))
-                                    }
-                                    label="Out-Calls"
+                                    label="Allow service providers to search for me and view my profile"
                                 />
                             </div>
-                        </div>
 
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Communication Services</h3>
-                            <div className="ml-4 space-y-3">
-                                <Toggle
-                                    name="webcamDirectCam"
-                                    checked={userDetails?.preferences?.interests?.webcamDirectCam ?? false}
-                                    onCheckedChange={(state) =>
-                                        setUserDetails((prev) => ({
-                                            ...prev,
-                                            preferences: {
-                                                ...prev?.preferences,
-                                                interests: { ...prev?.preferences?.interests, webcamDirectCam: state },
-                                            },
-                                        }))
-                                    }
-                                    label="Webcam & DirectCam"
-                                />
-                                <Toggle
-                                    name="phoneChatDirectChat"
-                                    checked={userDetails?.preferences?.interests?.phoneChatDirectChat ?? false}
-                                    onCheckedChange={(state) =>
-                                        setUserDetails((prev) => ({
-                                            ...prev,
-                                            preferences: {
-                                                ...prev?.preferences,
-                                                interests: { ...prev?.preferences?.interests, phoneChatDirectChat: state },
-                                            },
-                                        }))
-                                    }
-                                    label="Phone Chat & DirectChat"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Alternative Practices</h3>
-                            <div className="ml-4 space-y-3">
-                                <Toggle
-                                    name="dominant"
-                                    checked={userDetails?.preferences?.interests?.alternativePractices?.dominant ?? false}
-                                    onCheckedChange={(state) =>
-                                        setUserDetails((prev) => ({
-                                            ...prev,
-                                            preferences: {
-                                                ...prev?.preferences,
-                                                interests: {
-                                                    ...prev?.preferences?.interests,
-                                                    alternativePractices: {
-                                                        ...prev?.preferences?.interests?.alternativePractices,
-                                                        dominant: state,
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Escort Services</h3>
+                                <div className="ml-4 space-y-3">
+                                    <Toggle
+                                        name="escortsInCalls"
+                                        checked={userDetails?.preferences?.interests?.escorts?.inCalls ?? false}
+                                        onCheckedChange={(state) =>
+                                            setUserDetails((prev) => ({
+                                                ...prev,
+                                                preferences: {
+                                                    ...prev?.preferences,
+                                                    interests: {
+                                                        ...prev?.preferences?.interests,
+                                                        escorts: { ...prev?.preferences?.interests?.escorts, inCalls: state },
                                                     },
                                                 },
-                                            },
-                                        }))
-                                    }
-                                    label="Dominant"
-                                />
-                                <Toggle
-                                    name="submissive"
-                                    checked={userDetails?.preferences?.interests?.alternativePractices?.submissive ?? false}
-                                    onCheckedChange={(state) =>
-                                        setUserDetails((prev) => ({
-                                            ...prev,
-                                            preferences: {
-                                                ...prev?.preferences,
-                                                interests: {
-                                                    ...prev?.preferences?.interests,
-                                                    alternativePractices: {
-                                                        ...prev?.preferences?.interests?.alternativePractices,
-                                                        submissive: state,
+                                            }))
+                                        }
+                                        label="In-Calls"
+                                    />
+                                    <Toggle
+                                        name="escortsOutCalls"
+                                        checked={userDetails?.preferences?.interests?.escorts?.outCalls ?? false}
+                                        onCheckedChange={(state) =>
+                                            setUserDetails((prev) => ({
+                                                ...prev,
+                                                preferences: {
+                                                    ...prev?.preferences,
+                                                    interests: {
+                                                        ...prev?.preferences?.interests,
+                                                        escorts: { ...prev?.preferences?.interests?.escorts, outCalls: state },
                                                     },
                                                 },
-                                            },
-                                        }))
-                                    }
-                                    label="Submissive"
-                                />
+                                            }))
+                                        }
+                                        label="Out-Calls"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Communication Services</h3>
+                                <div className="ml-4 space-y-3">
+                                    <Toggle
+                                        name="webcamDirectCam"
+                                        checked={userDetails?.preferences?.interests?.webcamDirectCam ?? false}
+                                        onCheckedChange={(state) =>
+                                            setUserDetails((prev) => ({
+                                                ...prev,
+                                                preferences: {
+                                                    ...prev?.preferences,
+                                                    interests: { ...prev?.preferences?.interests, webcamDirectCam: state },
+                                                },
+                                            }))
+                                        }
+                                        label="Webcam & DirectCam"
+                                    />
+                                    <Toggle
+                                        name="phoneChatDirectChat"
+                                        checked={userDetails?.preferences?.interests?.phoneChatDirectChat ?? false}
+                                        onCheckedChange={(state) =>
+                                            setUserDetails((prev) => ({
+                                                ...prev,
+                                                preferences: {
+                                                    ...prev?.preferences,
+                                                    interests: { ...prev?.preferences?.interests, phoneChatDirectChat: state },
+                                                },
+                                            }))
+                                        }
+                                        label="Phone Chat & DirectChat"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Alternative Practices</h3>
+                                <div className="ml-4 space-y-3">
+                                    <Toggle
+                                        name="dominant"
+                                        checked={userDetails?.preferences?.interests?.alternativePractices?.dominant ?? false}
+                                        onCheckedChange={(state) =>
+                                            setUserDetails((prev) => ({
+                                                ...prev,
+                                                preferences: {
+                                                    ...prev?.preferences,
+                                                    interests: {
+                                                        ...prev?.preferences?.interests,
+                                                        alternativePractices: {
+                                                            ...prev?.preferences?.interests?.alternativePractices,
+                                                            dominant: state,
+                                                        },
+                                                    },
+                                                },
+                                            }))
+                                        }
+                                        label="Dominant"
+                                    />
+                                    <Toggle
+                                        name="submissive"
+                                        checked={userDetails?.preferences?.interests?.alternativePractices?.submissive ?? false}
+                                        onCheckedChange={(state) =>
+                                            setUserDetails((prev) => ({
+                                                ...prev,
+                                                preferences: {
+                                                    ...prev?.preferences,
+                                                    interests: {
+                                                        ...prev?.preferences?.interests,
+                                                        alternativePractices: {
+                                                            ...prev?.preferences?.interests?.alternativePractices,
+                                                            submissive: state,
+                                                        },
+                                                    },
+                                                },
+                                            }))
+                                        }
+                                        label="Submissive"
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </Card>
+                    </Card>
+                )}
 
                 <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
                     <Button

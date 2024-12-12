@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
-import { MapPin, Calendar, User2, Activity, Heart, Image as ImageIcon, Lock, MessageSquare } from 'lucide-react';
+import { MapPin, Calendar, User2, Activity, Heart, Image as ImageIcon, Lock, MessageSquare, Clock } from 'lucide-react';
 import DashboardLayout from '@/components/layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
@@ -15,16 +15,99 @@ import GalleryGrid from '@/components/ui/gallery-grid';
 const supabase = createClient();
 
 interface UserDetails {
+    id: string;
     full_name: string;
     avatar_url: string | null;
     summary: string | null;
+    details: string | null;
+    created_at: string;
+
     profile_pictures: (string | null)[];
+    free_gallery: (string | null)[];
+    private_gallery: (string | null)[];
+
     personal_details: {
         dob?: string;
         gender?: string;
+        orientation?: string;
         activities?: string[];
     };
-    preferences: {
+
+    about_you?: {
+        // Physical Measurements
+        height?: string;
+        weight?: string;
+        chest?: string;
+        waist?: string;
+        hips?: string;
+        leg_measurement?: string;
+        shoe_size?: string;
+        dress_size?: string;
+        bra_cup_size?: string;
+
+        // Physical Characteristics
+        body_type?: string;
+        self_body_type?: string;
+        ethnicity?: string;
+        self_ethnicity?: string;
+        hair_color?: string;
+        self_hair_color?: string;
+        hair_length?: string;
+        eye_color?: string;
+        breast_size?: string;
+        self_chest_size?: string;
+        breast_type?: string;
+        pubic_hair?: string;
+        self_pubic_hair?: string;
+
+        // Personal Details
+        star_sign?: string;
+        age_group?: string;
+        primary_language?: string;
+        secondary_language?: string;
+        non_binary_gender?: string;
+        smoking?: string;
+        body_art?: string;
+        body_art_visibility?: string;
+        birth_marks_scars?: string;
+
+        // Personality & Preferences
+        personality_trait?: string;
+        personality_words?: string;
+        humor_type?: string;
+        energy_level?: string;
+        sexual_leaning?: string;
+        priority?: string;
+        preferred_time?: string;
+        attraction_preference?: string;
+
+        // Intimate Details
+        turn_ons?: string;
+        fantasy?: string;
+        sensitive_spots?: string;
+        ideal_location?: string;
+        ideal_location_intimate?: string;
+        favourite_position?: string;
+        second_favourite_position?: string;
+        peak_libido?: string;
+        masturbation_frequency?: string;
+        memorable_experience?: string;
+        perfect_evening?: string;
+
+        // Favorites
+        favourite_food?: string;
+        favourite_drink?: string;
+        favourite_film?: string;
+        favourite_tv?: string;
+        favourite_celebrity?: string;
+        favourite_colour?: string;
+        favourite_holiday?: string;
+        favourite_flowers?: string;
+        favourite_perfume?: string;
+        favourite_gift?: string;
+    };
+
+    preferences?: {
         allowSearch?: boolean;
         interests?: {
             escorts?: {
@@ -132,7 +215,7 @@ export default function ProfilePage({ params, user, userDetails }: ProfilePagePr
         const date = new Date(createdAt);
         return date.toLocaleDateString('en-GB'); // formats as DD/MM/YYYY
     };
-
+    console.log(fetchedUserDetails)
     return (
         <DashboardLayout user={user} userDetails={userDetails} title="Profile Page" description="View user details">
             <div className="max-w-7xl mx-auto px-4 py-8">
@@ -217,6 +300,64 @@ export default function ProfilePage({ params, user, userDetails }: ProfilePagePr
                         </div>
                     </div>
                 </Card>
+
+                {/* Rates Section */}
+                {(fetchedUserDetails.preferences?.escorting?.locationInfo?.willTravel ||
+                    fetchedUserDetails.preferences?.escorting?.locationInfo?.canAccommodate) && (
+                        <Card className="p-6 mb-6">
+                            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                                <Clock className="w-5 h-5 text-blue-500" />
+                                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Service Rates</h2>
+                            </div>
+                            <div className="space-y-4">
+                                {fetchedUserDetails.preferences?.escorting?.locationInfo?.canAccommodate && (
+                                    <div>
+                                        <h3 className="text-md font-semibold mb-3 text-gray-700 dark:text-gray-300">In-call Rates</h3>
+                                        <div className="grid grid-cols-3 md:grid-cols-9 gap-2">
+                                            {Object.entries(fetchedUserDetails.preferences.escorting.rates?.inCall || {})
+                                                .filter(([_, value]) => value !== '')
+                                                .map(([duration, rate]) => (
+                                                    <div
+                                                        key={duration}
+                                                        className="bg-gray-100 dark:bg-zinc-800 rounded-md p-2 text-center"
+                                                    >
+                                                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1 capitalize">
+                                                            {duration.replace(/([A-Z])/g, ' $1').toLowerCase()}
+                                                        </div>
+                                                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                            {rate}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {fetchedUserDetails.preferences?.escorting?.locationInfo?.willTravel && (
+                                    <div>
+                                        <h3 className="text-md font-semibold mb-3 text-gray-700 dark:text-gray-300">Out-call Rates</h3>
+                                        <div className="grid grid-cols-3 md:grid-cols-9 gap-2">
+                                            {Object.entries(fetchedUserDetails.preferences.escorting.rates?.outCall || {})
+                                                .filter(([_, value]) => value !== '')
+                                                .map(([duration, rate]) => (
+                                                    <div
+                                                        key={duration}
+                                                        className="bg-gray-100 dark:bg-zinc-800 rounded-md p-2 text-center"
+                                                    >
+                                                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1 capitalize">
+                                                            {duration.replace(/([A-Z])/g, ' $1').toLowerCase()}
+                                                        </div>
+                                                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                            {rate}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </Card>
+                    )}
 
                 <Tabs defaultValue="profile" className="space-y-6">
                     <TabsList className="bg-gray-100 dark:bg-zinc-800 p-1 rounded-lg">

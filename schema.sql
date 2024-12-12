@@ -33,6 +33,7 @@ create table users (
   member_type
    -- Services offered by the user, stored as an array of text.
   services TEXT[] DEFAULT ARRAY[]::TEXT[],
+  phone_number text,
   summary text,
   details text;
   -- Automatically track creation and update times.
