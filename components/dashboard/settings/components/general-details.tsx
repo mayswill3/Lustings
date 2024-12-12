@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import Toggle from '@/components/ui/toggle';
 import { MapPin, User2, Lock, Settings2 } from 'lucide-react';
+import { NATIONALITIES, isValidNationality } from '@/constants/nationalities';
+import LocationDetailsSection from './general-details/location-details';
 
 interface Props {
     user: User | null | undefined;
@@ -194,7 +196,7 @@ export default function GeneralDetails(props: Props) {
             </div>
         );
     }
-    console.log(userDetails)
+
     return (
         <div className="max-w-4xl mx-auto">
             <form id="settingsForm" onSubmit={handleSubmit} className="space-y-8">
@@ -314,7 +316,7 @@ export default function GeneralDetails(props: Props) {
                                     className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700"
                                 >
                                     <option value="">Select Nationality</option>
-                                    {['United Kingdom', 'United States', 'Canada'].map(nationality => (
+                                    {NATIONALITIES.map(nationality => (
                                         <option key={nationality} value={nationality}>
                                             {nationality}
                                         </option>
@@ -326,65 +328,7 @@ export default function GeneralDetails(props: Props) {
                 </Card>
 
                 {/* Location Details Section */}
-                <Card className="p-6 shadow-sm">
-                    <SectionHeader icon={<MapPin size={24} />} title="Location Details" />
-                    <div className="grid gap-6">
-                        <div className="grid sm:grid-cols-2 gap-6">
-                            <FormField label="Country">
-                                <Input
-                                    type="text"
-                                    name="country"
-                                    defaultValue={userDetails?.location?.country ?? ''}
-                                    placeholder="Enter country"
-                                />
-                            </FormField>
-                            <FormField label="Region">
-                                <Input
-                                    type="text"
-                                    name="region"
-                                    defaultValue={userDetails?.location?.region ?? ''}
-                                    placeholder="Enter region"
-                                />
-                            </FormField>
-                        </div>
-                        <div className="grid sm:grid-cols-2 gap-6">
-                            <FormField label="County">
-                                <Input
-                                    type="text"
-                                    name="county"
-                                    defaultValue={userDetails?.location?.county ?? ''}
-                                    placeholder="Enter county"
-                                />
-                            </FormField>
-                            <FormField label="Town">
-                                <Input
-                                    type="text"
-                                    name="town"
-                                    defaultValue={userDetails?.location?.town ?? ''}
-                                    placeholder="Enter town"
-                                />
-                            </FormField>
-                        </div>
-                        <div className="grid sm:grid-cols-2 gap-6">
-                            <FormField label="Postcode">
-                                <Input
-                                    type="text"
-                                    name="postcode"
-                                    defaultValue={userDetails?.location?.postcode ?? ''}
-                                    placeholder="Enter postcode"
-                                />
-                            </FormField>
-                            <FormField label="Nearest Station">
-                                <Input
-                                    type="text"
-                                    name="nearestStation"
-                                    defaultValue={userDetails?.location?.nearest_station ?? ''}
-                                    placeholder="Enter nearest station"
-                                />
-                            </FormField>
-                        </div>
-                    </div>
-                </Card>
+                <LocationDetailsSection userDetails={userDetails} />
 
                 {/* Privacy Settings Section */}
                 <Card className="p-6 shadow-sm">

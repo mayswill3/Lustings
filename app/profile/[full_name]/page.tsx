@@ -216,7 +216,7 @@ export default function ProfilePage({ params, user, userDetails }: ProfilePagePr
         const date = new Date(createdAt);
         return date.toLocaleDateString('en-GB'); // formats as DD/MM/YYYY
     };
-    console.log(fetchedUserDetails)
+
     return (
         <DashboardLayout user={user} userDetails={userDetails} title="Profile Page" description="View user details">
             <div className="max-w-7xl mx-auto px-4 py-8">

@@ -86,7 +86,7 @@ export default function Settings(props: Props) {
       setActiveTab('general');
     }
   }, [props.user?.user_metadata?.member_type, activeTab]);
-  console.log(props.user)
+
   return (
     <DashboardLayout
       user={props.user}
