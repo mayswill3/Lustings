@@ -50,13 +50,62 @@ export interface ProductWithPrice extends Product {
 }
 
 export interface UserDetails {
-  id: string /* primary key */;
-  first_name: string;
-  last_name: string;
-  full_name?: string;
-  avatar_url?: string;
-  billing_address?: Stripe.Address;
-  payment_method?: Stripe.PaymentMethod[Stripe.PaymentMethod.Type];
+  nationality: any;
+  id: string;
+  full_name: string;
+  avatar_url: string | null;
+  summary: string | null;
+  details: string | null;
+  created_at: string;
+  phone_number?: string;
+  profile_pictures: (string | null)[];
+  free_gallery: (string | null)[];
+  private_gallery: (string | null)[];
+  location?: {
+    town?: string;
+    county?: string;
+    region?: string;
+  };
+  personal_details: {
+    dob?: string;
+    gender?: string;
+    orientation?: string;
+    activities?: string[];
+    with?: string[];
+  };
+  about_you?: {
+    height?: string;
+    weight?: string;
+    chest?: string;
+    waist?: string;
+    hips?: string;
+    leg_measurement?: string;
+    shoe_size?: string;
+    dress_size?: string;
+    bra_cup_size?: string;
+    // ... add all other about_you fields
+  };
+  preferences?: {
+    allowSearch?: boolean;
+    escorting?: {
+      locationInfo?: {
+        willTravel?: boolean;
+        canAccommodate?: boolean;
+      };
+      rates?: {
+        inCall?: Record<string, string>;
+        outCall?: Record<string, string>;
+      };
+    };
+  };
+}
+
+export interface ProfilePageProps {
+  params: {
+    full_name: string;
+  };
+  user: User | null | undefined;
+  userDetails: { [x: string]: any } | null;
 }
 
 export interface Price {
