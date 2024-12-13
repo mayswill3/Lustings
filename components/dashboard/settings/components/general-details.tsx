@@ -99,82 +99,79 @@ export default function GeneralDetails(props: Props) {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Get all form data
-        const formData = new FormData(e.currentTarget);
-
-        // Extract details for `auth.users`
-        const fullName = formData.get('fullName')?.toString().trim();
-        const firstName = formData.get('firstName')?.toString().trim();
-        const lastName = formData.get('lastName')?.toString().trim();
-        const newEmail = formData.get('newEmail')?.toString().trim();
-        const mobileNumber = formData.get('mobileNumber')?.toString().trim(); // Add this line
-        const nationality = formData.get('nationality')?.toString().trim();
-
-        // Get member type and services
-        // Get member type
-        const memberType = formData.get('memberType')?.toString().trim();
-
-        // Extract services from state instead of relying on FormData
-        const services =
-            memberType === 'Offering Services' ? userDetails?.services || [] : [];
-
-        // Extract details for `users` table
-        const location = {
-            country: formData.get('country')?.toString().trim(),
-            region: formData.get('region')?.toString().trim(),
-            county: formData.get('county')?.toString().trim(),
-            town: formData.get('town')?.toString().trim(),
-            postcode: formData.get('postcode')?.toString().trim(),
-            nearest_station: formData.get('nearestStation')?.toString().trim(),
-        };
-        const privacy = {
-            hideProfilePictures: formData.get('hideProfilePictures') === 'on',
-        };
-        const preferences = {
-            allowSearch: formData.get('allowSearch') === 'on',
-            interests: {
-                escorts: {
-                    inCalls: formData.get('escortsInCalls') === 'on',
-                    outCalls: formData.get('escortsOutCalls') === 'on',
-                },
-                webcamDirectCam: formData.get('webcamDirectCam') === 'on',
-                phoneChatDirectChat: formData.get('phoneChatDirectChat') === 'on',
-                alternativePractices: {
-                    dominant: formData.get('dominant') === 'on',
-                    submissive: formData.get('submissive') === 'on',
-                },
-            },
-        };
-
         try {
-            // Update `auth.users` for fullName, email, firstName, and lastName
-            if (fullName || newEmail || firstName || lastName) {
+            // Get all form data
+            const formData = new FormData(e.currentTarget);
+
+            // First, fetch current user data to get existing preferences
+            const { data: currentUser, error: fetchError } = await supabase
+                .from('users')
+                .select('preferences')
+                .eq('id', props.user?.id)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            // Prepare new preferences while preserving existing ones
+            const newPreferences = {
+                ...currentUser?.preferences, // Keep all existing preferences (including escorting)
+                allowSearch: formData.get('allowSearch') === 'on',
+                interests: {
+                    ...currentUser?.preferences?.interests, // Keep existing interests
+                    escorts: {
+                        ...currentUser?.preferences?.interests?.escorts, // Keep existing escort settings
+                        inCalls: formData.get('escortsInCalls') === 'on',
+                        outCalls: formData.get('escortsOutCalls') === 'on',
+                    },
+                    webcamDirectCam: formData.get('webcamDirectCam') === 'on',
+                    phoneChatDirectChat: formData.get('phoneChatDirectChat') === 'on',
+                    alternativePractices: {
+                        ...currentUser?.preferences?.interests?.alternativePractices,
+                        dominant: formData.get('dominant') === 'on',
+                        submissive: formData.get('submissive') === 'on',
+                    },
+                },
+            };
+
+            // Update auth.users
+            if (formData.get('fullName') || formData.get('newEmail') || formData.get('firstName') || formData.get('lastName')) {
                 const { error } = await supabase.auth.updateUser({
-                    email: newEmail,
+                    email: formData.get('newEmail')?.toString(),
                     data: {
-                        full_name: fullName,
-                        first_name: firstName,
-                        last_name: lastName,
-                        phone_number: mobileNumber, // Add this line
-                        member_type: memberType,
-                        nationality,
+                        full_name: formData.get('fullName')?.toString(),
+                        first_name: formData.get('firstName')?.toString(),
+                        last_name: formData.get('lastName')?.toString(),
+                        phone_number: formData.get('mobileNumber')?.toString(),
+                        member_type: formData.get('memberType')?.toString(),
+                        nationality: formData.get('nationality')?.toString(),
                     },
                 });
                 if (error) throw error;
             }
 
-            // Update `users` table for fullName and other fields
+            // Update users table
             const { error } = await supabase
                 .from('users')
                 .update({
-                    full_name: fullName,
-                    phone_number: mobileNumber, // Add this line
-                    member_type: memberType,
-                    services, // Update services correctly
-                    nationality,
-                    location,
-                    privacy,
-                    preferences,
+                    full_name: formData.get('fullName')?.toString(),
+                    phone_number: formData.get('mobileNumber')?.toString(),
+                    member_type: formData.get('memberType')?.toString(),
+                    services: formData.get('memberType')?.toString() === 'Offering Services'
+                        ? userDetails?.services || []
+                        : [],
+                    nationality: formData.get('nationality')?.toString(),
+                    location: {
+                        country: formData.get('country')?.toString(),
+                        region: formData.get('region')?.toString(),
+                        county: formData.get('county')?.toString(),
+                        town: formData.get('town')?.toString(),
+                        postcode: formData.get('postcode')?.toString(),
+                        nearest_station: formData.get('nearestStation')?.toString(),
+                    },
+                    privacy: {
+                        hideProfilePictures: formData.get('hideProfilePictures') === 'on',
+                    },
+                    preferences: newPreferences, // Use the merged preferences
                 })
                 .eq('id', props.user?.id);
 
@@ -490,13 +487,34 @@ export default function GeneralDetails(props: Props) {
                     </Card>
                 )}
 
-                <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 flex justify-end gap-4">
                     <Button
                         type="submit"
-                        className="w-full flex justify-center items-center gap-2"
+                        className="flex justify-center items-center gap-2"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting ? 'Saving Changes...' : 'Save All Changes'}
+                        {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={async () => {
+                            setIsSubmitting(true);
+
+                            // Trigger form submit programmatically
+                            const form = document.getElementById('settingsForm') as HTMLFormElement;
+                            if (form) {
+                                form.requestSubmit();
+                            }
+
+                            setTimeout(() => {
+                                setIsSubmitting(false);
+                                window.location.href = `/profile/${encodeURIComponent(userDetails?.full_name ?? '')}`;
+                            }, 1000); // Adjust timeout if needed
+                        }}
+                        className="flex justify-center items-center gap-2"
+                        disabled={isSubmitting}
+                    >
+                        Save and View Profile
                     </Button>
                 </div>
             </form>

@@ -29,7 +29,7 @@ export default function AboutYou() {
 
                 const { data: details, error: detailsError } = await supabase
                     .from('users')
-                    .select('about_you')
+                    .select('about_you, full_name')
                     .eq('id', user.id)
                     .single();
 
@@ -38,7 +38,10 @@ export default function AboutYou() {
                     return;
                 }
 
-                setUserDetails(details?.about_you || {});
+                setUserDetails({
+                    ...details?.about_you,
+                    full_name: details?.full_name || '',
+                });
             } catch (error) {
                 console.error('Unexpected error fetching user data:', error);
             }
@@ -183,13 +186,36 @@ export default function AboutYou() {
                     <SelfDescription userDetails={userDetails} />
                 </CollapsibleSection>
 
-                <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 flex justify-end gap-4">
                     <Button
                         type="submit"
-                        className="w-full flex justify-center items-center gap-2"
+                        className="flex justify-center items-center gap-2"
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={async () => {
+                            setIsSubmitting(true);
+
+                            // Trigger form submission programmatically
+                            const form = document.querySelector('form') as HTMLFormElement;
+                            if (form) {
+                                form.requestSubmit();
+                            }
+
+                            // Wait for the submission to complete and redirect
+                            setTimeout(() => {
+                                setIsSubmitting(false);
+                                const fullName = userDetails?.full_name || '';
+                                window.location.href = `/profile/${encodeURIComponent(fullName)}`;
+                            }, 1000); // Adjust timeout if necessary
+                        }}
+                        className="flex justify-center items-center gap-2"
+                        disabled={isSubmitting}
+                    >
+                        Save and View Profile
                     </Button>
                 </div>
             </form>

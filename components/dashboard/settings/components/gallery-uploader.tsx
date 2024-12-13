@@ -241,13 +241,13 @@ export default function GalleryUploader(props: Props) {
                 <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
                     Image Galleries
                 </h2>
-                <Button
+                {/* <Button
                     onClick={handleSubmit}
                     className="flex items-center gap-2"
                     disabled={isSubmitting || (freeGallery.every((url) => !url) && privateGallery.every((url) => !url))}
                 >
                     {isSubmitting ? 'Saving...' : 'Save All Changes'}
-                </Button>
+                </Button> */}
             </div>
 
             <div className="space-y-6">

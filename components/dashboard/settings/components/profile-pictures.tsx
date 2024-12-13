@@ -232,7 +232,8 @@ export default function ProfilePictureUploader(props: Props) {
                     ))}
                 </div>
 
-                <div className="mt-8 flex justify-center">
+                <div className="mt-8 flex justify-center space-x-4">
+                    {/* Save Profile Pictures Button */}
                     <Button
                         onClick={handleSubmit}
                         className="px-8 py-3 rounded-lg flex items-center space-x-2"
@@ -240,7 +241,40 @@ export default function ProfilePictureUploader(props: Props) {
                     >
                         {isSubmitting ? 'Saving...' : 'Save Profile Pictures'}
                     </Button>
+
+                    {/* Save and View Profile Button */}
+                    <Button
+                        onClick={async () => {
+                            setIsSubmitting(true);
+
+                            // Save profile pictures first
+                            await handleSubmit();
+
+                            // Redirect to profile page using full_name
+                            const { data: userDetails, error } = await supabase
+                                .from('users')
+                                .select('full_name')
+                                .eq('id', user?.id)
+                                .single();
+
+                            setIsSubmitting(false);
+
+                            if (error || !userDetails?.full_name) {
+                                console.error('Error fetching full_name:', error);
+                                toast.error('Failed to redirect: full_name not found');
+                                return;
+                            }
+
+                            const profileUrl = `/profile/${encodeURIComponent(userDetails.full_name)}`;
+                            window.location.href = profileUrl;
+                        }}
+                        className="px-8 py-3 rounded-lg flex items-center space-x-2"
+                        disabled={isSubmitting || uploadedUrls.every((url) => url === null)}
+                    >
+                        {isSubmitting ? 'Saving and Redirecting...' : 'Save and View Profile'}
+                    </Button>
                 </div>
+
             </div>
 
             <div className="mt-8">

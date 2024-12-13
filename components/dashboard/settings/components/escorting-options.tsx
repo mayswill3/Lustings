@@ -299,7 +299,6 @@ export default function EscortingOptions(props: Props) {
         }));
     };
 
-
     return (
         <div className="max-w-4xl mx-auto p-4 space-y-6">
             <form onSubmit={handleSubmit}>
@@ -436,9 +435,44 @@ export default function EscortingOptions(props: Props) {
                     </CardContent>
 
                     <CardFooter className="flex justify-end space-x-4 pt-6">
-                        <Button variant="outline" type="button">Cancel</Button>
+
+
+                        {/* Save Changes Button */}
                         <Button type="submit" disabled={isSubmitting}>
                             {isSubmitting ? 'Saving...' : 'Save Changes'}
+                        </Button>
+
+                        {/* Save and View Profile Button */}
+                        <Button
+                            type="button"
+                            onClick={async () => {
+                                setIsSubmitting(true);
+
+                                // Save the changes first
+                                await handleSubmit(new Event('submit'));
+
+                                // Fetch full_name for redirection
+                                const { data: userDetails, error } = await supabase
+                                    .from('users')
+                                    .select('full_name')
+                                    .eq('id', user?.id)
+                                    .single();
+
+                                setIsSubmitting(false);
+
+                                if (error || !userDetails?.full_name) {
+                                    console.error('Error fetching full_name:', error);
+                                    toast.error('Failed to redirect: full_name not found');
+                                    return;
+                                }
+
+                                // Redirect to the profile page
+                                const profileUrl = `/profile/${encodeURIComponent(userDetails.full_name)}`;
+                                window.location.href = profileUrl;
+                            }}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Saving and Redirecting...' : 'Save and View Profile'}
                         </Button>
                     </CardFooter>
                 </Card>

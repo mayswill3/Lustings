@@ -10,6 +10,7 @@ import { createClient } from '@/utils/supabase/client';
 import * as Switch from '@radix-ui/react-switch';
 import * as RadioGroup from '@radix-ui/react-radio-group';
 import { Calendar, Users, Heart, Activity, ChevronDown } from 'lucide-react';
+import { ACTIVITIES } from '@/constants/activities';
 
 
 const supabase = createClient();
@@ -54,6 +55,7 @@ const SectionHeader = ({ icon, title, subtitle }: { icon: React.ReactNode; title
 export default function PersonalDetails() {
     const [user, setUser] = useState<{ id: string } | null>(null);
     const [userDetails, setUserDetails] = useState<{
+        full_name?: string
         personal_details?: {
             dob?: string;
             gender?: string;
@@ -275,91 +277,7 @@ export default function PersonalDetails() {
                     <div className="relative">
                         <div className="max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 scrollbar-track-transparent">
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                {[
-                                    '"A" Levels',
-                                    '"A" Levels (at discretion)',
-                                    '15 Mins "quickie"',
-                                    'Anal Play',
-                                    'Bareback*',
-                                    'BDSM*',
-                                    'BDSM (giving)*',
-                                    'BDSM (receiving)*',
-                                    'Being Filmed',
-                                    'Bukkake',
-                                    'Car Meets',
-                                    'CIM',
-                                    'CIM (at discretion)',
-                                    'Cross Dressing',
-                                    'Deep Throat',
-                                    'Depilation',
-                                    'Dinner Dates',
-                                    'Disabled Clients',
-                                    'Dogging',
-                                    'Domination*',
-                                    'Domination (giving)*',
-                                    'Domination (receiving)*',
-                                    'Double Penetration',
-                                    'Enema',
-                                    'Exhibitionism',
-                                    'Face Sitting',
-                                    'Facials',
-                                    'Female Ejaculation',
-                                    'Fetish',
-                                    'FFM 3Somes',
-                                    'Fingering/Finger Play',
-                                    'Food Sex/Sploshing',
-                                    'Foot Worship',
-                                    'French Kissing',
-                                    'French Kissing (discretion)',
-                                    'Gang Bangs',
-                                    'Hand Relief',
-                                    'Humiliation',
-                                    'Humiliation (giving)',
-                                    'Humiliation (receiving)',
-                                    'Lapdancing',
-                                    'Massage',
-                                    'Milking/Lactating',
-                                    'MMF 3Somes',
-                                    'Modeling',
-                                    'Moresomes',
-                                    'Naturism/Nudism',
-                                    'Oral',
-                                    'Oral without (at discretion)',
-                                    'Oral without Protection',
-                                    'Parties',
-                                    'Penetration (Protected)',
-                                    'Pole Dancing',
-                                    'Pregnant',
-                                    'Prostate Massage',
-                                    'Pussy Pumping',
-                                    'Receiving Oral',
-                                    'Rimming',
-                                    'Rimming (giving)',
-                                    'Rimming (receiving)',
-                                    'Role Play & Fantasy*',
-                                    'Sauna / Bath Houses',
-                                    'Silent Caller (Phone Chat)',
-                                    'Smoking (Fetish)',
-                                    'Snowballing',
-                                    'Spanking*',
-                                    'Spanking (giving)*',
-                                    'Spanking (receiving)*',
-                                    'Strap On',
-                                    'Striptease',
-                                    'Sub games*',
-                                    'Swallow',
-                                    'Swallow (at discretion)',
-                                    'Swinging',
-                                    'Sybian & Machine Sex',
-                                    'Tantric',
-                                    'Tie & Tease*',
-                                    'Toys',
-                                    'Travel Companion',
-                                    'Uniforms',
-                                    'Unprotected Sex*',
-                                    'Voyeurism',
-                                    'Watersports*',
-                                ].map((activity) => (
+                                {ACTIVITIES.map((activity) => (
                                     <Toggle
                                         key={activity}
                                         name="activities"
@@ -413,16 +331,38 @@ export default function PersonalDetails() {
 
                 {/* Submit Button */}
                 <div className="sticky bottom-4 z-10">
-                    <Card className="p-4 bg-white/80 backdrop-blur-sm dark:bg-zinc-900/80">
+                    <Card className="p-4 bg-white/80 backdrop-blur-sm dark:bg-zinc-900/80 flex justify-end gap-4">
                         <Button
                             type="submit"
-                            className="w-full flex justify-center items-center gap-2"
+                            className="flex justify-center items-center gap-2"
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? 'Saving Changes...' : 'Save All Changes'}
+                            {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={async () => {
+                                setIsSubmitting(true);
+
+                                // Trigger form submit programmatically
+                                const form = document.getElementById('settingsForm') as HTMLFormElement;
+                                if (form) {
+                                    form.requestSubmit();
+                                }
+
+                                setTimeout(() => {
+                                    setIsSubmitting(false);
+                                    window.location.href = `/profile/${encodeURIComponent(userDetails?.full_name || '')}`;
+                                }, 1000); // Adjust timeout if needed
+                            }}
+                            className="flex justify-center items-center gap-2"
+                            disabled={isSubmitting}
+                        >
+                            Save and View Profile
                         </Button>
                     </Card>
                 </div>
+
             </form>
         </div>
     );
