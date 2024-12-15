@@ -3,20 +3,77 @@
 * Note: This table contains user data. Users should only be able to view and update their own data.
 */
 create table users (
-  -- UUID from auth.users
-  id uuid references auth.users not null primary key,
-  full_name text,
-  avatar_url text,
-  credits bigint DEFAULT 0,
-  trial_credits bigint DEFAULT 3,
-  -- The customer's billing address, stored in JSON format.
-  billing_address jsonb,
-  -- Stores your customer's payment instruments.
-  payment_method jsonb
+    -- UUID from auth.users
+    id uuid references auth.users not null primary key,
+    
+    -- Basic user information
+    full_name text,
+    avatar_url text,
+    phone_number text,
+    nationality text,
+    member_type text,
+    
+    -- Credits system
+    credits bigint default 0,
+    trial_credits bigint default 3,
+    
+    -- JSON stored objects
+    billing_address jsonb,
+    payment_method jsonb,
+    location jsonb,
+    privacy jsonb,
+    preferences jsonb,
+    personal_details jsonb,
+    profile_pictures jsonb,
+    free_gallery jsonb,
+    private_gallery jsonb,
+    about_you jsonb,
+    faqs jsonb default '[]'::jsonb,
+    
+    -- Text content
+    summary text,
+    details text,
+    
+    -- Arrays
+    services text[] default array[]::text[],
+    
+    -- Timestamps
+    created_at timestamp with time zone default now(),
+    updated_at timestamp with time zone default now()
 );
+
+-- Enable row-level security
 alter table users enable row level security;
-create policy "Can view own user data." on users for select using (auth.uid() = id);
-create policy "Can update own user data." on users for update using (auth.uid() = id);
+
+-- Policy: Users can view their own data
+create policy "Can view own user data." 
+on users 
+for select 
+using (auth.uid() = id);
+
+-- Policy: Users can update their own data
+create policy "Can update own user data." 
+on users 
+for update 
+using (auth.uid() = id)
+with check (
+  auth.uid() = id
+);
+
+-- Trigger: Automatically update `updated_at` timestamp
+create or replace function update_updated_at_column()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger update_users_updated_at
+before update on users
+for each row
+execute function update_updated_at_column();
+
  
 /**
 * This trigger automatically creates a user entry when a new user signs up via Supabase Auth.

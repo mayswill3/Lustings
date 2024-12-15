@@ -1,26 +1,27 @@
 const nextConfig = {
-  reactStrictMode: false, // changed this to false
+  reactStrictMode: false,
   images: {
     domains: [
       'images.unsplash.com',
       'i.ibb.co',
       'scontent.fotp8-1.fna.fbcdn.net',
+      'yvojezsxxndkcntfzqlp.supabase.co' // Added Supabase storage domain
     ],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
         port: '',
-        pathname: '/a/**',
+        pathname: '/a/**'
       },
       {
         protocol: 'https',
         hostname: '*.googleusercontent.com',
         port: '',
-        pathname: '**',
-      },
-    ],
-  },
+        pathname: '**'
+      }
+    ]
+  }
 };
 
 module.exports = nextConfig;

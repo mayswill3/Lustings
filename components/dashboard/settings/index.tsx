@@ -1,97 +1,105 @@
-/*eslint-disable*/
 'use client';
 
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { User } from '@supabase/supabase-js';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { createClient } from '@/utils/supabase/client';
-import { getURL, getStatusRedirect } from '@/utils/helpers';
-import Notifications from './components/notification-settings';
-import { Input } from '@/components/ui/input';
+import { Settings2, User as UserIcon, Camera, Heart, Map, HelpCircle } from 'lucide-react';
+import GeneralDetails from './components/general-details';
+import PersonalDetails from './components/personal-details';
+import ProfilePictures from './components/profile-pictures';
+import AboutYou from './components/interview';
+import Escorts from './components/escorting-options';
+import FAQDetails from './components/faq-detail';
 
 interface Props {
   user: User | null | undefined;
   userDetails: { [x: string]: any } | null;
 }
 
-const supabase = createClient();
+interface TabButtonProps {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}
+
+const TabButton = ({ active, onClick, icon, label }: TabButtonProps) => (
+  <button
+    onClick={onClick}
+    className={`flex items-center gap-2 px-3 sm:px-6 py-3 text-xs sm:text-sm font-medium whitespace-nowrap
+          transition-all duration-200 border-b-2 hover:text-blue-600 dark:hover:text-blue-400 
+          ${active
+        ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+        : 'border-transparent text-gray-600 dark:text-gray-400'
+      }`}
+  >
+    <span className="sm:hidden">{icon}</span>
+    <span className="hidden sm:inline">{icon}</span>
+    <span className="hidden sm:inline">{label}</span>
+    <span className="sm:hidden">{label.split(' ')[0]}</span>
+  </button>
+);
+
 export default function Settings(props: Props) {
-  // Input States
-  const [nameError, setNameError] = useState<{
-    status: boolean;
-    message: string;
-  }>();
-  console.log(props.user);
-  console.log(props.userDetails);
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState('general');
 
-  const handleSubmitEmail = async (e: React.FormEvent<HTMLFormElement>) => {
-    setIsSubmitting(true);
-    // Check if the new email is the same as the old email
-    if (e.currentTarget.newEmail.value === props.user.email) {
-      e.preventDefault();
-      setIsSubmitting(false);
-      return;
-    }
-    // Get form data
-    const newEmail = e.currentTarget.newEmail.value.trim();
-    const callbackUrl = getURL(
-      getStatusRedirect(
-        '/dashboard/settings',
-        'Success!',
-        `Your email has been updated.`
-      )
-    );
-    e.preventDefault();
-    const { error } = await supabase.auth.updateUser(
-      { email: newEmail },
-      {
-        emailRedirectTo: callbackUrl
-      }
-    );
-    router.push('/dashboard/settings');
-    setIsSubmitting(false);
-  };
-
-  const handleSubmitName = async (e: React.FormEvent<HTMLFormElement>) => {
-    setIsSubmitting(true);
-    // Check if the new name is the same as the old name
-    if (e.currentTarget.fullName.value === props.user.user_metadata.full_name) {
-      e.preventDefault();
-      setIsSubmitting(false);
-      return;
-    }
-    // Get form data
-    const fullName = e.currentTarget.fullName.value.trim();
-    const firstName = e.currentTarget.firstName.value.trim();
-    const lastName = e.currentTarget.lastName.value.trim();
-
-    const { error } = await supabase
-      .from('users')
-      .update({ full_name: fullName, first_name: firstName, last_name: lastName, })
-      .eq('id', props.user?.id);
-    if (error) {
-      console.log(error);
-    }
-    e.preventDefault();
-    supabase.auth.updateUser({
-      // data: { full_name: fullName }
-      data: { full_name: fullName, first_name: firstName, last_name: lastName, },
-    });
-    router.push('/dashboard/settings');
-    setIsSubmitting(false);
-  };
-
-  const notifications = [
-    { message: 'Your call has been confirmed.', time: '1 hour ago' },
-    { message: 'You have a new message!', time: '1 hour ago' },
-    { message: 'Your subscription is expiring soon!', time: '2 hours ago' }
+  // Base tabs that are always shown
+  const baseTabs = [
+    {
+      id: 'general',
+      label: 'General Details',
+      icon: <Settings2 className="w-4 h-4" />,
+      component: <GeneralDetails user={props.user} userDetails={props.userDetails} />,
+    },
+    {
+      id: 'personal',
+      label: 'Personal Details',
+      icon: <UserIcon className="w-4 h-4" />,
+      component: <PersonalDetails user={props.user} userDetails={props.userDetails} />,
+    },
+    {
+      id: 'about',
+      label: 'About You',
+      icon: <Heart className="w-4 h-4" />,
+      component: <AboutYou />,
+    },
+    {
+      id: 'pictures',
+      label: 'Pictures',
+      icon: <Camera className="w-4 h-4" />,
+      component: <ProfilePictures user={props.user} userDetails={props.userDetails} />,
+    },
   ];
+
+  // Service provider specific tabs
+  const serviceProviderTabs = [
+    {
+      id: 'escorts',
+      label: 'Escorts',
+      icon: <Map className="w-4 h-4" />,
+      component: <Escorts user={props.user} userDetails={props.userDetails} />,
+    },
+    {
+      id: 'faq',
+      label: 'FAQ',
+      icon: <HelpCircle className="w-4 h-4" />,
+      component: <FAQDetails />, // You'll need to import this component
+    },
+  ];
+
+  // Combine tabs based on member_type
+  const tabs = props.user?.user_metadata?.member_type === 'Offering Services'
+    ? [...baseTabs, ...serviceProviderTabs]
+    : baseTabs;
+
+  // If current active tab is 'escorts' but user is not offering services, reset to 'general'
+  useEffect(() => {
+    if ((activeTab === 'escorts' || activeTab === 'faq') &&
+      props.user?.user_metadata?.member_type !== 'Offering Services') {
+      setActiveTab('general');
+    }
+  }, [props.user?.user_metadata?.member_type, activeTab]);
 
   return (
     <DashboardLayout
@@ -100,141 +108,43 @@ export default function Settings(props: Props) {
       title="Account Settings"
       description="Profile settings."
     >
-      <div className="relative mx-auto flex w-max max-w-full flex-col md:pt-[unset] lg:pt-[100px] lg:pb-[100px]">
-        <div className="maw-w-full mx-auto w-full flex-col justify-center md:w-full md:flex-row xl:w-full">
-          <Card
-            className={
-              'mb-5 h-min flex items-center aligh-center max-w-full py-8 px-4 dark:border-zinc-800'
-            }
-          >
-            <Avatar className="min-h-[68px] min-w-[68px]">
-              <AvatarImage src={props.user?.user_metadata.avatar_url} />
-              <AvatarFallback className="text-2xl font-bold dark:text-zinc-950">
-                {props.user.user_metadata.full_name
-                  ? `${props.user.user_metadata.full_name[0]}`
-                  : `${props.user?.user_metadata.email[0].toUpperCase()}`}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-xl font-extrabold text-zinc-950 leading-[100%] dark:text-white pl-4 md:text-3xl">
-                {props.user.user_metadata.full_name}
-              </p>
-              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 md:mt-2 pl-4 md:text-base">
-                CEO and Founder
-              </p>
+      <div className="min-h-screen bg-gray-50 dark:bg-zinc-900">
+        <div className="relative mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Manage your account settings and preferences
+                </p>
+              </div>
             </div>
-          </Card>
-          <Card
-            className={
-              'mb-5 h-min max-w-full pt-8 pb-6 px-6 dark:border-zinc-800'
-            }
-          >
-            <p className="text-xl font-extrabold text-zinc-950 dark:text-white md:text-3xl">
-              Account Details
-            </p>
-            <p className="mb-6 mt-1 text-sm font-medium text-zinc-500 dark:text-zinc-400 md:mt-4 md:text-base">
-              Here you can change your account information
-            </p>
-            <label
-              className="mb-3 flex cursor-pointer px-2.5 font-bold leading-none text-zinc-950 dark:text-white"
-              htmlFor={'name'}
-            >
-              Your Name
-              <p className="ml-1 mt-[1px] text-sm font-medium leading-none text-zinc-500 dark:text-zinc-400">
-                (30 characters maximum)
-              </p>
-            </label>
-            <div className="mb-8 flex flex-col md:flex-row">
-              <form
-                className="w-full"
-                id="detailsForm"
-                onSubmit={(e) => handleSubmitName(e)}
-              >
-                <label className="mb-3 flex cursor-pointer px-2.5 font-bold leading-none text-zinc-950 dark:text-white">
-                  Full Name
-                </label>
-                <Input
-                  type="text"
-                  name="fullName"
-                  defaultValue={props.userDetails?.full_name ?? ''}
-                  placeholder="Enter your full name"
-                  className="mb-4 w-full px-4 py-4 outline-none"
-                />
 
-                <label className="mb-3 flex cursor-pointer px-2.5 font-bold leading-none text-zinc-950 dark:text-white">
-                  First Name
-                </label>
-                <Input
-                  type="text"
-                  name="firstName"
-                  defaultValue={props.userDetails?.first_name ?? ''}
-                  placeholder="Enter your first name"
-                  className="mb-4 w-full px-4 py-4 outline-none"
-                />
-
-                <label className="mb-3 flex cursor-pointer px-2.5 font-bold leading-none text-zinc-950 dark:text-white">
-                  Last Name
-                </label>
-                <Input
-                  type="text"
-                  name="lastName"
-                  defaultValue={props.userDetails?.last_name ?? ''}
-                  placeholder="Enter your last name"
-                  className="mb-4 w-full px-4 py-4 outline-none"
-                />
+            {/* Main Content */}
+            <Card className="overflow-hidden bg-white dark:bg-zinc-800 shadow-sm">
+              {/* Tabs Navigation */}
+              <div className="border-b border-gray-200 dark:border-zinc-700">
+                <div className="flex overflow-x-auto scrollbar-hide -mb-px">
+                  {tabs.map((tab) => (
+                    <TabButton
+                      key={tab.id}
+                      active={activeTab === tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      icon={tab.icon}
+                      label={tab.label}
+                    />
+                  ))}
+                </div>
+              </div>
 
 
-              </form>
-              <Button
-                className="flex h-full max-h-full w-full items-center justify-center rounded-lg px-4 py-4 text-base font-medium md:ms-4 md:w-[300px]"
-                form="detailsForm"
-                type="submit"
-                disabled={isSubmitting}
-              >
-                Update Details
-              </Button>
-              <div className="mt-8 h-px w-full max-w-[90%] self-center bg-zinc-200 dark:bg-white/10 md:mt-0 md:hidden" />
-            </div>
-            {/* <p
-              className={`mb-5 px-2.5 text-red-500 md:px-9 ${nameError?.status ? 'block' : 'hidden'
-                }`}
-            >
-              {nameError?.message}
-            </p>
-            <label
-              className="mb-3 ml-2.5 flex cursor-pointer px-2.5 font-bold leading-none text-zinc-950 dark:text-white"
-              htmlFor={'email'}
-            >
-              Your Email
-              <p className="ml-1 mt-[1px] text-sm font-medium leading-none text-zinc-500 dark:text-zinc-400">
-                (We will email you to verify the change)
-              </p>
-            </label>
-
-            <div className="mb-8 flex flex-col md:flex-row">
-              <form
-                className="w-full"
-                id="emailForm"
-                onSubmit={(e) => handleSubmitEmail(e)}
-              >
-                <Input
-                  placeholder="Please enter your email"
-                  defaultValue={props.user.email ?? ''}
-                  type="text"
-                  name="newEmail"
-                  className={`mr-4 flex h-full max-w-full w-full items-center justify-center px-4 py-4 outline-none`}
-                />
-              </form>
-              <Button
-                className="flex h-full max-h-full w-full items-center justify-center rounded-lg px-4 py-4 text-base md:ms-4 font-medium md:w-[300px]"
-                type="submit"
-                form="emailForm"
-              >
-                Update email
-              </Button>
-            </div> */}
-          </Card>
-          <Notifications notifications={notifications} />
+              {/* Tab Content */}
+              <div className="p-3 sm:p-6">
+                {tabs.find((tab) => tab.id === activeTab)?.component}
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
     </DashboardLayout>
