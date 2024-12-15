@@ -126,6 +126,7 @@ const LocationDetailsSection = ({ userDetails }) => {
                             name="postcode"
                             defaultValue={userDetails?.location?.postcode ?? ''}
                             placeholder="Enter postcode"
+                            className="w-full h-9 sm:h-10"
                         />
                     </FormField>
                     <FormField label="Nearest Station">
@@ -134,6 +135,7 @@ const LocationDetailsSection = ({ userDetails }) => {
                             name="nearestStation"
                             defaultValue={userDetails?.location?.nearest_station ?? ''}
                             placeholder="Enter nearest station"
+                            className="w-full h-9 sm:h-10"
                         />
                     </FormField>
                 </div>

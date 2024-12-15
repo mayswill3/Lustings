@@ -12,13 +12,13 @@ interface ProfileHeaderProps {
 export const ProfileHeader = ({ userDetails, showMobile, setShowMobile, calculateAge }: ProfileHeaderProps) => {
     return (
         <div className="mb-6">
-            <div className="flex justify-between items-start mb-2">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-2 mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                     {userDetails.full_name}
                 </h1>
-                <div>
+                <div className="w-full sm:w-auto">
                     {showMobile ? (
-                        <div className="flex items-center gap-2 bg-gray-100 dark:bg-zinc-800 px-4 py-2 rounded-md">
+                        <div className="flex items-center justify-center sm:justify-start gap-2 bg-gray-100 dark:bg-zinc-800 px-4 py-2 rounded-md">
                             <Phone className="w-4 h-4 text-gray-500" />
                             <span className="text-sm font-medium">
                                 {userDetails.phone_number || '07123 456789'}
@@ -28,7 +28,7 @@ export const ProfileHeader = ({ userDetails, showMobile, setShowMobile, calculat
                         <Button
                             onClick={() => setShowMobile(true)}
                             variant="outline"
-                            className="flex items-center gap-2"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2"
                         >
                             <Phone className="w-4 h-4" />
                             View Mobile Number

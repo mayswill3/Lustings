@@ -300,11 +300,11 @@ export default function EscortingOptions(props: Props) {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 space-y-6">
+        <div className="max-w-full sm:max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
             <form onSubmit={handleSubmit}>
                 <Card className="shadow-lg">
                     <CardHeader>
-                        <CardTitle className="text-2xl">Service Options</CardTitle>
+                        <CardTitle className="text-xl sm:text-2xl">Service Options</CardTitle>
                     </CardHeader>
 
                     <CardContent className="space-y-8">
@@ -314,7 +314,7 @@ export default function EscortingOptions(props: Props) {
                                 <MapPin className="w-5 h-5" />
                                 Location Preferences
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="flex items-center justify-between space-x-4">
                                     <Label htmlFor="accommodate">In-call Services</Label>
                                     <Toggle
@@ -347,18 +347,18 @@ export default function EscortingOptions(props: Props) {
                                 Rate Configuration
                             </h3>
                             <div className="overflow-x-auto">
-                                <table className="w-full">
+                                <table className="w-full text-sm">
                                     <thead>
                                         <tr>
-                                            <th className="text-left px-2 py-1 text-sm font-medium">Duration</th>
+                                            <th className="text-left px-2 py-1 font-medium">Duration</th>
                                             {timeSlots.map(({ id, label }) => (
-                                                <th key={id} className="px-2 py-1 text-sm font-medium">{label}</th>
+                                                <th key={id} className="px-2 py-1 font-medium">{label}</th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td className="px-2 py-1 text-sm">In-call</td>
+                                            <td className="px-2 py-1">In-call</td>
                                             {timeSlots.map(({ id }) => (
                                                 <td key={id} className="px-1 py-1">
                                                     <Input
@@ -371,7 +371,7 @@ export default function EscortingOptions(props: Props) {
                                             ))}
                                         </tr>
                                         <tr>
-                                            <td className="px-2 py-1 text-sm">Out-call</td>
+                                            <td className="px-2 py-1">Out-call</td>
                                             {timeSlots.map(({ id }) => (
                                                 <td key={id} className="px-1 py-1">
                                                     <Input
@@ -391,7 +391,7 @@ export default function EscortingOptions(props: Props) {
                         <Separator />
 
                         {/* Currency and Reports */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label>Currency</Label>
                                 <Select value={currency} onValueChange={setCurrency}>
@@ -408,7 +408,6 @@ export default function EscortingOptions(props: Props) {
                                 </Select>
                             </div>
                         </div>
-
                         {/* <Separator /> */}
 
                         {/* Platform Settings */}
@@ -434,9 +433,7 @@ export default function EscortingOptions(props: Props) {
                     </div> */}
                     </CardContent>
 
-                    <CardFooter className="flex justify-end space-x-4 pt-6">
-
-
+                    <CardFooter className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 pt-6">
                         {/* Save Changes Button */}
                         <Button type="submit" disabled={isSubmitting}>
                             {isSubmitting ? 'Saving...' : 'Save Changes'}

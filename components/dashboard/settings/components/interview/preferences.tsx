@@ -18,7 +18,7 @@ const FormField = ({ label, name, type = "text", defaultValue = '', placeholder 
             name={name}
             defaultValue={defaultValue}
             placeholder={placeholder}
-            className="w-full h-9"
+            className="w-full h-9 sm:h-10"
         />
     </div>
 );
@@ -31,7 +31,7 @@ const SelectField = ({ label, name, options, defaultValue = '' }) => (
         <select
             name={name}
             defaultValue={defaultValue}
-            className="w-full h-9 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700 text-sm"
+            className="w-full h-9 sm:h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700 text-sm"
         >
             <option value="">Select option</option>
             {options.map(option => (
@@ -40,6 +40,8 @@ const SelectField = ({ label, name, options, defaultValue = '' }) => (
         </select>
     </div>
 );
+
+
 
 export const Preferences: React.FC<PreferencesProps> = ({ userDetails }) => {
     const formFields = [
@@ -121,8 +123,8 @@ export const Preferences: React.FC<PreferencesProps> = ({ userDetails }) => {
     ];
 
     return (
-        <Card className="p-4">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+        <Card className="p-3 sm:p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-x-6 sm:gap-y-4">
                 {formFields.map((field, index) => (
                     <div key={field.name}>
                         {field.type === 'select' ? (

@@ -330,39 +330,39 @@ export default function PersonalDetails() {
                 </Card>
 
                 {/* Submit Button */}
-                <div className="sticky bottom-4 z-10">
-                    <Card className="p-4 bg-white/80 backdrop-blur-sm dark:bg-zinc-900/80 flex justify-end gap-4">
-                        <Button
-                            type="submit"
-                            className="flex justify-center items-center gap-2"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
-                        </Button>
-                        <Button
-                            type="button"
-                            onClick={async () => {
-                                setIsSubmitting(true);
+                <div className="sticky bottom-4 z-10 px-4 sm:px-0">
+                    <Card className="p-3 sm:p-4 bg-white/80 backdrop-blur-sm dark:bg-zinc-900/80">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-end">
+                            <Button
+                                type="submit"
+                                className="h-9 sm:h-10 text-sm sm:text-base flex justify-center items-center gap-2"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={async () => {
+                                    setIsSubmitting(true);
 
-                                // Trigger form submit programmatically
-                                const form = document.getElementById('settingsForm') as HTMLFormElement;
-                                if (form) {
-                                    form.requestSubmit();
-                                }
+                                    const form = document.getElementById('settingsForm') as HTMLFormElement;
+                                    if (form) {
+                                        form.requestSubmit();
+                                    }
 
-                                setTimeout(() => {
-                                    setIsSubmitting(false);
-                                    window.location.href = `/profile/${encodeURIComponent(userDetails?.full_name || '')}`;
-                                }, 1000); // Adjust timeout if needed
-                            }}
-                            className="flex justify-center items-center gap-2"
-                            disabled={isSubmitting}
-                        >
-                            Save and View Profile
-                        </Button>
+                                    setTimeout(() => {
+                                        setIsSubmitting(false);
+                                        window.location.href = `/profile/${encodeURIComponent(userDetails?.full_name || '')}`;
+                                    }, 1000);
+                                }}
+                                className="h-9 sm:h-10 text-sm sm:text-base flex justify-center items-center gap-2"
+                                disabled={isSubmitting}
+                            >
+                                Save and View Profile
+                            </Button>
+                        </div>
                     </Card>
                 </div>
-
             </form>
         </div>
     );

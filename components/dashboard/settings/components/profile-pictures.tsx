@@ -172,18 +172,18 @@ export default function ProfilePictureUploader(props: Props) {
     }
 
     return (
-        <div className="container mx-auto max-w-4xl px-4 py-8">
-            <div className="bg-white dark:bg-zinc-900 shadow-lg rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+        <div className="container mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-4">
+            <div className="bg-white dark:bg-zinc-900 shadow-lg rounded-2xl p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
+                    <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
                         Profile Pictures
                     </h2>
-                    <div className="text-sm text-zinc-500 dark:text-zinc-400">
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 sm:mt-0">
                         Upload up to 3 profile pictures
-                    </div>
+                    </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {profilePics.map((pic, index) => (
                         <div
                             key={index}
@@ -206,11 +206,12 @@ export default function ProfilePictureUploader(props: Props) {
                                         <Image
                                             src={pic}
                                             alt={`Profile pic ${index + 1}`}
-                                            width={200}
-                                            height={200}
-                                            className="w-40 h-40 object-cover rounded-full border-4 border-blue-500"
+                                            width={150}
+                                            height={150}
+                                            className="w-36 h-36 sm:w-40 sm:h-40 object-cover rounded-full border-4 border-blue-500"
                                         />
-                                        <div className="absolute bottom-0 right-0 bg-red-500 text-white rounded-full p-1 cursor-pointer hover:bg-red-600"
+                                        <div
+                                            className="absolute bottom-0 right-0 bg-red-500 text-white rounded-full p-1 cursor-pointer hover:bg-red-600"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 clearFile(index);
@@ -220,9 +221,9 @@ export default function ProfilePictureUploader(props: Props) {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center w-40 h-40 bg-gray-200 dark:bg-zinc-700 rounded-full">
-                                        <Camera size={32} className="text-gray-500 dark:text-zinc-400 mb-2" />
-                                        <span className="text-sm text-gray-600 dark:text-zinc-300">
+                                    <div className="flex flex-col items-center justify-center w-36 h-36 sm:w-40 sm:h-40 bg-gray-200 dark:bg-zinc-700 rounded-full">
+                                        <Camera size={28} className="text-gray-500 dark:text-zinc-400 mb-2" />
+                                        <span className="text-xs sm:text-sm text-gray-600 dark:text-zinc-300">
                                             Upload Picture {index + 1}
                                         </span>
                                     </div>
@@ -232,17 +233,15 @@ export default function ProfilePictureUploader(props: Props) {
                     ))}
                 </div>
 
-                <div className="mt-8 flex justify-center space-x-4">
-                    {/* Save Profile Pictures Button */}
+                <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center sm:space-x-4 space-y-4 sm:space-y-0">
                     <Button
                         onClick={handleSubmit}
-                        className="px-8 py-3 rounded-lg flex items-center space-x-2"
+                        className="w-full sm:w-auto px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center"
                         disabled={isSubmitting || uploadedUrls.every((url) => url === null)}
                     >
                         {isSubmitting ? 'Saving...' : 'Save Profile Pictures'}
                     </Button>
 
-                    {/* Save and View Profile Button */}
                     <Button
                         onClick={async () => {
                             setIsSubmitting(true);
@@ -268,16 +267,15 @@ export default function ProfilePictureUploader(props: Props) {
                             const profileUrl = `/profile/${encodeURIComponent(userDetails.full_name)}`;
                             window.location.href = profileUrl;
                         }}
-                        className="px-8 py-3 rounded-lg flex items-center space-x-2"
+                        className="w-full sm:w-auto px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center"
                         disabled={isSubmitting || uploadedUrls.every((url) => url === null)}
                     >
                         {isSubmitting ? 'Saving and Redirecting...' : 'Save and View Profile'}
                     </Button>
                 </div>
-
             </div>
 
-            <div className="mt-8">
+            <div className="mt-6">
                 <GalleryUploader user={user} userDetails={userDetails || {}} />
             </div>
         </div>

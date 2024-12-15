@@ -27,13 +27,17 @@ interface TabButtonProps {
 const TabButton = ({ active, onClick, icon, label }: TabButtonProps) => (
   <button
     onClick={onClick}
-    className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all duration-200 border-b-2 hover:text-blue-600 dark:hover:text-blue-400 ${active
-      ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-      : 'border-transparent text-gray-600 dark:text-gray-400'
+    className={`flex items-center gap-2 px-3 sm:px-6 py-3 text-xs sm:text-sm font-medium whitespace-nowrap
+          transition-all duration-200 border-b-2 hover:text-blue-600 dark:hover:text-blue-400 
+          ${active
+        ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+        : 'border-transparent text-gray-600 dark:text-gray-400'
       }`}
   >
-    {icon}
-    {label}
+    <span className="sm:hidden">{icon}</span>
+    <span className="hidden sm:inline">{icon}</span>
+    <span className="hidden sm:inline">{label}</span>
+    <span className="sm:hidden">{label.split(' ')[0]}</span>
   </button>
 );
 
@@ -121,7 +125,7 @@ export default function Settings(props: Props) {
             <Card className="overflow-hidden bg-white dark:bg-zinc-800 shadow-sm">
               {/* Tabs Navigation */}
               <div className="border-b border-gray-200 dark:border-zinc-700">
-                <div className="flex overflow-x-auto">
+                <div className="flex overflow-x-auto scrollbar-hide -mb-px">
                   {tabs.map((tab) => (
                     <TabButton
                       key={tab.id}
@@ -134,8 +138,9 @@ export default function Settings(props: Props) {
                 </div>
               </div>
 
+
               {/* Tab Content */}
-              <div className="p-6">
+              <div className="p-3 sm:p-6">
                 {tabs.find((tab) => tab.id === activeTab)?.component}
               </div>
             </Card>

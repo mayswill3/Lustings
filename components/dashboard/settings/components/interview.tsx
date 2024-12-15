@@ -186,37 +186,35 @@ export default function AboutYou() {
                     <SelfDescription userDetails={userDetails} />
                 </CollapsibleSection>
 
-                <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 flex justify-end gap-4">
-                    <Button
-                        type="submit"
-                        className="flex justify-center items-center gap-2"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={async () => {
-                            setIsSubmitting(true);
-
-                            // Trigger form submission programmatically
-                            const form = document.querySelector('form') as HTMLFormElement;
-                            if (form) {
-                                form.requestSubmit();
-                            }
-
-                            // Wait for the submission to complete and redirect
-                            setTimeout(() => {
-                                setIsSubmitting(false);
-                                const fullName = userDetails?.full_name || '';
-                                window.location.href = `/profile/${encodeURIComponent(fullName)}`;
-                            }, 1000); // Adjust timeout if necessary
-                        }}
-                        className="flex justify-center items-center gap-2"
-                        disabled={isSubmitting}
-                    >
-                        Save and View Profile
-                    </Button>
+                <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-3 sm:p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-end">
+                        <Button
+                            type="submit"
+                            className="w-full sm:w-auto h-9 sm:h-10 text-sm sm:text-base flex justify-center items-center gap-2"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={async () => {
+                                setIsSubmitting(true);
+                                const form = document.querySelector('form') as HTMLFormElement;
+                                if (form) {
+                                    form.requestSubmit();
+                                }
+                                setTimeout(() => {
+                                    setIsSubmitting(false);
+                                    const fullName = userDetails?.full_name || '';
+                                    window.location.href = `/profile/${encodeURIComponent(fullName)}`;
+                                }, 1000);
+                            }}
+                            className="w-full sm:w-auto h-9 sm:h-10 text-sm sm:text-base flex justify-center items-center gap-2"
+                            disabled={isSubmitting}
+                        >
+                            Save and View Profile
+                        </Button>
+                    </div>
                 </div>
             </form>
         </div>

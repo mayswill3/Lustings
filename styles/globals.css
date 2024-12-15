@@ -157,7 +157,13 @@ hr {
   margin: 1rem 0;
 }
 
-h2
+h2 .scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 
 /* Basic editor styles */
 .tiptap :first-child {

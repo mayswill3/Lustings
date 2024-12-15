@@ -69,15 +69,10 @@ const RadioGroup = ({ label, name, options, value = '' }) => (
 
 export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = ({ userDetails }) => {
     return (
-        <Card className="p-6 shadow-sm">
-            {/* <div className="flex items-center gap-2 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
-                <User2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Physical Characteristics</h2>
-            </div> */}
-
-            <div className="grid gap-6">
+        <Card className="p-3 sm:p-6 shadow-sm">
+            <div className="grid gap-4 sm:gap-6">
                 {/* Basic Characteristics */}
-                <div className="grid sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <SelectField
                         label="Ethnicity"
                         name="ethnicity"
@@ -93,7 +88,7 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                 </div>
 
                 {/* Hair Characteristics */}
-                <div className="grid sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <SelectField
                         label="Hair Color"
                         name="hairColor"
@@ -109,7 +104,7 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                 </div>
 
                 {/* Body Characteristics */}
-                <div className="grid sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <SelectField
                         label="Body Type"
                         name="bodyType"
@@ -125,7 +120,7 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                 </div>
 
                 {/* Measurements */}
-                <div className="grid sm:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                     {['Weight', 'Leg', 'Shoe Size'].map(field => (
                         <SelectField
                             key={field}
@@ -137,7 +132,7 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                     ))}
                 </div>
 
-                <div className="grid sm:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                     {['Chest', 'Waist', 'Hips'].map(field => (
                         <SelectField
                             key={field}
@@ -150,7 +145,7 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                 </div>
 
                 {/* Breast Characteristics */}
-                <div className="grid sm:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                     <SelectField
                         label="Bra Cup Size"
                         name="braCupSize"
@@ -172,14 +167,14 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                 </div>
 
                 {/* Additional Characteristics */}
-                <SelectField
-                    label="Pubic Hair Style"
-                    name="pubicHair"
-                    options={PHYSICAL_OPTIONS.PUBIC_HAIR}
-                    value={userDetails?.pubic_hair}
-                />
+                <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                    <SelectField
+                        label="Pubic Hair Style"
+                        name="pubicHair"
+                        options={PHYSICAL_OPTIONS.PUBIC_HAIR}
+                        value={userDetails?.pubic_hair}
+                    />
 
-                <div className="grid gap-6">
                     <RadioGroup
                         label="Do you smoke?"
                         name="smoking"
@@ -201,7 +196,7 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                         value={userDetails?.body_art_visibility}
                     />
 
-                    <div className="space-y-2">
+                    <div className="space-y-1 sm:space-y-2">
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             Birth-marks or scars
                         </label>
@@ -209,7 +204,7 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                             type="text"
                             name="birthMarksScars"
                             defaultValue={userDetails?.birth_marks_scars || ''}
-                            className="w-full"
+                            className="w-full h-9 sm:h-10"
                             placeholder="Describe size and location"
                         />
                     </div>

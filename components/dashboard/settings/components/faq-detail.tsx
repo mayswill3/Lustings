@@ -143,10 +143,10 @@ export default function FAQDetails() {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 px-4 sm:px-6">
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Add/Edit FAQ Card */}
-                <Card className="p-4">
+                <Card className="p-4 sm:p-6">
                     <SectionHeader
                         icon={<HelpCircle />}
                         title={editingFaq ? "Edit FAQ" : "Add New FAQ"}
@@ -161,7 +161,7 @@ export default function FAQDetails() {
                                 name="question"
                                 defaultValue={editingFaq?.question || ''}
                                 placeholder="Enter your question here"
-                                className='w-3/6'
+                                className="w-full"
                             />
                         </div>
                         <div>
@@ -184,7 +184,7 @@ export default function FAQDetails() {
                 </Card>
 
                 {/* Existing FAQs */}
-                <Card className="p-4">
+                <Card className="p-4 sm:p-6">
                     <SectionHeader
                         icon={<HelpCircle />}
                         title="Existing FAQs"
@@ -195,9 +195,9 @@ export default function FAQDetails() {
                                 key={faq.id}
                                 className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
                             >
-                                <div className="flex justify-between items-start mb-2">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
                                     <h3 className="font-medium">{faq.question}</h3>
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 mt-2 sm:mt-0">
                                         <Button
                                             type="button"
                                             variant="ghost"

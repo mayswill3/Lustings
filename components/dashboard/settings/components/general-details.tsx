@@ -31,9 +31,9 @@ const SectionHeader = ({ icon, title }: { icon: React.ReactNode; title: string }
 );
 
 const FormField = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <label className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full">
-        <span className="min-w-[180px] text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
-        <div className="flex-1">{children}</div>
+    <label className="flex flex-col space-y-2 w-full">
+        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
+        <div className="w-full">{children}</div>
     </label>
 );
 
@@ -203,13 +203,14 @@ export default function GeneralDetails(props: Props) {
 
                     {/* Personal Information */}
                     <div className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField label="First Name">
                                 <Input
                                     type="text"
                                     name="firstName"
                                     defaultValue={props.user?.user_metadata?.first_name ?? ''}
                                     placeholder="Enter first name"
+                                    className="w-full h-9 sm:h-10"
                                 />
                             </FormField>
                             <FormField label="Last Name">
@@ -218,17 +219,19 @@ export default function GeneralDetails(props: Props) {
                                     name="lastName"
                                     defaultValue={props.user?.user_metadata?.last_name ?? ''}
                                     placeholder="Enter last name"
+                                    className="w-full h-9 sm:h-10"
                                 />
                             </FormField>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField label="Email">
                                 <Input
                                     type="email"
                                     name="newEmail"
                                     defaultValue={props.user?.email ?? ''}
                                     placeholder="Enter email"
+                                    className="w-full h-9 sm:h-10"
                                 />
                             </FormField>
                             <FormField label="Mobile Number">
@@ -237,6 +240,7 @@ export default function GeneralDetails(props: Props) {
                                     name="mobileNumber"
                                     defaultValue={props.user?.user_metadata?.phone_number ?? userDetails?.phone_number ?? ''}
                                     placeholder="Enter mobile number"
+                                    className="w-full h-9 sm:h-10"
                                 />
                             </FormField>
                         </div>
@@ -283,7 +287,7 @@ export default function GeneralDetails(props: Props) {
 
                             {/* Services Selection */}
                             {showServices && (
-                                <div className="mt-4 grid grid-cols-2 gap-4">
+                                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {SERVICE_TYPES.map((service) => (
                                         <Toggle
                                             key={service}
@@ -487,35 +491,34 @@ export default function GeneralDetails(props: Props) {
                     </Card>
                 )}
 
-                <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 flex justify-end gap-4">
-                    <Button
-                        type="submit"
-                        className="flex justify-center items-center gap-2"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
-                    </Button>
-                    <Button
-                        type="button"
-                        onClick={async () => {
-                            setIsSubmitting(true);
-
-                            // Trigger form submit programmatically
-                            const form = document.getElementById('settingsForm') as HTMLFormElement;
-                            if (form) {
-                                form.requestSubmit();
-                            }
-
-                            setTimeout(() => {
-                                setIsSubmitting(false);
-                                window.location.href = `/profile/${encodeURIComponent(userDetails?.full_name ?? '')}`;
-                            }, 1000); // Adjust timeout if needed
-                        }}
-                        className="flex justify-center items-center gap-2"
-                        disabled={isSubmitting}
-                    >
-                        Save and View Profile
-                    </Button>
+                <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-3 sm:p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
+                        <Button
+                            type="submit"
+                            className="w-full sm:w-auto h-9 sm:h-10 text-sm sm:text-base flex justify-center items-center gap-2"
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={async () => {
+                                setIsSubmitting(true);
+                                const form = document.getElementById('settingsForm') as HTMLFormElement;
+                                if (form) {
+                                    form.requestSubmit();
+                                }
+                                setTimeout(() => {
+                                    setIsSubmitting(false);
+                                    window.location.href = `/profile/${encodeURIComponent(userDetails?.full_name ?? '')}`;
+                                }, 1000);
+                            }}
+                            className="w-full sm:w-auto h-9 sm:h-10 text-sm sm:text-base flex justify-center items-center gap-2"
+                            disabled={isSubmitting}
+                        >
+                            Save and View Profile
+                        </Button>
+                    </div>
                 </div>
             </form>
         </div>

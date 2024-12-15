@@ -165,15 +165,15 @@ export default function GalleryUploader(props: Props) {
         images: (string | null)[],
         inputRefs: React.MutableRefObject<HTMLInputElement[]>
     }) => (
-        <div className="bg-white dark:bg-zinc-900 rounded-xl p-6 shadow-lg mb-8">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl p-4 sm:p-6 shadow-lg mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+                <div className="flex items-center gap-2 mb-2 sm:mb-0">
                     {type === 'free' ? (
                         <Globe className="w-5 h-5 text-green-500" />
                     ) : (
                         <Lock className="w-5 h-5 text-purple-500" />
                     )}
-                    <h3 className="text-lg font-bold">
+                    <h3 className="text-lg sm:text-xl font-bold">
                         {type === 'free' ? 'Public Gallery' : 'Private Gallery'}
                     </h3>
                 </div>
@@ -188,14 +188,14 @@ export default function GalleryUploader(props: Props) {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {images.map((image, index) => (
                     <div
                         key={index}
-                        className="aspect-square relative group bg-gray-50 dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 p-2"
+                        className="relative group bg-gray-50 dark:bg-zinc-800 rounded-lg p-2 border border-gray-200 dark:border-zinc-700"
                     >
                         {image ? (
-                            <div className="relative w-full h-full">
+                            <div className="relative w-full h-48 sm:h-56">
                                 <Image
                                     src={image}
                                     alt={`${type} gallery ${index + 1}`}
@@ -222,7 +222,7 @@ export default function GalleryUploader(props: Props) {
                                 />
                                 <label
                                     htmlFor={`${type}-file-input-${index}`}
-                                    className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+                                    className="flex flex-col items-center justify-center w-full h-48 sm:h-56 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-lg transition-colors"
                                 >
                                     <ImagePlus className="w-8 h-8 text-gray-400 mb-2" />
                                     <span className="text-sm text-gray-500">Upload Image</span>
@@ -236,14 +236,14 @@ export default function GalleryUploader(props: Props) {
     );
 
     return (
-        <div className="container mx-auto max-w-6xl px-4 py-8">
-            <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+        <div className="container mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
                     Image Galleries
                 </h2>
                 {/* <Button
                     onClick={handleSubmit}
-                    className="flex items-center gap-2"
+                    className="mt-4 sm:mt-0 px-6 py-2 sm:py-3 rounded-lg flex items-center justify-center"
                     disabled={isSubmitting || (freeGallery.every((url) => !url) && privateGallery.every((url) => !url))}
                 >
                     {isSubmitting ? 'Saving...' : 'Save All Changes'}

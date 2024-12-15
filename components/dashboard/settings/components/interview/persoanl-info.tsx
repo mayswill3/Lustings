@@ -46,14 +46,14 @@ export const PersonalInfo: React.FC<PersonalInfoProps> = ({ userDetails }) => {
 
     const renderField = (field: any) => (
         <div key={field.name} className="space-y-1">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {field.label}
             </label>
             {field.type === 'select' ? (
                 <select
                     name={field.name}
                     defaultValue={userDetails?.[field.name] || ''}
-                    className="w-full h-9 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700 text-sm"
+                    className="w-full h-9 sm:h-10 px-3 rounded-md border border-gray-300 bg-white dark:bg-zinc-800 dark:border-zinc-700 text-sm"
                 >
                     <option value="">Select {field.label}</option>
                     {field.options.map(option => (
@@ -65,15 +65,15 @@ export const PersonalInfo: React.FC<PersonalInfoProps> = ({ userDetails }) => {
                     type="text"
                     name={field.name}
                     defaultValue={userDetails?.[field.name] || ''}
-                    className="w-full h-9"
+                    className="w-full h-9 sm:h-10"
                 />
             )}
         </div>
     );
 
     return (
-        <Card className="p-4">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+        <Card className="p-3 sm:p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-x-6 sm:gap-y-4">
                 {formFields.map(field => renderField(field))}
             </div>
         </Card>
