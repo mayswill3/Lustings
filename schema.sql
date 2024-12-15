@@ -3,43 +3,43 @@
 * Note: This table contains user data. Users should only be able to view and update their own data.
 */
 create table users (
-  -- UUID from auth.users
-  id uuid references auth.users not null primary key,
-  full_name text,
-  avatar_url text,
-  credits bigint DEFAULT 0,
-  trial_credits bigint DEFAULT 3,
-  -- The customer's billing address, stored in JSON format.
-  billing_address jsonb,
-  -- Stores your customer's payment instruments.
-  payment_method jsonb,
-  -- Location details, stored in JSON format.
-  location jsonb,
-  -- Privacy settings, stored in JSON format.
-  privacy jsonb,
-  -- User preferences, stored in JSON format.
-  preferences jsonb,
-  -- personal_details, stored in JSON format.
-  personal_details jsonb,
-  -- profile_pictures, stored in JSON format.
-  profile_pictures jsonb,
-  -- free_gallery, stored in JSON format.
-  free_gallery jsonb,
-  -- private_gallery, stored in JSON format.
-  private_gallery jsonb,
-  -- about_you, stored in JSON format.
-  about_you jsonb;
-  -- member_type, stored in JSON format.
-  member_type
-   -- Services offered by the user, stored as an array of text.
-  services TEXT[] DEFAULT ARRAY[]::TEXT[],
-  phone_number text,
-  nationality text,
-  summary text,
-  details text;
-  -- Automatically track creation and update times.
-  created_at timestamp with time zone default now(),
-  updated_at timestamp with time zone default now()
+    -- UUID from auth.users
+    id uuid references auth.users not null primary key,
+    
+    -- Basic user information
+    full_name text,
+    avatar_url text,
+    phone_number text,
+    nationality text,
+    member_type text,
+    
+    -- Credits system
+    credits bigint default 0,
+    trial_credits bigint default 3,
+    
+    -- JSON stored objects
+    billing_address jsonb,
+    payment_method jsonb,
+    location jsonb,
+    privacy jsonb,
+    preferences jsonb,
+    personal_details jsonb,
+    profile_pictures jsonb,
+    free_gallery jsonb,
+    private_gallery jsonb,
+    about_you jsonb,
+    faqs jsonb default '[]'::jsonb,
+    
+    -- Text content
+    summary text,
+    details text,
+    
+    -- Arrays
+    services text[] default array[]::text[],
+    
+    -- Timestamps
+    created_at timestamp with time zone default now(),
+    updated_at timestamp with time zone default now()
 );
 
 -- Enable row-level security

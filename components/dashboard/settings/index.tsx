@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout';
 import { Card } from '@/components/ui/card';
 import { User } from '@supabase/supabase-js';
-import { Settings2, User as UserIcon, Camera, Heart, Map } from 'lucide-react';
+import { Settings2, User as UserIcon, Camera, Heart, Map, HelpCircle } from 'lucide-react';
 import GeneralDetails from './components/general-details';
 import PersonalDetails from './components/personal-details';
 import ProfilePictures from './components/profile-pictures';
 import AboutYou from './components/interview';
 import Escorts from './components/escorting-options';
+import FAQDetails from './components/faq-detail';
 
 interface Props {
   user: User | null | undefined;
@@ -67,22 +68,31 @@ export default function Settings(props: Props) {
     },
   ];
 
-  // Escorts tab that's conditionally added
-  const escortTab = {
-    id: 'escorts',
-    label: 'Escorts',
-    icon: <Map className="w-4 h-4" />,
-    component: <Escorts user={props.user} userDetails={props.userDetails} />,
-  };
+  // Service provider specific tabs
+  const serviceProviderTabs = [
+    {
+      id: 'escorts',
+      label: 'Escorts',
+      icon: <Map className="w-4 h-4" />,
+      component: <Escorts user={props.user} userDetails={props.userDetails} />,
+    },
+    {
+      id: 'faq',
+      label: 'FAQ',
+      icon: <HelpCircle className="w-4 h-4" />,
+      component: <FAQDetails />, // You'll need to import this component
+    },
+  ];
 
   // Combine tabs based on member_type
   const tabs = props.user?.user_metadata?.member_type === 'Offering Services'
-    ? [...baseTabs, escortTab]
+    ? [...baseTabs, ...serviceProviderTabs]
     : baseTabs;
 
   // If current active tab is 'escorts' but user is not offering services, reset to 'general'
   useEffect(() => {
-    if (activeTab === 'escorts' && props.user?.user_metadata?.member_type !== 'Offering Services') {
+    if ((activeTab === 'escorts' || activeTab === 'faq') &&
+      props.user?.user_metadata?.member_type !== 'Offering Services') {
       setActiveTab('general');
     }
   }, [props.user?.user_metadata?.member_type, activeTab]);

@@ -1,5 +1,5 @@
 // components/profile/profile-overview.tsx
-import { User2, Activity } from 'lucide-react';
+import { User2, Activity, HelpCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 interface ProfileOverviewProps {
@@ -88,6 +88,42 @@ export const ProfileOverview = ({ userDetails }: ProfileOverviewProps) => {
                                     className="px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 rounded-full text-sm text-gray-700 dark:text-gray-300 text-center"
                                 >
                                     {activity}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </Card>
+            )}
+            {/* FAQ Card */}
+            {userDetails.faqs && userDetails.faqs.length > 0 && (
+                <Card className="p-4">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                            <HelpCircle className="w-5 h-5 text-blue-500" />
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">FAQ</h2>
+                        </div>
+
+                        <div className="space-y-3">
+                            {userDetails.faqs.map((faq, index) => (
+                                <div
+                                    key={faq.id}
+                                    className={`flex gap-2 ${index !== userDetails.faqs.length - 1 ? 'pb-3 border-b border-gray-200 dark:border-gray-700' : ''
+                                        }`}
+                                >
+                                    <div className="flex-1">
+                                        <div className="flex items-start gap-2">
+                                            <span className="text-sm font-semibold text-blue-500">Q:</span>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                {faq.question}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-start gap-2 mt-1">
+                                            <span className="text-sm font-semibold text-blue-500">A:</span>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                                                {faq.answer}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>

@@ -107,10 +107,10 @@ const SelectField = ({ label, name, options, value = '', required = false }) => 
 export const SelfDescription: React.FC<SelfDescriptionProps> = ({ userDetails }) => {
     return (
         <Card className="p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
+            {/* <div className="flex items-center gap-2 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
                 <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">About Me</h2>
-            </div>
+            </div> */}
 
             <div className="grid gap-6">
                 {/* Demographics */}
