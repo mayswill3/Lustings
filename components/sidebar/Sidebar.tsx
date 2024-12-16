@@ -1,172 +1,85 @@
 'use client';
 
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import {
-  renderThumb,
-  renderTrack,
-  renderView
-} from '@/components/scrollbar/Scrollbar';
-import Links from '@/components/sidebar/components/Links';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
-import { IRoute } from '@/types/types';
 import { useRouter } from 'next/navigation';
-import React, { PropsWithChildren, useContext } from 'react';
-import { Scrollbars } from 'react-custom-scrollbars-2';
-import { HiX } from 'react-icons/hi';
-import { HiBolt } from 'react-icons/hi2';
-import { HiOutlineArrowRightOnRectangle } from 'react-icons/hi2';
-import { getRedirectMethod } from '@/utils/auth-helpers/settings';
-import { UserContext, UserDetailsContext } from '@/contexts/layout';
-import { createClient } from '@/utils/supabase/client';
+import React from 'react';
+import { usePathname } from 'next/navigation';
+import { Users, Star, MapPin, Calendar, Phone } from 'lucide-react';
 
-const supabase = createClient();
-
-export interface SidebarProps extends PropsWithChildren {
-  routes: IRoute[];
-  [x: string]: any;
+interface SidebarProps {
+  variant?: string;
 }
 
 function Sidebar(props: SidebarProps) {
-  const router = getRedirectMethod() === 'client' ? useRouter() : null;
-  const { routes } = props;
-  const user = useContext(UserContext);
-  const userDetails = useContext(UserDetailsContext);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const handleSignOut = async (e) => {
-    e.preventDefault();
-    supabase.auth.signOut();
-    router.push('/dashboard/signin');
+  const categories = [
+    { name: 'All Escorts', path: '/escorts/', icon: Users },
+    { name: 'Featured', path: '/escorts/featured', icon: Star },
+    { name: 'Local Escorts', path: '/escorts/local', icon: MapPin },
+    { name: 'Available Today', path: '/escorts/available', icon: Calendar },
+    { name: 'Directory', path: '/escorts/directory', icon: Phone },
+  ];
+
+  // Category button component
+  const CategoryButton = ({ name, path, icon: Icon, isMobile = false }) => {
+    const isActive = pathname === path;
+    return (
+      <button
+        onClick={() => router.push(path)}
+        className={`
+          w-full px-6 py-4 text-left
+          rounded-xl transition-all duration-200
+          flex items-center gap-3
+          ${isActive
+            ? 'bg-purple-50 text-purple-700'
+            : 'bg-white text-gray-600 hover:bg-gray-50'
+          }
+          ${isMobile ? 'whitespace-nowrap' : ''}
+          border border-gray-100
+        `}
+      >
+        <Icon className={`h-5 w-5 ${isActive ? 'text-purple-700' : 'text-gray-400'}`} />
+        <span className="text-base font-medium">{name}</span>
+      </button>
+    );
   };
 
-  // Desktop sidebar content
-  const SidebarContent = () => (
-    <div className="flex h-full flex-col justify-between">
-      <div>
-        <div className={`mt-8 flex items-center justify-center xl:justify-start xl:px-4`}>
-          <div className="me-2 flex h-[40px] w-[40px] items-center justify-center rounded-md bg-zinc-950 text-white dark:bg-white dark:text-zinc-950">
-            <HiBolt className="h-5 w-5" />
-          </div>
-          <h5 className="me-2 text-2xl font-bold leading-5 text-zinc-950 dark:text-white">
-            Horizon AI
-          </h5>
-          <Badge
-            variant="outline"
-            className="my-auto w-max px-2 py-0.5 text-xs text-zinc-950 dark:border-none dark:bg-zinc-800 dark:text-white"
-          >
-            FREE
-          </Badge>
-        </div>
-        <div className="mb-8 mt-8 h-px bg-zinc-200 dark:bg-white/10" />
-        <ul>
-          <Links routes={routes} />
-        </ul>
-      </div>
-      <div className="mb-9 mt-7">
-        {/* Sidebar profile info */}
-        <div className="mt-5 flex w-full items-center rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-          <a href="/dashboard/dashboard/settings">
-            <Avatar className="min-h-10 min-w-10">
-              <AvatarImage src={user?.user_metadata.avatar_url} />
-              <AvatarFallback className="font-bold dark:text-zinc-950">
-                {userDetails?.full_name?.[0] || user?.user_metadata?.email?.[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </a>
-          <a href="/dashboard/settings">
-            <p className="ml-2 mr-3 flex items-center text-sm font-semibold leading-none text-zinc-950 dark:text-white">
-              {userDetails?.full_name || user?.user_metadata?.full_name || 'User'}
-            </p>
-          </a>
-          <Button
-            onClick={handleSignOut}
-            variant="outline"
-            className="ml-auto flex h-[40px] w-[40px] cursor-pointer items-center justify-center rounded-full p-0 text-center text-sm font-medium hover:dark:text-white"
-            type="submit"
-          >
-            <HiOutlineArrowRightOnRectangle
-              className="h-4 w-4 stroke-2 text-zinc-950 dark:text-white"
-              width="16px"
-              height="16px"
-              color="inherit"
-            />
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Mobile horizontal sidebar content
-  const MobileSidebarContent = () => (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center">
-        <div className="me-2 flex h-[40px] w-[40px] items-center justify-center rounded-md bg-zinc-950 text-white dark:bg-white dark:text-zinc-950">
-          <HiBolt className="h-5 w-5" />
-        </div>
-        <h5 className="me-2 text-xl font-bold leading-5 text-zinc-950 dark:text-white">
-          Horizon AI
-        </h5>
-        <Badge
-          variant="outline"
-          className="my-auto w-max px-2 py-0.5 text-xs text-zinc-950 dark:border-none dark:bg-zinc-800 dark:text-white"
-        >
-          FREE
-        </Badge>
-      </div>
-      <div className="overflow-x-auto">
-        <Links routes={routes} horizontal />
-      </div>
-      <div className="flex items-center justify-between border-t border-zinc-200 pt-4 dark:border-zinc-800">
-        <div className="flex items-center">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.user_metadata.avatar_url} />
-            <AvatarFallback className="text-sm font-bold dark:text-zinc-950">
-              {userDetails?.full_name?.[0] || user?.user_metadata?.email?.[0]?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <p className="ml-2 text-sm font-semibold text-zinc-950 dark:text-white">
-            {userDetails?.full_name || user?.user_metadata?.full_name || 'User'}
-          </p>
-        </div>
-        <Button
-          onClick={handleSignOut}
-          variant="outline"
-          size="icon"
-          className="h-8 w-8"
-        >
-          <HiOutlineArrowRightOnRectangle className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  );
-
-  // Mobile sidebar
+  // Mobile horizontal sidebar with grid
   const MobileSidebar = () => (
-    <Card className="mx-2 mb-4 mt-24 overflow-x-auto xl:mt-0 xl:hidden">
-      <div className="p-4">
-        <MobileSidebarContent />
+    <Card className="mx-2 mb-4 mt-24 xl:mt-0 xl:hidden border-0 shadow-none bg-transparent">
+      <div className="grid grid-cols-2 gap-3 p-4">
+        {categories.map((category) => (
+          <CategoryButton
+            key={category.path}
+            name={category.name}
+            path={category.path}
+            icon={category.icon}
+            isMobile={true}
+          />
+        ))}
       </div>
     </Card>
   );
 
-  // Desktop sidebar
+  // Desktop vertical sidebar
   const DesktopSidebar = () => (
     <div
       className={`!mt-[70px] lg:!z-99 fixed !z-[99] hidden min-h-full w-[300px] transition-all md:!z-[99] xl:!z-0 xl:block ${props.variant === 'auth' ? 'xl:hidden' : ''
         }`}
     >
-      <Card
-        className="m-3 ml-3 h-[96.5vh] w-full overflow-hidden !rounded-lg border-zinc-200 pe-4 dark:border-zinc-800 sm:my-4 sm:mr-4 md:m-5 md:mr-[-50px]"
-      >
-        <Scrollbars
-          autoHide
-          renderTrackVertical={renderTrack}
-          renderThumbVertical={renderThumb}
-          renderView={renderView}
-        >
-          <SidebarContent />
-        </Scrollbars>
+      <Card className="m-3 ml-3 w-full !rounded-xl border-0 shadow-none bg-transparent p-4 sm:my-4 sm:mr-4 md:m-5 md:mr-[-50px]">
+        <div className="flex flex-col gap-3">
+          {categories.map((category) => (
+            <CategoryButton
+              key={category.path}
+              name={category.name}
+              path={category.path}
+              icon={category.icon}
+            />
+          ))}
+        </div>
       </Card>
     </div>
   );
