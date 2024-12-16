@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import {
     MapPin,
     Clock,
-    BanknoteIcon, // Changed from Pound
+    BanknoteIcon,
     Car,
     Home
 } from 'lucide-react';
@@ -23,18 +23,37 @@ interface Props {
 
 export default function EscortGrid(props: Props) {
     const [escorts, setEscorts] = useState([]);
+    const [availableEscorts, setAvailableEscorts] = useState(new Set());
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function fetchEscorts() {
+        async function fetchEscortsAndAvailability() {
             try {
-                const { data, error } = await supabase
+                // Get today's date in YYYY-MM-DD format
+                const now = new Date();
+                const today = now.toISOString().split('T')[0];
+
+                // First get all available user IDs for today
+                const { data: availableIds, error: availError } = await supabase
+                    .from('availability_status')
+                    .select('user_id')
+                    .eq('booking_date', today)
+                    .gte('status_end', now.toISOString());
+
+                if (availError) throw availError;
+
+                const availableIdSet = new Set(availableIds?.map(a => a.user_id) || []);
+
+                // Fetch all escorts
+                const { data: escortData, error: escortError } = await supabase
                     .from('users')
                     .select('*')
                     .eq('member_type', 'Offering Services');
 
-                if (error) throw error;
-                setEscorts(data || []);
+                if (escortError) throw escortError;
+
+                setEscorts(escortData || []);
+                setAvailableEscorts(availableIdSet);
             } catch (error) {
                 console.error('Error fetching escorts:', error);
             } finally {
@@ -42,7 +61,11 @@ export default function EscortGrid(props: Props) {
             }
         }
 
-        fetchEscorts();
+        fetchEscortsAndAvailability();
+
+        // Refresh availability status every minute
+        const interval = setInterval(fetchEscortsAndAvailability, 60000);
+        return () => clearInterval(interval);
     }, []);
 
     if (loading) {
@@ -54,9 +77,12 @@ export default function EscortGrid(props: Props) {
     }
 
     return (
-        <DashboardLayout user={props.user}
+        <DashboardLayout
+            user={props.user}
             userDetails={props.userDetails}
-            title="Profile Page" description="View user details">
+            title="All Escorts"
+            description="Browse all available escorts"
+        >
             <div className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {escorts.map((escort) => (
@@ -68,6 +94,11 @@ export default function EscortGrid(props: Props) {
                                     className="w-full h-full object-cover"
                                 />
                                 <div className="absolute top-2 right-2 flex flex-col gap-2">
+                                    {availableEscorts.has(escort.id) && (
+                                        <Badge className="bg-green-500">
+                                            Available Now
+                                        </Badge>
+                                    )}
                                     {escort.preferences?.escorting?.locationInfo?.canAccommodate && (
                                         <Badge className="bg-purple-500">
                                             <Home className="h-4 w-4 mr-1" />

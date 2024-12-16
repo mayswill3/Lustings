@@ -18,7 +18,7 @@ function Sidebar(props: SidebarProps) {
     { name: 'All Escorts', path: '/escorts/', icon: Users },
     { name: 'Featured', path: '/escorts/featured', icon: Star },
     { name: 'Local Escorts', path: '/escorts/local', icon: MapPin },
-    { name: 'Available Today', path: '/escorts/available', icon: Calendar },
+    { name: 'Available Today', path: '/escorts/available-today', icon: Calendar },
     { name: 'Directory', path: '/escorts/directory', icon: Phone },
   ];
 

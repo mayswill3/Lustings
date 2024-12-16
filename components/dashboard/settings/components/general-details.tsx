@@ -12,9 +12,11 @@ import { getURL, getStatusRedirect } from '@/utils/helpers';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import Toggle from '@/components/ui/toggle';
-import { MapPin, User2, Lock, Settings2 } from 'lucide-react';
+import { MapPin, User2, Lock, Settings2, Clock } from 'lucide-react';
 import { NATIONALITIES, isValidNationality } from '@/constants/nationalities';
 import LocationDetailsSection from './general-details/location-details';
+import { AvailabilityList } from './general-details/availability-list';
+import { setAvailability, checkAvailability } from '@/utils/availability';
 
 interface Props {
     user: User | null | undefined;
@@ -51,6 +53,8 @@ export default function GeneralDetails(props: Props) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showServices, setShowServices] = useState(false);
+    const [isAvailable, setIsAvailable] = useState(false);
+    const [availabilityLoading, setAvailabilityLoading] = useState(true);
 
     // Fetch User and User Details on Load
     useEffect(() => {
@@ -93,6 +97,23 @@ export default function GeneralDetails(props: Props) {
         if (userDetails?.member_type === 'Offering Services') {
             setShowServices(true);
         }
+    }, [userDetails]);
+
+    useEffect(() => {
+        async function checkCurrentAvailability() {
+            if (userDetails?.member_type === 'Offering Services') {
+                try {
+                    const available = await checkAvailability(userDetails.id);
+                    setIsAvailable(available);
+                } catch (error) {
+                    console.error('Error checking availability:', error);
+                } finally {
+                    setAvailabilityLoading(false);
+                }
+            }
+        }
+
+        checkCurrentAvailability();
     }, [userDetails]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -330,6 +351,42 @@ export default function GeneralDetails(props: Props) {
 
                 {/* Location Details Section */}
                 <LocationDetailsSection userDetails={userDetails} />
+
+                {userDetails?.member_type === 'Offering Services' && (
+                    <Card className="p-6 shadow-sm">
+                        <SectionHeader icon={<Clock size={24} />} title="Availability Status" />
+                        {userDetails?.member_type === 'Offering Services' && (
+                            <Card className="p-6 shadow-sm">
+                                <SectionHeader icon={<Clock size={24} />} title="Availability Status" />
+                                <div className="space-y-6">
+                                    <Toggle
+                                        name="availableToday"
+                                        checked={isAvailable}
+                                        onCheckedChange={async (state) => {
+                                            try {
+                                                setAvailabilityLoading(true);
+                                                await setAvailability(userDetails.id, state);
+                                                setIsAvailable(state);
+                                                toast.success(state ? 'You are now available until midnight' : 'You are now marked as unavailable');
+                                            } catch (error) {
+                                                console.error('Error updating availability:', error);
+                                                toast.error('Failed to update availability status');
+                                            } finally {
+                                                setAvailabilityLoading(false);
+                                            }
+                                        }}
+                                        disabled={availabilityLoading}
+                                        label="Available Today (Until Midnight)"
+                                    />
+
+                                    <div className="border-t pt-4">
+                                        <AvailabilityList userId={userDetails.id} />
+                                    </div>
+                                </div>
+                            </Card>
+                        )}
+                    </Card>
+                )}
 
                 {/* Privacy Settings Section */}
                 <Card className="p-6 shadow-sm">

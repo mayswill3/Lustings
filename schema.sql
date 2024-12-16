@@ -90,6 +90,24 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
+-- Modify availability_status table to support multiple days
+create table if not exists public.availability_status (
+    id uuid default uuid_generate_v4() primary key,
+    user_id uuid references auth.users(id) on delete cascade,
+    status_start timestamp with time zone not null,
+    status_end timestamp with time zone not null,
+    created_at timestamp with time zone default now(),
+    booking_date date not null, -- Added to track specific dates
+    constraint unique_user_date unique (user_id, booking_date) -- Changed constraint to allow multiple days
+);
+
+create index on public.availability_status (user_id);
+create index on public.availability_status (status_end);
+create index on public.availability_status (booking_date);
+
+-- Add comment to table
+comment on table public.availability_status is 'Tracks when escorts are available for bookings';
+
 /**
 * CUSTOMERS
 * Note: this is a private table that contains a mapping of user IDs to Stripe customer IDs.

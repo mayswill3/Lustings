@@ -18,6 +18,7 @@ interface Props {
 
 export default function FilteredEscortPage(props: Props) {
     const [escorts, setEscorts] = useState([]);
+    const [availableEscorts, setAvailableEscorts] = useState(new Set());
     const [loading, setLoading] = useState(true);
     const [expandedRegions, setExpandedRegions] = useState({});
     const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
@@ -25,17 +26,39 @@ export default function FilteredEscortPage(props: Props) {
 
     useEffect(() => {
         fetchEscorts();
+
+        // Refresh data every minute
+        const interval = setInterval(fetchEscorts, 60000);
+        return () => clearInterval(interval);
     }, []);
 
     async function fetchEscorts() {
         try {
-            const { data, error } = await supabase
+            // Get today's date in YYYY-MM-DD format
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+
+            // First get all available user IDs for today
+            const { data: availableIds, error: availError } = await supabase
+                .from('availability_status')
+                .select('user_id')
+                .eq('booking_date', today)
+                .gte('status_end', now.toISOString());
+
+            if (availError) throw availError;
+
+            const availableIdSet = new Set(availableIds?.map(a => a.user_id) || []);
+
+            // Fetch escorts
+            const { data: escortData, error: escortError } = await supabase
                 .from('users')
                 .select('*')
                 .eq('member_type', 'Offering Services');
 
-            if (error) throw error;
-            setEscorts(data || []);
+            if (escortError) throw escortError;
+
+            setEscorts(escortData || []);
+            setAvailableEscorts(availableIdSet);
         } catch (error) {
             console.error('Error fetching escorts:', error);
         } finally {
@@ -153,6 +176,11 @@ export default function FilteredEscortPage(props: Props) {
                                     className="w-full h-full object-cover"
                                 />
                                 <div className="absolute top-2 right-2 flex flex-col gap-2">
+                                    {availableEscorts.has(escort.id) && (
+                                        <Badge className="bg-green-500">
+                                            Available Now
+                                        </Badge>
+                                    )}
                                     {escort.preferences?.escorting?.locationInfo?.canAccommodate && (
                                         <Badge className="bg-purple-500">
                                             <Home className="h-4 w-4 mr-1" />
@@ -173,8 +201,8 @@ export default function FilteredEscortPage(props: Props) {
                                     <h3 className="text-lg font-semibold">{escort.full_name}</h3>
                                     {escort.preferences?.escorting?.rates?.inCall?.["30mins"] && (
                                         <div className="flex items-center text-purple-600 font-semibold">
-                                            <BanknoteIcon className="h-4 w-4" />
-                                            {escort.preferences.escorting.rates.inCall["30mins"]}
+                                            <BanknoteIcon className="h-4 w-4 mr-1" />
+                                            £{escort.preferences.escorting.rates.inCall["30mins"]}
                                         </div>
                                     )}
                                 </div>
