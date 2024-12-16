@@ -1,6 +1,5 @@
 'use client';
 
-/* eslint-disable */
 import NavLink from '@/components/link/NavLink';
 import { IRoute } from '@/types/types';
 import { usePathname } from 'next/navigation';
@@ -8,13 +7,13 @@ import { PropsWithChildren, useCallback } from 'react';
 
 interface SidebarLinksProps extends PropsWithChildren {
   routes: IRoute[];
+  horizontal?: boolean;
   [x: string]: any;
 }
 
 export function SidebarLinks(props: SidebarLinksProps) {
   const pathname = usePathname();
-
-  const { routes } = props;
+  const { routes, horizontal = false } = props;
 
   // verifies if routeName is the one active (in browser input)
   const activeRoute = useCallback(
@@ -23,6 +22,7 @@ export function SidebarLinks(props: SidebarLinksProps) {
     },
     [pathname]
   );
+
   const activeLayout = useCallback(
     (routeName: string) => {
       return pathname?.includes('/ai');
@@ -37,17 +37,21 @@ export function SidebarLinks(props: SidebarLinksProps) {
         return (
           <div
             key={key}
-            className={`flex w-full max-w-full cursor-not-allowed items-center justify-between rounded-lg py-3 pl-8 font-medium`}
+            className={`${horizontal ? 'inline-flex' : 'flex'
+              } w-full max-w-full cursor-not-allowed items-center justify-between ${horizontal ? 'px-4 py-2' : 'py-3 pl-8'
+              } font-medium`}
           >
             <div className="w-full items-center justify-center">
               <div className="flex w-full items-center justify-center">
                 <div
-                  className={`text mr-3 mt-1.5 text-zinc-950 opacity-30 dark:text-white`}
+                  className={`text mr-3 ${horizontal ? '' : 'mt-1.5'
+                    } text-zinc-950 opacity-30 dark:text-white`}
                 >
                   {route.icon}
                 </div>
                 <p
-                  className={`mr-auto text-sm text-zinc-950 opacity-30 dark:text-white`}
+                  className={`mr-auto text-sm text-zinc-950 opacity-30 dark:text-white ${horizontal ? 'whitespace-nowrap' : ''
+                    }`}
                 >
                   {route.name}
                 </p>
@@ -57,13 +61,14 @@ export function SidebarLinks(props: SidebarLinksProps) {
         );
       } else {
         return (
-          <div key={key}>
+          <div key={key} className={horizontal ? 'inline-block' : 'block'}>
             <div
-              className={`flex w-full max-w-full items-center justify-between rounded-lg py-3 pl-8 ${
-                activeRoute(route.path.toLowerCase())
+              className={`${horizontal ? 'inline-flex mx-1' : 'flex'
+                } w-full max-w-full items-center justify-between rounded-lg ${horizontal ? 'px-4 py-2' : 'py-3 pl-8'
+                } ${activeRoute(route.path.toLowerCase())
                   ? 'bg-zinc-950 font-semibold text-white dark:bg-white dark:text-zinc-950'
                   : 'font-medium text-zinc-950 dark:text-zinc-400'
-              }`}
+                }`}
             >
               <NavLink
                 href={route.layout ? route.layout + route.path : route.path}
@@ -73,20 +78,20 @@ export function SidebarLinks(props: SidebarLinksProps) {
                 <div className="w-full items-center justify-center">
                   <div className="flex w-full items-center justify-center">
                     <div
-                      className={`text mr-3 mt-1.5 ${
-                        activeRoute(route.path.toLowerCase())
+                      className={`text mr-3 ${horizontal ? '' : 'mt-1.5'
+                        } ${activeRoute(route.path.toLowerCase())
                           ? 'font-semibold text-white dark:text-zinc-950'
                           : 'text-zinc-950 dark:text-white'
-                      } `}
+                        } `}
                     >
                       {route.icon}
                     </div>
                     <p
-                      className={`mr-auto text-sm ${
-                        activeRoute(route.path.toLowerCase())
+                      className={`mr-auto text-sm ${horizontal ? 'whitespace-nowrap' : ''
+                        } ${activeRoute(route.path.toLowerCase())
                           ? 'font-semibold text-white dark:text-zinc-950'
                           : 'font-medium text-zinc-950 dark:text-zinc-400'
-                      }`}
+                        }`}
                     >
                       {route.name}
                     </p>
@@ -99,8 +104,12 @@ export function SidebarLinks(props: SidebarLinksProps) {
       }
     });
   };
-  //  BRAND
-  return <>{createLinks(routes)}</>;
+
+  return (
+    <div className={horizontal ? 'flex items-center overflow-x-auto' : ''}>
+      {createLinks(routes)}
+    </div>
+  );
 }
 
 export default SidebarLinks;
