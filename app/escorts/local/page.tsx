@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { createClient } from '@/utils/supabase/client';
 import { useEffect, useState } from 'react';
 import { UK_REGIONS } from '@/constants/locations';
-import { MapPin, Clock, BanknoteIcon, Car, Home, ChevronDown, ChevronRight, Star } from 'lucide-react';
+import { MapPin, ChevronDown, ChevronRight } from 'lucide-react';
+import { EscortCard } from '@/components/escort-card/EscortCard';
 
 const supabase = createClient();
 
@@ -25,10 +26,21 @@ export default function FilteredEscortPage(props: Props) {
     const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
     const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
 
+    const calculateAge = (dob: string) => {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        return age;
+    };
+
     useEffect(() => {
         fetchEscorts();
-
-        // Refresh data every minute
         const interval = setInterval(fetchEscorts, 60000);
         return () => clearInterval(interval);
     }, []);
@@ -83,6 +95,7 @@ export default function FilteredEscortPage(props: Props) {
             setLoading(false);
         }
     }
+
     const toggleRegion = (region: string) => {
         setExpandedRegions(prev => ({
             ...prev,
@@ -136,8 +149,7 @@ export default function FilteredEscortPage(props: Props) {
                                             toggleRegion(regionName);
                                             handleRegionClick(regionName);
                                         }}
-                                        className={`w-full flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors ${selectedRegion === regionName ? 'bg-purple-50' : ''
-                                            }`}
+                                        className={`w-full flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors ${selectedRegion === regionName ? 'bg-purple-50' : ''}`}
                                     >
                                         <div className="flex items-center gap-2">
                                             <MapPin className="h-4 w-4 text-purple-500" />
@@ -164,8 +176,7 @@ export default function FilteredEscortPage(props: Props) {
                                                     <button
                                                         key={county}
                                                         onClick={() => handleCountyClick(county)}
-                                                        className={`w-full flex items-center justify-between p-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md ${selectedCounty === county ? 'bg-purple-50' : ''
-                                                            }`}
+                                                        className={`w-full flex items-center justify-between p-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md ${selectedCounty === county ? 'bg-purple-50' : ''}`}
                                                     >
                                                         <span>{county}</span>
                                                         <Badge variant="outline" className="bg-gray-50">
@@ -185,82 +196,13 @@ export default function FilteredEscortPage(props: Props) {
                 {/* Escorts Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredEscorts.map((escort) => (
-                        <Card key={escort.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                            <div className="relative aspect-[3/4]">
-                                <img
-                                    src={escort.profile_pictures?.[0] || '/placeholder-image.jpg'}
-                                    alt={escort.full_name}
-                                    className="w-full h-full object-cover"
-                                />
-                                <div className="absolute top-2 right-2 flex flex-col gap-2">
-                                    {featuredEscorts.has(escort.id) && (
-                                        <Badge className="bg-yellow-500">
-                                            <Star className="h-4 w-4 mr-1" />
-                                            Featured
-                                        </Badge>
-                                    )}
-                                    {availableEscorts.has(escort.id) && (
-                                        <Badge className="bg-green-500">
-                                            Available Now
-                                        </Badge>
-                                    )}
-                                    {escort.preferences?.escorting?.locationInfo?.canAccommodate && (
-                                        <Badge className="bg-purple-500">
-                                            <Home className="h-4 w-4 mr-1" />
-                                            Incall
-                                        </Badge>
-                                    )}
-                                    {escort.preferences?.escorting?.locationInfo?.willTravel && (
-                                        <Badge className="bg-purple-500">
-                                            <Car className="h-4 w-4 mr-1" />
-                                            Outcall
-                                        </Badge>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="p-4">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h3 className="text-lg font-semibold">{escort.full_name}</h3>
-                                    {escort.preferences?.escorting?.rates?.inCall?.["30mins"] && (
-                                        <div className="flex items-center text-purple-600 font-semibold">
-                                            <BanknoteIcon className="h-4 w-4 mr-1" />
-                                            £{escort.preferences.escorting.rates.inCall["30mins"]}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2 text-sm text-gray-600">
-                                    {escort.location && (
-                                        <div className="flex items-center gap-2">
-                                            <MapPin className="h-4 w-4" />
-                                            <span>{`${escort.location.town || ''} ${escort.location.county || ''}`}</span>
-                                        </div>
-                                    )}
-                                    {escort.about_you?.age_group && (
-                                        <div className="flex items-center gap-2">
-                                            <Clock className="h-4 w-4" />
-                                            <span>{escort.about_you.age_group}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {escort.personal_details?.activities && (
-                                    <div className="mt-4 flex flex-wrap gap-2">
-                                        {escort.personal_details.activities.slice(0, 3).map((activity, index) => (
-                                            <Badge key={index} variant="outline" className="bg-purple-50">
-                                                {activity}
-                                            </Badge>
-                                        ))}
-                                        {escort.personal_details.activities.length > 3 && (
-                                            <Badge variant="outline" className="bg-purple-50">
-                                                +{escort.personal_details.activities.length - 3} more
-                                            </Badge>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </Card>
+                        <EscortCard
+                            key={escort.id}
+                            escort={escort}
+                            isAvailable={availableEscorts.has(escort.id)}
+                            isFeatured={featuredEscorts.has(escort.id)}
+                            calculateAge={calculateAge}
+                        />
                     ))}
                 </div>
             </div>

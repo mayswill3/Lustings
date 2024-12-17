@@ -50,7 +50,7 @@ const DashboardLayout: React.FC<Props> = (props: Props) => {
     <UserContext.Provider value={props.user}>
       <UserDetailsContext.Provider value={props.userDetails}>
         <OpenContext.Provider value={{ open, setOpen }}>
-          <div className="flex h-full w-full flex-col bg-white dark:bg-zinc-950">
+          <div className="flex h-full w-full flex-col dark:bg-zinc-950">
             <Navbar brandText={getActiveRoute(routes, pathname)} />
             {/* Original Sidebar */}
             <Sidebar routes={routes} setOpen={setOpen} className />
