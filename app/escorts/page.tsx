@@ -11,7 +11,8 @@ import {
     Clock,
     BanknoteIcon,
     Car,
-    Home
+    Home,
+    Star
 } from 'lucide-react';
 
 const supabase = createClient();
@@ -24,16 +25,16 @@ interface Props {
 export default function EscortGrid(props: Props) {
     const [escorts, setEscorts] = useState([]);
     const [availableEscorts, setAvailableEscorts] = useState(new Set());
+    const [featuredEscorts, setFeaturedEscorts] = useState(new Set());
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchEscortsAndAvailability() {
             try {
-                // Get today's date in YYYY-MM-DD format
                 const now = new Date();
                 const today = now.toISOString().split('T')[0];
 
-                // First get all available user IDs for today
+                // Get available escorts
                 const { data: availableIds, error: availError } = await supabase
                     .from('availability_status')
                     .select('user_id')
@@ -42,7 +43,17 @@ export default function EscortGrid(props: Props) {
 
                 if (availError) throw availError;
 
+                // Get featured escorts
+                const { data: featuredIds, error: featuredError } = await supabase
+                    .from('featured_profiles')
+                    .select('user_id')
+                    .eq('feature_date', today)
+                    .gte('feature_end', now.toISOString());
+
+                if (featuredError) throw featuredError;
+
                 const availableIdSet = new Set(availableIds?.map(a => a.user_id) || []);
+                const featuredIdSet = new Set(featuredIds?.map(f => f.user_id) || []);
 
                 // Fetch all escorts
                 const { data: escortData, error: escortError } = await supabase
@@ -52,8 +63,16 @@ export default function EscortGrid(props: Props) {
 
                 if (escortError) throw escortError;
 
-                setEscorts(escortData || []);
+                // Sort escorts to show featured first
+                const sortedEscorts = (escortData || []).sort((a, b) => {
+                    if (featuredIdSet.has(a.id) && !featuredIdSet.has(b.id)) return -1;
+                    if (!featuredIdSet.has(a.id) && featuredIdSet.has(b.id)) return 1;
+                    return 0;
+                });
+
+                setEscorts(sortedEscorts);
                 setAvailableEscorts(availableIdSet);
+                setFeaturedEscorts(featuredIdSet);
             } catch (error) {
                 console.error('Error fetching escorts:', error);
             } finally {
@@ -63,7 +82,7 @@ export default function EscortGrid(props: Props) {
 
         fetchEscortsAndAvailability();
 
-        // Refresh availability status every minute
+        // Refresh status every minute
         const interval = setInterval(fetchEscortsAndAvailability, 60000);
         return () => clearInterval(interval);
     }, []);
@@ -94,6 +113,12 @@ export default function EscortGrid(props: Props) {
                                     className="w-full h-full object-cover"
                                 />
                                 <div className="absolute top-2 right-2 flex flex-col gap-2">
+                                    {featuredEscorts.has(escort.id) && (
+                                        <Badge className="bg-yellow-500">
+                                            <Star className="h-4 w-4 mr-1" />
+                                            Featured
+                                        </Badge>
+                                    )}
                                     {availableEscorts.has(escort.id) && (
                                         <Badge className="bg-green-500">
                                             Available Now
@@ -119,8 +144,8 @@ export default function EscortGrid(props: Props) {
                                     <h3 className="text-lg font-semibold">{escort.full_name}</h3>
                                     {escort.preferences?.escorting?.rates?.inCall?.["30mins"] && (
                                         <div className="flex items-center text-purple-600 font-semibold">
-                                            <BanknoteIcon className="h-4 w-4" />
-                                            {escort.preferences.escorting.rates.inCall["30mins"]}
+                                            <BanknoteIcon className="h-4 w-4 mr-1" />
+                                            £{escort.preferences.escorting.rates.inCall["30mins"]}
                                         </div>
                                     )}
                                 </div>

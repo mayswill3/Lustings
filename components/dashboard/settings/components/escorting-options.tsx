@@ -7,8 +7,12 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { setAvailability, checkAvailability } from '@/utils/availability';
 import * as Switch from '@radix-ui/react-switch';
-import { MapPin, Clock, Settings, ArrowRight, Calendar } from 'lucide-react';
+import { MapPin, Clock, Settings, ArrowRight, Calendar, Star } from 'lucide-react';
+import { AvailabilityList } from './escorting-options/availability-list';
+import { CollapsibleSection } from '@/components/ui/collapsible-section';
+import { FeaturedProfileList } from './escorting-options/featured-list';
 
 const supabase = createClient();
 
@@ -59,10 +63,6 @@ const Label = ({ htmlFor, children }: LabelProps) => (
     </span>
 );
 
-const Separator = () => (
-    <div className="h-px bg-gray-200 dark:bg-gray-700 my-6" />
-);
-
 const Select = ({ value, onValueChange, children, placeholder }: SelectProps) => (
     <div className="relative">
         <select
@@ -80,24 +80,10 @@ const SelectItem = ({ value, children }: { value: string; children: React.ReactN
     <option value={value}>{children}</option>
 );
 
-const CardHeader = ({ children }: { children: React.ReactNode }) => (
-    <div className="p-6 border-b border-gray-200 dark:border-gray-700">{children}</div>
-);
-
-const CardTitle = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-    <h2 className={`text-lg font-semibold text-gray-900 dark:text-white ${className}`}>{children}</h2>
-);
-
-const CardContent = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-    <div className={`p-6 ${className}`}>{children}</div>
-);
-
-const CardFooter = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-    <div className={`p-6 border-t border-gray-200 dark:border-gray-700 ${className}`}>{children}</div>
-);
-
 // Main Component
 export default function EscortingOptions(props: Props) {
+    const [isAvailable, setIsAvailable] = useState(false);
+    const [availabilityLoading, setAvailabilityLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [locationInfo, setLocationInfo] = useState({
@@ -177,6 +163,18 @@ export default function EscortingOptions(props: Props) {
                 }
 
                 setUserDetails(userDetails);
+
+                // Check availability status
+                if (userDetails?.member_type === 'Offering Services') {
+                    try {
+                        const available = await checkAvailability(userDetails.id);
+                        setIsAvailable(available);
+                    } catch (error) {
+                        console.error('Error checking availability:', error);
+                    } finally {
+                        setAvailabilityLoading(false);
+                    }
+                }
 
                 // Set initial states from escorting preferences
                 if (userDetails?.preferences?.escorting) {
@@ -302,96 +300,85 @@ export default function EscortingOptions(props: Props) {
     return (
         <div className="max-w-full sm:max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
             <form onSubmit={handleSubmit}>
-                <Card className="shadow-lg">
-                    <CardHeader>
-                        <CardTitle className="text-xl sm:text-2xl">Service Options</CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="space-y-8">
-                        {/* Location Settings */}
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-medium flex items-center gap-2">
-                                <MapPin className="w-5 h-5" />
-                                Location Preferences
-                            </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="flex items-center justify-between space-x-4">
-                                    <Label htmlFor="accommodate">In-call Services</Label>
-                                    <Toggle
-                                        id="accommodate"
-                                        checked={locationInfo.canAccommodate}
-                                        onCheckedChange={(checked) =>
-                                            setLocationInfo(prev => ({ ...prev, canAccommodate: checked }))
-                                        }
-                                    />
-                                </div>
-                                <div className="flex items-center justify-between space-x-4">
-                                    <Label htmlFor="travel">Out-call Services</Label>
-                                    <Toggle
-                                        id="travel"
-                                        checked={locationInfo.willTravel}
-                                        onCheckedChange={(checked) =>
-                                            setLocationInfo(prev => ({ ...prev, willTravel: checked }))
-                                        }
-                                    />
-                                </div>
+                <div className="space-y-4">
+                    {/* Location Settings Section */}
+                    <CollapsibleSection
+                        title="Location Preferences"
+                        icon={<MapPin />}
+                        defaultOpen={true}
+                    >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="flex items-center justify-between space-x-4">
+                                <Label htmlFor="accommodate">In-call Services</Label>
+                                <Toggle
+                                    id="accommodate"
+                                    checked={locationInfo.canAccommodate}
+                                    onCheckedChange={(checked) =>
+                                        setLocationInfo(prev => ({ ...prev, canAccommodate: checked }))
+                                    }
+                                />
+                            </div>
+                            <div className="flex items-center justify-between space-x-4">
+                                <Label htmlFor="travel">Out-call Services</Label>
+                                <Toggle
+                                    id="travel"
+                                    checked={locationInfo.willTravel}
+                                    onCheckedChange={(checked) =>
+                                        setLocationInfo(prev => ({ ...prev, willTravel: checked }))
+                                    }
+                                />
                             </div>
                         </div>
+                    </CollapsibleSection>
 
-                        <Separator />
-
-                        {/* Rates Section */}
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-medium flex items-center gap-2">
-                                <Clock className="w-5 h-5" />
-                                Rate Configuration
-                            </h3>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                    <thead>
-                                        <tr>
-                                            <th className="text-left px-2 py-1 font-medium">Duration</th>
-                                            {timeSlots.map(({ id, label }) => (
-                                                <th key={id} className="px-2 py-1 font-medium">{label}</th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td className="px-2 py-1">In-call</td>
-                                            {timeSlots.map(({ id }) => (
-                                                <td key={id} className="px-1 py-1">
-                                                    <Input
-                                                        type="text"
-                                                        value={rates.inCall[id]}
-                                                        onChange={(e) => handleNumberInput(e, 'inCall', id)}
-                                                        className="w-16 h-8 text-sm"
-                                                    />
-                                                </td>
-                                            ))}
-                                        </tr>
-                                        <tr>
-                                            <td className="px-2 py-1">Out-call</td>
-                                            {timeSlots.map(({ id }) => (
-                                                <td key={id} className="px-1 py-1">
-                                                    <Input
-                                                        type="text"
-                                                        value={rates.outCall[id]}
-                                                        onChange={(e) => handleNumberInput(e, 'outCall', id)}
-                                                        className="w-16 h-8 text-sm"
-                                                    />
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                    {/* Rates Section */}
+                    <CollapsibleSection
+                        title="Rate Configuration"
+                        icon={<Clock />}
+                        defaultOpen={false}
+                    >
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr>
+                                        <th className="text-left px-2 py-1 font-medium">Duration</th>
+                                        {timeSlots.map(({ id, label }) => (
+                                            <th key={id} className="px-2 py-1 font-medium">{label}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td className="px-2 py-1">In-call</td>
+                                        {timeSlots.map(({ id }) => (
+                                            <td key={id} className="px-1 py-1">
+                                                <Input
+                                                    type="text"
+                                                    value={rates.inCall[id]}
+                                                    onChange={(e) => handleNumberInput(e, 'inCall', id)}
+                                                    className="w-16 h-8 text-sm"
+                                                />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                    <tr>
+                                        <td className="px-2 py-1">Out-call</td>
+                                        {timeSlots.map(({ id }) => (
+                                            <td key={id} className="px-1 py-1">
+                                                <Input
+                                                    type="text"
+                                                    value={rates.outCall[id]}
+                                                    onChange={(e) => handleNumberInput(e, 'outCall', id)}
+                                                    className="w-16 h-8 text-sm"
+                                                />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
-                        <Separator />
-
-                        {/* Currency and Reports */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
                             <div className="space-y-2">
                                 <Label>Currency</Label>
                                 <Select value={currency} onValueChange={setCurrency}>
@@ -408,71 +395,83 @@ export default function EscortingOptions(props: Props) {
                                 </Select>
                             </div>
                         </div>
-                        {/* <Separator /> */}
+                    </CollapsibleSection>
 
-                        {/* Platform Settings */}
-                        {/* <div className="space-y-4">
-                        <h3 className="text-lg font-medium flex items-center gap-2">
-                            <Settings className="w-5 h-5" />
-                            Platform Settings
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <Button variant="outline" className="justify-between">
-                                Setup Featuring <ArrowRight className="w-4 h-4" />
+                    {/* Availability Section */}
+                    <CollapsibleSection
+                        title="Availability Status"
+                        icon={<Clock />}
+                        defaultOpen={false}
+                    >
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between space-x-4">
+                                <Label htmlFor="availableToday">Available Today (Until Midnight)</Label>
+                                <Toggle
+                                    id="availableToday"
+                                    checked={isAvailable}
+                                    onCheckedChange={async (state) => {
+                                        try {
+                                            setAvailabilityLoading(true);
+                                            await setAvailability(userDetails?.id, state);
+                                            setIsAvailable(state);
+                                            toast.success(state ? 'You are now available until midnight' : 'You are now marked as unavailable');
+                                        } catch (error) {
+                                            console.error('Error updating availability:', error);
+                                            toast.error('Failed to update availability status');
+                                        } finally {
+                                            setAvailabilityLoading(false);
+                                        }
+                                    }}
+                                    disabled={availabilityLoading}
+                                />
+                            </div>
+                            <div className="border-t pt-4">
+                                <AvailabilityList userId={userDetails?.id} />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+                    <CollapsibleSection
+                        title="Featured Profile"
+                        icon={<Star />} // Import Star from lucide-react
+                        defaultOpen={false}
+                    >
+                        <FeaturedProfileList userId={userDetails?.id} />
+                    </CollapsibleSection>
+
+                    {/* Save Buttons */}
+                    <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mt-6">
+                        <div className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4">
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? 'Saving...' : 'Save Changes'}
                             </Button>
-                            <Button variant="outline" className="justify-between">
-                                Local Search Options <ArrowRight className="w-4 h-4" />
-                            </Button>
-                            <Button variant="outline" className="justify-between">
-                                Availability Settings <Calendar className="w-4 h-4" />
-                            </Button>
-                            <Button variant="outline" className="justify-between">
-                                Tour Management <MapPin className="w-4 h-4" />
+                            <Button
+                                type="button"
+                                onClick={async () => {
+                                    setIsSubmitting(true);
+                                    await handleSubmit(new Event('submit'));
+                                    const { data: userDetails, error } = await supabase
+                                        .from('users')
+                                        .select('full_name')
+                                        .eq('id', user?.id)
+                                        .single();
+
+                                    setIsSubmitting(false);
+
+                                    if (error || !userDetails?.full_name) {
+                                        console.error('Error fetching full_name:', error);
+                                        toast.error('Failed to redirect: full_name not found');
+                                        return;
+                                    }
+
+                                    window.location.href = `/profile/${encodeURIComponent(userDetails.full_name)}`;
+                                }}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Saving and Redirecting...' : 'Save and View Profile'}
                             </Button>
                         </div>
-                    </div> */}
-                    </CardContent>
-
-                    <CardFooter className="flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4 pt-6">
-                        {/* Save Changes Button */}
-                        <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Saving...' : 'Save Changes'}
-                        </Button>
-
-                        {/* Save and View Profile Button */}
-                        <Button
-                            type="button"
-                            onClick={async () => {
-                                setIsSubmitting(true);
-
-                                // Save the changes first
-                                await handleSubmit(new Event('submit'));
-
-                                // Fetch full_name for redirection
-                                const { data: userDetails, error } = await supabase
-                                    .from('users')
-                                    .select('full_name')
-                                    .eq('id', user?.id)
-                                    .single();
-
-                                setIsSubmitting(false);
-
-                                if (error || !userDetails?.full_name) {
-                                    console.error('Error fetching full_name:', error);
-                                    toast.error('Failed to redirect: full_name not found');
-                                    return;
-                                }
-
-                                // Redirect to the profile page
-                                const profileUrl = `/profile/${encodeURIComponent(userDetails.full_name)}`;
-                                window.location.href = profileUrl;
-                            }}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? 'Saving and Redirecting...' : 'Save and View Profile'}
-                        </Button>
-                    </CardFooter>
-                </Card>
+                    </div>
+                </div>
             </form>
         </div>
     );

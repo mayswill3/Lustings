@@ -23,31 +23,17 @@ interface Props {
     userDetails: { [x: string]: any } | null;
 }
 
-export default function AvailableEscorts(props: Props) {
+export default function FeaturedEscorts(props: Props) {
     const [escorts, setEscorts] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchAvailableEscorts = async () => {
+        const fetchFeaturedEscorts = async () => {
             try {
                 const now = new Date();
                 const today = now.toISOString().split('T')[0]; // Gets YYYY-MM-DD format
 
-                // First get all available user IDs for today
-                const { data: availableIds, error: availError } = await supabase
-                    .from('availability_status')
-                    .select('user_id')
-                    .eq('booking_date', today)
-                    .gte('status_end', now.toISOString());
-
-                if (availError) throw availError;
-
-                if (!availableIds?.length) {
-                    setEscorts([]);
-                    return;
-                }
-
-                // Get featured profiles for today
+                // First get all featured user IDs for today
                 const { data: featuredIds, error: featuredError } = await supabase
                     .from('featured_profiles')
                     .select('user_id')
@@ -56,41 +42,49 @@ export default function AvailableEscorts(props: Props) {
 
                 if (featuredError) throw featuredError;
 
-                const featuredUserIds = new Set(featuredIds?.map(f => f.user_id) || []);
+                if (!featuredIds?.length) {
+                    setEscorts([]);
+                    return;
+                }
 
-                // Then get users' details and add featured status
+                // Get availability status for these users
+                const { data: availableIds, error: availError } = await supabase
+                    .from('availability_status')
+                    .select('user_id')
+                    .eq('booking_date', today)
+                    .gte('status_end', now.toISOString());
+
+                if (availError) throw availError;
+
+                const availableUserIds = new Set(availableIds?.map(a => a.user_id) || []);
+
+                // Then get those users' details
                 const { data, error } = await supabase
                     .from('users')
                     .select('*')
                     .eq('member_type', 'Offering Services')
-                    .in('id', availableIds.map(a => a.user_id));
+                    .in('id', featuredIds.map(f => f.user_id));
 
                 if (error) throw error;
 
-                const escortsWithFeatured = data?.map(escort => ({
+                // Add availability status to each escort
+                const escortsWithAvailability = data?.map(escort => ({
                     ...escort,
-                    isFeatured: featuredUserIds.has(escort.id)
+                    isAvailable: availableUserIds.has(escort.id)
                 })) || [];
 
-                // Sort featured escorts to the top
-                const sortedEscorts = escortsWithFeatured.sort((a, b) => {
-                    if (a.isFeatured && !b.isFeatured) return -1;
-                    if (!a.isFeatured && b.isFeatured) return 1;
-                    return 0;
-                });
-
-                setEscorts(sortedEscorts);
+                setEscorts(escortsWithAvailability);
             } catch (error) {
-                console.error('Error fetching available escorts:', error);
+                console.error('Error fetching featured escorts:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchAvailableEscorts();
+        fetchFeaturedEscorts();
 
         // Refresh data every minute
-        const interval = setInterval(fetchAvailableEscorts, 60000);
+        const interval = setInterval(fetchFeaturedEscorts, 60000);
         return () => clearInterval(interval);
     }, []);
 
@@ -106,18 +100,18 @@ export default function AvailableEscorts(props: Props) {
         <DashboardLayout
             user={props.user}
             userDetails={props.userDetails}
-            title="Available Now"
-            description="Escorts available today"
+            title="Featured Escorts"
+            description="Today's featured profiles"
         >
             <div className="container mx-auto px-4 py-8">
                 {escorts.length === 0 ? (
                     <div className="text-center py-12">
-                        <CalendarCheck className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                        <Star className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                         <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-                            No Escorts Currently Available
+                            No Featured Escorts Today
                         </h2>
                         <p className="text-gray-600 dark:text-gray-400">
-                            Check back later to see who becomes available
+                            Check back later to see featured profiles
                         </p>
                     </div>
                 ) : (
@@ -125,10 +119,10 @@ export default function AvailableEscorts(props: Props) {
                         <div className="flex justify-between items-center mb-6">
                             <div>
                                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                                    Available Today
+                                    Featured Escorts
                                 </h1>
                                 <p className="text-gray-600 dark:text-gray-400 mt-1">
-                                    Showing {escorts.length} available escort{escorts.length !== 1 ? 's' : ''}
+                                    Showing {escorts.length} featured profile{escorts.length !== 1 ? 's' : ''}
                                 </p>
                             </div>
                         </div>
@@ -142,15 +136,15 @@ export default function AvailableEscorts(props: Props) {
                                             className="w-full h-full object-cover"
                                         />
                                         <div className="absolute top-2 right-2 flex flex-col gap-2">
-                                            {escort.isFeatured && (
-                                                <Badge className="bg-yellow-500">
-                                                    <Star className="h-4 w-4 mr-1" />
-                                                    Featured
+                                            <Badge className="bg-yellow-500">
+                                                <Star className="h-4 w-4 mr-1" />
+                                                Featured
+                                            </Badge>
+                                            {escort.isAvailable && (
+                                                <Badge className="bg-green-500">
+                                                    Available Now
                                                 </Badge>
                                             )}
-                                            <Badge className="bg-green-500">
-                                                Available Now
-                                            </Badge>
                                             {escort.preferences?.escorting?.locationInfo?.canAccommodate && (
                                                 <Badge className="bg-purple-500">
                                                     <Home className="h-4 w-4 mr-1" />
@@ -166,7 +160,6 @@ export default function AvailableEscorts(props: Props) {
                                         </div>
                                     </div>
 
-                                    {/* Rest of the card content remains the same */}
                                     <div className="p-4">
                                         <div className="flex justify-between items-start mb-2">
                                             <h3 className="text-lg font-semibold">{escort.full_name}</h3>
