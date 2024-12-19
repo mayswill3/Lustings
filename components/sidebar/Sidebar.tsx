@@ -30,7 +30,7 @@ function Sidebar(props: SidebarProps) {
         onClick={() => router.push(path)}
         className={`
         w-full px-6 py-4 text-left
-        rounded-xl transition-all duration-200
+        rounded transition-all duration-200
         flex items-center gap-3
         ${isActive
             ? 'bg-purple-50 text-purple-700'
@@ -47,7 +47,7 @@ function Sidebar(props: SidebarProps) {
   };
   // Mobile horizontal sidebar with grid
   const MobileSidebar = () => (
-    <div className="mx-2 mb-4 mt-24 xl:mt-0 xl:hidden">
+    <div className="mx-2 mb-4 mt-16 xl:mt-0 xl:hidden">
       <div className="grid grid-cols-2 gap-3 p-4">
         {categories.map((category) => (
           <CategoryButton

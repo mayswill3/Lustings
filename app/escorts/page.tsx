@@ -8,20 +8,20 @@ import { EscortCard } from '@/components/escort-card/EscortCard';
 import { UserX } from 'lucide-react';
 import { getPostcodeCoordinates, calculateDistance } from '@/utils/location';
 import { FilterSection } from '@/components/search/FilterSectionProps';
+import { getUserDetails, getUser } from '@/utils/supabase/queries';
 
 const supabase = createClient();
-
-interface Props {
-    user: User | null | undefined;
-    userDetails: { [key: string]: any } | null;
-}
+const [user, userDetails] = await Promise.all([
+    getUser(supabase),
+    getUserDetails(supabase)
+]);
 
 interface Coordinates {
     latitude: number;
     longitude: number;
 }
 
-export default function EscortGrid({ user, userDetails }: Props) {
+export default function EscortGrid() {
     const [escorts, setEscorts] = useState([]);
     const [filteredEscorts, setFilteredEscorts] = useState([]);
     const [availableEscorts, setAvailableEscorts] = useState(new Set());
@@ -216,7 +216,8 @@ export default function EscortGrid({ user, userDetails }: Props) {
 
     return (
         <DashboardLayout user={user} userDetails={userDetails} title="All Escorts" description="Browse all available escorts">
-            <div className="container mx-auto px-4 py-8">
+            <div className="w-full max-w-screen-xl mx-auto px-2 pb-8">
+
                 <FilterSection
                     {...{
                         searchTerm,
@@ -254,7 +255,7 @@ export default function EscortGrid({ user, userDetails }: Props) {
                         <h2>No Escorts Match Your Search</h2>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {filteredEscorts.map((escort) => (
                             <EscortCard
                                 key={escort.id}

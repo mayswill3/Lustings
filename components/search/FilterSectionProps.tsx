@@ -67,7 +67,7 @@ export function FilterSection({
     loading,
 }: FilterSectionProps) {
     return (
-        <div className="mb-3 p-2 sm:p-3 bg-white">
+        <div className="mb-3 p-2 sm:p-3 bg-white rounded">
             {/* Primary Search - Always visible */}
             <div className="relative mb-2">
                 <label className="text-xs font-medium text-gray-600">Search</label>
@@ -103,9 +103,7 @@ export function FilterSection({
                     >
                         <option value="">All Genders</option>
                         {GENDERS.map((gender) => (
-                            <option key={gender} value={gender}>
-                                {gender}
-                            </option>
+                            <option key={gender} value={gender}>{gender}</option>
                         ))}
                     </select>
                 </div>
@@ -118,9 +116,7 @@ export function FilterSection({
                     >
                         <option value="">Any Age</option>
                         {AGE_RANGES.map((range) => (
-                            <option key={range.value} value={range.value}>
-                                {range.label}
-                            </option>
+                            <option key={range.value} value={range.value}>{range.label}</option>
                         ))}
                     </select>
                 </div>
@@ -129,7 +125,7 @@ export function FilterSection({
             {/* Secondary Filters - Collapsible */}
             <div className={`space-y-2 ${showFilters ? "" : "hidden"}`}>
                 {/* Location Search */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                     <div className="space-y-1">
                         <label className="text-xs font-medium text-gray-600">Postcode</label>
                         <div className="relative">
@@ -138,8 +134,7 @@ export function FilterSection({
                                 placeholder="Enter postcode..."
                                 value={searchPostcode}
                                 onChange={(e) => setSearchPostcode(e.target.value)}
-                                className={`h-8 w-full text-xs ${postcodeError ? "border-red-500" : ""
-                                    }`}
+                                className={`h-8 w-full text-xs ${postcodeError ? "border-red-500" : ""}`}
                             />
                             {isLoadingPostcode && (
                                 <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
@@ -152,19 +147,25 @@ export function FilterSection({
                         <label className="text-xs font-medium text-gray-600">Distance</label>
                         <select
                             value={selectedDistance}
-                            onChange={(e) =>
-                                setSelectedDistance(e.target.value ? Number(e.target.value) : "")
-                            }
+                            onChange={(e) => setSelectedDistance(e.target.value ? Number(e.target.value) : "")}
                             className="h-8 border rounded-md px-2 bg-white text-xs w-full disabled:bg-gray-100"
                             disabled={!searchPostcode || !searchCoordinates}
                         >
                             <option value="">Select radius</option>
                             {DISTANCE_OPTIONS.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
+                                <option key={option.value} value={option.value}>{option.label}</option>
                             ))}
                         </select>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-xs font-medium text-gray-600">&nbsp;</label>
+                        <button
+                            onClick={filterByDistance}
+                            disabled={!searchCoordinates || !selectedDistance || loading}
+                            className="w-full h-8 bg-purple-600 text-white px-3 rounded-md hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                        >
+                            {loading ? "Searching..." : "Search"}
+                        </button>
                     </div>
                 </div>
 
@@ -178,16 +179,12 @@ export function FilterSection({
                         >
                             <option value="">Any Ethnicity</option>
                             {PHYSICAL_OPTIONS.ETHNICITY.map((ethnicity) => (
-                                <option key={ethnicity} value={ethnicity}>
-                                    {ethnicity}
-                                </option>
+                                <option key={ethnicity} value={ethnicity}>{ethnicity}</option>
                             ))}
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600">
-                            Nationality
-                        </label>
+                        <label className="text-xs font-medium text-gray-600">Nationality</label>
                         <select
                             value={selectedNationality}
                             onChange={(e) => setSelectedNationality(e.target.value)}
@@ -195,9 +192,7 @@ export function FilterSection({
                         >
                             <option value="">Any Nationality</option>
                             {NATIONALITIES.map((nation) => (
-                                <option key={nation} value={nation}>
-                                    {nation}
-                                </option>
+                                <option key={nation} value={nation}>{nation}</option>
                             ))}
                         </select>
                     </div>
@@ -220,31 +215,20 @@ export function FilterSection({
                         >
                             <option value="">Any Duration</option>
                             {BOOKING_LENGTHS.map((length) => (
-                                <option key={length.value} value={length.value}>
-                                    {length.label}
-                                </option>
+                                <option key={length.value} value={length.value}>{length.label}</option>
                             ))}
                         </select>
                     </div>
                 </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-2 mt-2">
-                <button
-                    onClick={filterByDistance}
-                    disabled={!searchCoordinates || !selectedDistance || loading}
-                    className="flex-1 h-8 bg-purple-600 text-white px-3 rounded-md hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs"
-                >
-                    {loading ? "Searching..." : "Search Location"}
-                </button>
-                <button
-                    onClick={clearFilters}
-                    className="flex-1 h-8 bg-gray-100 text-gray-700 px-3 rounded-md hover:bg-gray-200 transition-colors text-xs"
-                >
-                    Clear All
-                </button>
-            </div>
+            {/* Clear Filters Button */}
+            <button
+                onClick={clearFilters}
+                className="w-full h-8 bg-gray-100 text-gray-700 px-3 rounded-md hover:bg-gray-200 transition-colors text-xs mt-2"
+            >
+                Clear All
+            </button>
 
             {/* Error messages */}
             {postcodeError && (

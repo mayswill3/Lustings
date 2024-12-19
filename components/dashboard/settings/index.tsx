@@ -43,7 +43,7 @@ const TabButton = ({ active, onClick, icon, label }: TabButtonProps) => (
 
 export default function Settings(props: Props) {
   const [activeTab, setActiveTab] = useState('general');
-
+ 
   // Base tabs that are always shown
   const baseTabs = [
     {

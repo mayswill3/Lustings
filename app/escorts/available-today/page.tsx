@@ -7,12 +7,7 @@ import { EscortCard } from '@/components/escort-card/EscortCard';
 import { FilterSection } from '@/components/search/FilterSectionProps';
 import { createClient } from '@/utils/supabase/client';
 import { getPostcodeCoordinates, calculateDistance } from '@/utils/location';
-
-// Types
-interface Props {
-    user: User | null | undefined;
-    userDetails: Record<string, any> | null;
-}
+import { getUserDetails, getUser } from '@/utils/supabase/queries';
 
 interface Coordinates {
     latitude: number;
@@ -33,8 +28,12 @@ interface FilterState {
 }
 
 const supabase = createClient();
+const [user, userDetails] = await Promise.all([
+    getUser(supabase),
+    getUserDetails(supabase)
+]);
 
-export default function AvailableEscorts({ user, userDetails }: Props) {
+export default function AvailableEscorts() {
     // Core state
     const [escorts, setEscorts] = useState([]);
     const [filteredEscorts, setFilteredEscorts] = useState([]);
@@ -253,7 +252,7 @@ export default function AvailableEscorts({ user, userDetails }: Props) {
             title="Available Now"
             description="Escorts available today"
         >
-            <div className="container mx-auto px-4 py-8">
+            <div className="w-full max-w-screen-xl mx-auto px-2 pb-8">
                 <FilterSection
                     searchTerm={filters.searchTerm}
                     setSearchTerm={(term) => setFilters(prev => ({ ...prev, searchTerm: term }))}
@@ -283,7 +282,7 @@ export default function AvailableEscorts({ user, userDetails }: Props) {
                     loading={loading}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredEscorts.map(escort => (
                         <EscortCard
                             key={escort.id}
