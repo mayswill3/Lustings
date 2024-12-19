@@ -14,7 +14,6 @@ export default function ActivityMultiSelect({
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Handle clicking outside to close dropdown
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -40,48 +39,43 @@ export default function ActivityMultiSelect({
     };
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative h-8" ref={dropdownRef}>
             <div
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between w-full px-4 py-2 text-left bg-white border rounded-md cursor-pointer"
+                className="flex items-center justify-between w-full h-full px-2 text-left bg-white border rounded-md cursor-pointer text-xs"
             >
                 <div className="flex flex-wrap gap-1 max-w-[90%] overflow-hidden">
                     {selectedActivities.length > 0 ? (
-                        selectedActivities.map((activity) => (
-                            <span
-                                key={activity}
-                                className="px-2 py-0.5 text-sm bg-gray-100 rounded-full"
-                            >
-                                {activity}
-                            </span>
-                        ))
+                        <span className="truncate">
+                            {selectedActivities.join(", ")}
+                        </span>
                     ) : (
-                        <span className="text-gray-500">Select Activities</span>
+                        <span className="text-gray-500">Select Services</span>
                     )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 shrink-0">
                     {selectedActivities.length > 0 && (
                         <X
-                            className="w-4 h-4 text-gray-400 hover:text-gray-600"
+                            className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600"
                             onClick={clearSelections}
                         />
                     )}
-                    <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                 </div>
             </div>
 
             {isOpen && (
-                <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
-                    <div className="p-2">
+                <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-48 overflow-auto">
+                    <div className="p-1">
                         {ACTIVITIES.map((activity) => (
                             <div
                                 key={activity}
                                 onClick={() => toggleActivity(activity)}
-                                className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-md"
+                                className="flex items-center justify-between px-2 py-1.5 cursor-pointer hover:bg-gray-100 rounded-sm text-xs"
                             >
                                 <span>{activity}</span>
                                 {selectedActivities.includes(activity) && (
-                                    <Check className="w-4 h-4 text-green-500" />
+                                    <Check className="w-3.5 h-3.5 text-green-500" />
                                 )}
                             </div>
                         ))}

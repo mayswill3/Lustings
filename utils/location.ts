@@ -28,6 +28,12 @@ export async function getPostcodeCoordinates(
     const response = await fetch(
       `https://api.postcodes.io/postcodes/${normalizedPostcode}`
     );
+    if (!response.ok) {
+      console.error(
+        `Postcode API returned ${response.status}: ${response.statusText}`
+      );
+      return null;
+    }
     const data = await response.json();
 
     if (data.result) {
@@ -35,7 +41,6 @@ export async function getPostcodeCoordinates(
         latitude: data.result.latitude,
         longitude: data.result.longitude
       };
-
       postcodeCache.set(normalizedPostcode, coordinates);
       return coordinates;
     }
