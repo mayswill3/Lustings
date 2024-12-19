@@ -1,4 +1,4 @@
-// constants/uk-locations.ts
+// constants/locations.ts
 
 export const UK_REGIONS = {
   'East Midlands': {

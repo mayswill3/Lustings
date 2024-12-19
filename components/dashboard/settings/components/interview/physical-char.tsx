@@ -1,37 +1,14 @@
-// PhysicalCharacteristics.tsx
+// components/PhysicalCharacteristics.tsx
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { User2 } from 'lucide-react';
-
-const PHYSICAL_OPTIONS = {
-    ETHNICITY: ['Arabic', 'Asian', 'Black', 'Caucasian (White)', 'Chinese', 'Indian', 'Latin', 'Mixed', 'Other'],
-    EYE_COLOR: ['Blue', 'Brown', 'Green', 'Hazel', 'Pink', 'Grey'],
-    HAIR_COLOR: ['Blonde', 'Brown', 'Black', 'Grey', 'Red', 'Strawberry Blonde', 'Red Brown'],
-    HAIR_LENGTH: ['Short', 'Medium', 'Long', 'Shoulder length', 'Bobbed'],
-    BODY_TYPE: ['Small', 'Slim', 'Average', 'Athletic', 'Muscular', 'Curvy', 'Few Extra Pounds', 'Heavy Set'],
-    HEIGHT: Array.from({ length: 35 }, (_, i) => {
-        const feet = Math.floor((i + 44) / 12);
-        const inches = (i + 44) % 12;
-        return `${feet}'${inches}"`;
-    }),
-    WEIGHT: Array.from({ length: 17 }, (_, i) => `${7 + i / 2}st`).concat(['15st+']),
-    LEG: Array.from({ length: 12 }, (_, i) => `${24 + i}"`),
-    SHOE_SIZE: ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12', '12.5', '13'],
-    DRESS_SIZE: ['4', '6', '8', '10', '12', '14', '16', '18+'],
-    CHEST: Array.from({ length: 10 }, (_, i) => `${26 + i * 2}"`).concat(['44"+']),
-    WAIST: Array.from({ length: 14 }, (_, i) => `${24 + i * 2}"`).concat(['50"+']),
-    HIPS: Array.from({ length: 14 }, (_, i) => `${24 + i * 2}"`).concat(['50"+']),
-    BRA_CUP: ['AA', 'A', 'B', 'C', 'DD', 'E', 'EE', 'F', 'FF', 'G', 'GG', 'H', 'HH', 'J', 'JJ', 'K', 'KK', 'L'],
-    BREAST_SIZE: ['Small', 'Medium', 'Large', 'Very Large'],
-    PUBIC_HAIR: ['Natural', 'Trimmed', 'Shaved Mostly', 'Brazilian', 'Shaved Completely'],
-};
+import PHYSICAL_OPTIONS, { SelectFieldProps, RadioGroupProps } from '@/constants/physical';
 
 interface PhysicalCharacteristicsProps {
     userDetails: any;
 }
 
-const SelectField = ({ label, name, options, value = '' }) => (
+const SelectField: React.FC<SelectFieldProps> = ({ label, name, options, value = '' }) => (
     <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
         <select
@@ -47,7 +24,7 @@ const SelectField = ({ label, name, options, value = '' }) => (
     </div>
 );
 
-const RadioGroup = ({ label, name, options, value = '' }) => (
+const RadioGroup: React.FC<RadioGroupProps> = ({ label, name, options, value = '' }) => (
     <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
         <div className="flex flex-wrap gap-4">
@@ -121,27 +98,45 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
 
                 {/* Measurements */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                    {['Weight', 'Leg', 'Shoe Size'].map(field => (
-                        <SelectField
-                            key={field}
-                            label={field}
-                            name={field.toLowerCase().replace(' ', '_')}
-                            options={PHYSICAL_OPTIONS[field.replace(' ', '_').toUpperCase()]}
-                            value={userDetails?.[field.toLowerCase().replace(' ', '_')]}
-                        />
-                    ))}
+                    <SelectField
+                        label="Weight"
+                        name="weight"
+                        options={PHYSICAL_OPTIONS.WEIGHT}
+                        value={userDetails?.weight}
+                    />
+                    <SelectField
+                        label="Leg"
+                        name="leg"
+                        options={PHYSICAL_OPTIONS.LEG}
+                        value={userDetails?.leg}
+                    />
+                    <SelectField
+                        label="Shoe Size"
+                        name="shoe_size"
+                        options={PHYSICAL_OPTIONS.SHOE_SIZE}
+                        value={userDetails?.shoe_size}
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                    {['Chest', 'Waist', 'Hips'].map(field => (
-                        <SelectField
-                            key={field}
-                            label={field}
-                            name={field.toLowerCase()}
-                            options={PHYSICAL_OPTIONS[field.toUpperCase()]}
-                            value={userDetails?.[field.toLowerCase()]}
-                        />
-                    ))}
+                    <SelectField
+                        label="Chest"
+                        name="chest"
+                        options={PHYSICAL_OPTIONS.CHEST}
+                        value={userDetails?.chest}
+                    />
+                    <SelectField
+                        label="Waist"
+                        name="waist"
+                        options={PHYSICAL_OPTIONS.WAIST}
+                        value={userDetails?.waist}
+                    />
+                    <SelectField
+                        label="Hips"
+                        name="hips"
+                        options={PHYSICAL_OPTIONS.HIPS}
+                        value={userDetails?.hips}
+                    />
                 </div>
 
                 {/* Breast Characteristics */}
@@ -161,7 +156,7 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                     <RadioGroup
                         label="Breast Type"
                         name="breastType"
-                        options={['Natural', 'Enhanced', 'N/A']}
+                        options={PHYSICAL_OPTIONS.BREAST_TYPE}
                         value={userDetails?.breast_type}
                     />
                 </div>
@@ -178,21 +173,21 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                     <RadioGroup
                         label="Do you smoke?"
                         name="smoking"
-                        options={['Yes', 'No', 'Socially', 'N/A']}
+                        options={PHYSICAL_OPTIONS.SMOKING}
                         value={userDetails?.smoking}
                     />
 
                     <RadioGroup
                         label="Tattoos or Piercings"
                         name="bodyArt"
-                        options={['Tattoos', 'Piercings', 'Both', 'Neither', 'N/A']}
+                        options={PHYSICAL_OPTIONS.BODY_ART}
                         value={userDetails?.body_art}
                     />
 
                     <RadioGroup
                         label="Tattoo/Piercing Visibility"
                         name="bodyArtVisibility"
-                        options={['Very Discrete', 'Discrete', 'Partially Visible', 'Visible', 'Blatant', 'None', 'N/A']}
+                        options={PHYSICAL_OPTIONS.BODY_ART_VISIBILITY}
                         value={userDetails?.body_art_visibility}
                     />
 

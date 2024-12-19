@@ -11,6 +11,7 @@ import * as Switch from '@radix-ui/react-switch';
 import * as RadioGroup from '@radix-ui/react-radio-group';
 import { Calendar, Users, Heart, Activity, ChevronDown } from 'lucide-react';
 import { ACTIVITIES } from '@/constants/activities';
+import GENDERS from '@/constants/gender';
 
 
 const supabase = createClient();
@@ -221,18 +222,22 @@ export default function PersonalDetails() {
                                 className="w-full h-10 px-3 border border-gray-300 rounded-md bg-white dark:bg-zinc-800 dark:border-zinc-700"
                             >
                                 <option value="">Select Gender</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
+                                {GENDERS.map((gender) => (
+                                    <option key={gender} value={gender}>
+                                        {gender}
+                                    </option>
+                                ))}
+
                             </select>
                         </div>
-                        <div className="md:col-span-2">
+                        {/* <div className="md:col-span-2">
                             <Toggle
                                 name="trans"
                                 label="Trans"
                                 checked={transStatus}
                                 onCheckedChange={setTransStatus}
                             />
-                        </div>
+                        </div> */}
                     </div>
                 </Card>
 
