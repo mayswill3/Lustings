@@ -12,7 +12,7 @@ import { getURL, getStatusRedirect } from '@/utils/helpers';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import Toggle from '@/components/ui/toggle';
-import { MapPin, User2, Lock, Settings2 } from 'lucide-react';
+import { MapPin, User2, Lock, Settings2, Clock } from 'lucide-react';
 import { NATIONALITIES, isValidNationality } from '@/constants/nationalities';
 import LocationDetailsSection from './general-details/location-details';
 
@@ -330,6 +330,7 @@ export default function GeneralDetails(props: Props) {
 
                 {/* Location Details Section */}
                 <LocationDetailsSection userDetails={userDetails} />
+
 
                 {/* Privacy Settings Section */}
                 <Card className="p-6 shadow-sm">
