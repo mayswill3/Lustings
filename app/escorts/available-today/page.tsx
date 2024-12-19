@@ -1,27 +1,67 @@
 'use client';
 
-import DashboardLayout from '@/components/layout';
-import { User } from '@supabase/supabase-js';
-import { createClient } from '@/utils/supabase/client';
 import { useEffect, useState } from 'react';
-import { CalendarCheck, Search, X } from 'lucide-react';
+import { User } from '@supabase/supabase-js';
+import DashboardLayout from '@/components/layout';
 import { EscortCard } from '@/components/escort-card/EscortCard';
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { FilterSection } from '@/components/search/FilterSectionProps';
+import { createClient } from '@/utils/supabase/client';
+import { getPostcodeCoordinates, calculateDistance } from '@/utils/location';
+
+// Types
+interface Props {
+    user: User | null | undefined;
+    userDetails: Record<string, any> | null;
+}
+
+interface Coordinates {
+    latitude: number;
+    longitude: number;
+}
+
+interface FilterState {
+    searchTerm: string;
+    gender: string;
+    age: string;
+    ethnicity: string;
+    callType: string;
+    bookingLength: string;
+    nationality: string;
+    activities: string[];
+    distance: number | '';
+    postcode: string;
+}
 
 const supabase = createClient();
 
-interface Props {
-    user: User | null | undefined;
-    userDetails: { [x: string]: any } | null;
-}
-
-export default function AvailableEscorts(props: Props) {
+export default function AvailableEscorts({ user, userDetails }: Props) {
+    // Core state
     const [escorts, setEscorts] = useState([]);
+    const [filteredEscorts, setFilteredEscorts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
 
-    const calculateAge = (dob: string) => {
+    // Filter state
+    const [filters, setFilters] = useState<FilterState>({
+        searchTerm: '',
+        gender: '',
+        age: '',
+        ethnicity: '',
+        callType: '',
+        bookingLength: '',
+        nationality: '',
+        activities: [],
+        distance: '',
+        postcode: ''
+    });
+
+    // UI state
+    const [showFilters, setShowFilters] = useState(false);
+    const [postcodeError, setPostcodeError] = useState('');
+    const [isLoadingPostcode, setIsLoadingPostcode] = useState(false);
+    const [searchCoordinates, setSearchCoordinates] = useState<Coordinates | null>(null);
+
+    // Utility functions
+    const calculateAge = (dob: string): number => {
         const birthDate = new Date(dob);
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
@@ -30,82 +70,173 @@ export default function AvailableEscorts(props: Props) {
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
             age--;
         }
-
         return age;
     };
 
-    useEffect(() => {
-        const fetchAvailableEscorts = async () => {
-            try {
-                const now = new Date();
-                const today = now.toISOString().split('T')[0];
+    // Handlers
+    const handlePostcodeChange = async (postcode: string) => {
+        const cleanedPostcode = postcode.trim().toUpperCase();
+        setFilters(prev => ({ ...prev, postcode: cleanedPostcode }));
+        setPostcodeError('');
 
-                // Get available escorts
-                const { data: availableIds, error: availError } = await supabase
-                    .from('availability_status')
-                    .select('user_id')
-                    .eq('booking_date', today)
-                    .gte('status_end', now.toISOString());
+        const postcodeRegex = /^[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/i;
+        if (!postcodeRegex.test(cleanedPostcode)) {
+            setSearchCoordinates(null);
+            setPostcodeError('Please enter a valid UK postcode (e.g., DA1 1AA).');
+            return;
+        }
 
-                if (availError) throw availError;
+        setIsLoadingPostcode(true);
+        const coords = await getPostcodeCoordinates(cleanedPostcode);
+        setIsLoadingPostcode(false);
 
-                if (!availableIds?.length) {
-                    setEscorts([]);
-                    return;
-                }
+        if (coords) {
+            setSearchCoordinates(coords);
+            setPostcodeError('');
+        } else {
+            setSearchCoordinates(null);
+            setPostcodeError('Postcode not found. Please try again.');
+        }
+    };
 
-                // Get featured profiles
-                const { data: featuredIds, error: featuredError } = await supabase
-                    .from('featured_profiles')
-                    .select('user_id')
-                    .eq('feature_date', today)
-                    .gte('feature_end', now.toISOString());
+    const filterByDistance = async () => {
+        if (!searchCoordinates || !filters.distance) return;
 
-                if (featuredError) throw featuredError;
+        setLoading(true);
+        try {
+            const escortsWithValidPostcodes = await Promise.all(
+                escorts.map(async (escort) => {
+                    const escortPostcode = escort.location?.postcode;
+                    if (!escortPostcode) return null;
 
-                const featuredUserIds = new Set(featuredIds?.map(f => f.user_id) || []);
+                    try {
+                        const escortCoordinates = await getPostcodeCoordinates(escortPostcode);
+                        if (!escortCoordinates) return null;
 
-                // Get users' details
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('member_type', 'Offering Services')
-                    .in('id', availableIds.map(a => a.user_id));
+                        const distance = calculateDistance(searchCoordinates, escortCoordinates);
+                        return distance <= Number(filters.distance) ? escort : null;
+                    } catch (error) {
+                        console.error(`Error processing escort ${escort.id}:`, error);
+                        return null;
+                    }
+                })
+            );
 
-                if (error) throw error;
+            setFilteredEscorts(escortsWithValidPostcodes.filter(Boolean));
+        } catch (error) {
+            console.error('Error in filterByDistance:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                const escortsWithFeatured = data?.map(escort => ({
-                    ...escort,
-                    isFeatured: featuredUserIds.has(escort.id)
-                })) || [];
+    const applyFilters = () => {
+        const filtered = escorts.filter(escort => {
+            const personalDetails = escort.personal_details || {};
+            const preferences = escort.preferences?.escorting || {};
 
-                // Sort featured escorts to the top
-                const sortedEscorts = escortsWithFeatured.sort((a, b) => {
-                    if (a.isFeatured && !b.isFeatured) return -1;
-                    if (!a.isFeatured && b.isFeatured) return 1;
-                    return 0;
-                });
+            // Basic filters
+            if (filters.searchTerm && !escort.full_name?.toLowerCase().includes(filters.searchTerm.toLowerCase()))
+                return false;
+            if (filters.gender && personalDetails.gender?.toLowerCase() !== filters.gender.toLowerCase())
+                return false;
+            if (filters.ethnicity && escort.about_you?.ethnicity?.toLowerCase() !== filters.ethnicity.toLowerCase())
+                return false;
+            if (filters.nationality && escort.nationality?.toLowerCase() !== filters.nationality.toLowerCase())
+                return false;
 
-                setEscorts(sortedEscorts);
-            } catch (error) {
-                console.error('Error fetching available escorts:', error);
-            } finally {
-                setLoading(false);
+            // Age filter
+            if (filters.age && personalDetails.dob) {
+                const age = calculateAge(personalDetails.dob);
+                if (age !== parseInt(filters.age)) return false;
             }
-        };
 
+            // Booking length filter
+            if (filters.bookingLength) {
+                const hasBookingLength = preferences.rates?.inCall?.[filters.bookingLength] ||
+                    preferences.rates?.outCall?.[filters.bookingLength];
+                if (!hasBookingLength) return false;
+            }
+
+            // Activities filter
+            if (filters.activities.length > 0) {
+                const hasAllActivities = filters.activities.every(activity =>
+                    personalDetails.activities?.some(
+                        escortActivity => escortActivity.toLowerCase() === activity.toLowerCase()
+                    )
+                );
+                if (!hasAllActivities) return false;
+            }
+
+            return true;
+        });
+
+        setFilteredEscorts(filtered);
+    };
+
+    const clearFilters = () => {
+        setFilters({
+            searchTerm: '',
+            gender: '',
+            age: '',
+            ethnicity: '',
+            callType: '',
+            bookingLength: '',
+            nationality: '',
+            activities: [],
+            distance: '',
+            postcode: ''
+        });
+        setSearchCoordinates(null);
+        setPostcodeError('');
+        setFilteredEscorts(escorts);
+    };
+
+    // Data fetching
+    const fetchAvailableEscorts = async () => {
+        try {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+
+            const { data: availableIds, error: availError } = await supabase
+                .from('availability_status')
+                .select('user_id')
+                .eq('booking_date', today)
+                .gte('status_end', now.toISOString());
+
+            if (availError) throw availError;
+
+            if (!availableIds?.length) {
+                setEscorts([]);
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .in('id', availableIds.map(a => a.user_id));
+
+            if (error) throw error;
+
+            setEscorts(data || []);
+            setFilteredEscorts(data || []);
+        } catch (error) {
+            console.error('Error fetching available escorts:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Effects
+    useEffect(() => {
         fetchAvailableEscorts();
         const interval = setInterval(fetchAvailableEscorts, 60000);
         return () => clearInterval(interval);
     }, []);
 
-    const filteredEscorts = escorts.filter(escort =>
-        escort.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const clearSearch = () => {
-        setSearchTerm('');
-    };
+    useEffect(() => {
+        applyFilters();
+    }, [filters]);
 
     if (loading) {
         return (
@@ -117,84 +248,51 @@ export default function AvailableEscorts(props: Props) {
 
     return (
         <DashboardLayout
-            user={props.user}
-            userDetails={props.userDetails}
+            user={user}
+            userDetails={userDetails}
             title="Available Now"
             description="Escorts available today"
         >
             <div className="container mx-auto px-4 py-8">
-                {/* Search Bar */}
-                <Card className="mb-6 p-6 bg-white">
-                    <div className="relative flex items-center">
-                        <div className="absolute left-0 text-gray-600">
-                            Members: {filteredEscorts.length}
-                        </div>
-                        <div className="w-full flex justify-center">
-                            <div className="relative w-full max-w-xl">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                                <Input
-                                    type="text"
-                                    placeholder="Search by name..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-10 w-full"
-                                />
-                                {searchTerm && (
-                                    <button
-                                        onClick={clearSearch}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </Card>
+                <FilterSection
+                    searchTerm={filters.searchTerm}
+                    setSearchTerm={(term) => setFilters(prev => ({ ...prev, searchTerm: term }))}
+                    selectedGender={filters.gender}
+                    setSelectedGender={(gender) => setFilters(prev => ({ ...prev, gender }))}
+                    selectedAge={filters.age}
+                    setSelectedAge={(age) => setFilters(prev => ({ ...prev, age }))}
+                    selectedEthnicity={filters.ethnicity}
+                    setSelectedEthnicity={(ethnicity) => setFilters(prev => ({ ...prev, ethnicity }))}
+                    selectedNationality={filters.nationality}
+                    setSelectedNationality={(nationality) => setFilters(prev => ({ ...prev, nationality }))}
+                    selectedBookingLength={filters.bookingLength}
+                    setSelectedBookingLength={(length) => setFilters(prev => ({ ...prev, bookingLength: length }))}
+                    selectedActivities={filters.activities}
+                    setSelectedActivities={(activities) => setFilters(prev => ({ ...prev, activities }))}
+                    selectedDistance={filters.distance}
+                    setSelectedDistance={(distance) => setFilters(prev => ({ ...prev, distance }))}
+                    searchPostcode={filters.postcode}
+                    setSearchPostcode={handlePostcodeChange}
+                    postcodeError={postcodeError}
+                    isLoadingPostcode={isLoadingPostcode}
+                    searchCoordinates={searchCoordinates}
+                    filterByDistance={filterByDistance}
+                    clearFilters={clearFilters}
+                    showFilters={showFilters}
+                    setShowFilters={setShowFilters}
+                    loading={loading}
+                />
 
-                {filteredEscorts.length === 0 ? (
-                    <div className="text-center py-12">
-                        <CalendarCheck className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-                            No Escorts Match Your Search
-                        </h2>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Try a different search term or check back later
-                        </p>
-                        {searchTerm && (
-                            <button
-                                onClick={clearSearch}
-                                className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors"
-                            >
-                                Clear Search
-                            </button>
-                        )}
-                    </div>
-                ) : (
-                    <>
-                        <div className="flex justify-between items-center mb-6">
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                                    Available Today
-                                </h1>
-                                <p className="text-gray-600 dark:text-gray-400 mt-1">
-                                    Showing {filteredEscorts.length} available escort{filteredEscorts.length !== 1 ? 's' : ''}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {filteredEscorts.map((escort) => (
-                                <EscortCard
-                                    key={escort.id}
-                                    escort={escort}
-                                    isAvailable={true}
-                                    isFeatured={escort.isFeatured}
-                                    calculateAge={calculateAge}
-                                />
-                            ))}
-                        </div>
-                    </>
-                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredEscorts.map(escort => (
+                        <EscortCard
+                            key={escort.id}
+                            escort={escort}
+                            isAvailable={true}
+                            calculateAge={calculateAge}
+                        />
+                    ))}
+                </div>
             </div>
         </DashboardLayout>
     );
