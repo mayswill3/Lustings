@@ -159,7 +159,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                         <InterviewSection userDetails={fetchedUserDetails} />
                     </TabsContent>
                     <TabsContent value="booking">
-                        <BookingForm userDetails={fetchedUserDetails} senderId={user.id} user={user} />
+                        <BookingForm userDetails={fetchedUserDetails} user={user} />
                     </TabsContent>
                 </Tabs>
             </div>

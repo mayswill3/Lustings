@@ -13,11 +13,10 @@ const supabase = createClient();
 
 interface BookingFormProps {
     userDetails: any; // Profile owner's details (recipient)
-    senderId: string;
     user: any;
 }
 
-const BookingForm: React.FC<BookingFormProps> = ({ userDetails, senderId, user }) => {
+const BookingForm: React.FC<BookingFormProps> = ({ userDetails, user }) => {
     const [formData, setFormData] = React.useState({
         nickname: '',
         first_name: '',
@@ -54,41 +53,48 @@ const BookingForm: React.FC<BookingFormProps> = ({ userDetails, senderId, user }
         setError(null);
 
         try {
+            // First insert the booking
             const { data, error: submitError } = await supabase
                 .from('bookings')
                 .insert([{
-                    sender_id: senderId,           // Person making the booking
-                    recipient_id: userDetails.id,   // Profile owner receiving the booking
+                    sender_id: user.id,
+                    sender_email: user.email,
+                    recipient_id: userDetails.id,
+                    recipient_email: userDetails.email,
                     ...formData,
                     status: 'pending'
                 }])
                 .select();
 
-            if (submitError) {
-                console.error('Submit error:', submitError);
-                throw submitError;
+            if (submitError) throw submitError;
+
+            if (userDetails?.email) {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        recipientEmail: userDetails.email,
+                        bookingDetails: data[0],
+                        type: 'new'
+                    }),
+                });
+
+                const responseData = await response.json();
+
+                if (!response.ok) {
+                    console.error('Email notification failed:', responseData.error);
+                    throw new Error(responseData.error || 'Failed to send email');
+                }
+
+                if (!response.ok) {
+                    console.error('Failed to send email notification');
+                }
             }
 
             setSuccess(true);
-            setFormData({
-                nickname: '',
-                first_name: '',
-                last_name: '',
-                contact_number: '',
-                contact_date: '',
-                time_start: '',
-                time_end: '',
-                duration: '',
-                overnight: false,
-                meeting_type: 'out-call',
-                proposed_fee: '',
-                address1: '',
-                address2: '',
-                town: '',
-                county: '',
-                post_code: '',
-                comments: ''
-            });
+            // Reset form...
         } catch (err) {
             console.error('Booking error:', err);
             setError('Failed to submit booking. Please try again.');

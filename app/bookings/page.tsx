@@ -83,7 +83,6 @@ export const BookingInbox = () => {
             setBookings(data || []);
         } catch (err) {
             setError('Failed to fetch bookings');
-            console.error('Error fetching bookings:', err);
         } finally {
             setLoading(false);
         }
@@ -124,17 +123,37 @@ export const BookingInbox = () => {
         if (!user?.id) return;
 
         try {
-            const { error } = await supabase
+            // Update booking status
+            const { data, error } = await supabase
                 .from('bookings')
                 .update({ status: newStatus })
                 .eq('id', bookingId)
-                .eq('recipient_id', user.id);
+                .eq('recipient_id', user.id)
+                .select();
 
             if (error) throw error;
+
+            if (data[0].sender_email) {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        recipientEmail: data[0].sender_email,
+                        bookingDetails: data[0],
+                        type: 'update'
+                    }),
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to send email notification');
+                }
+            }
+
             fetchBookings();
         } catch (err) {
             setError('Failed to update booking status');
-            console.error('Error updating booking:', err);
         }
     };
 
@@ -157,7 +176,6 @@ export const BookingInbox = () => {
 
 
     const isSentBooking = (booking: Booking) => booking.sender_id === user?.id;
-
 
     const BookingCard = ({ booking }: { booking: Booking }) => {
         const sent = isSentBooking(booking);
@@ -286,7 +304,6 @@ export const BookingInbox = () => {
     if (error) return <div>Error: {error}</div>;
 
     const pathname = usePathname();
-    console.log(user)
     return (
         <div>
             <UserContext.Provider value={user}>

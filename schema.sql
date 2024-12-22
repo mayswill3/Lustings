@@ -8,6 +8,7 @@ create table users (
     
     -- Basic user information
     full_name text,
+    email text,
     avatar_url text,
     phone_number text,
     nationality text,
@@ -159,6 +160,21 @@ FOR UPDATE
 TO authenticated
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
+
+CREATE OR REPLACE FUNCTION sync_user_email()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE users
+    SET email = NEW.email
+    WHERE id = NEW.id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER sync_auth_user_email
+AFTER INSERT OR UPDATE OF email ON auth.users
+FOR EACH ROW
+EXECUTE FUNCTION sync_user_email();
 
 /**
 * CUSTOMERS
