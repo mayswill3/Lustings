@@ -31,7 +31,7 @@ function Sidebar(props: SidebarProps) {
         className={`
         w-full px-6 py-4 text-left
         rounded transition-all duration-200
-        flex items-center gap-3
+        flex items-center gap-3 shadow-md
         ${isActive
             ? 'bg-purple-50 text-purple-700'
             : 'bg-white text-gray-600 hover:bg-gray-50'

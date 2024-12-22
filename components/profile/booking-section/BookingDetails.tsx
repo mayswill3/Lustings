@@ -115,9 +115,14 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
     setFormData
 }) => {
     const handleInputChange = (field: keyof FormData, value: any) => {
-        if (field === 'overnight' && value === true) {
-            // Reset duration when overnight is selected
-            setFormData({ ...formData, [field]: value, duration: '' });
+        if (field === 'overnight') {
+            // If overnight is being turned on, set duration to 24
+            // If overnight is being turned off, reset duration to empty string
+            setFormData({
+                ...formData,
+                overnight: value,
+                duration: value ? '24' : ''  // Set to 24 hours for overnight
+            });
         } else {
             setFormData({ ...formData, [field]: value });
         }
@@ -144,10 +149,14 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
                                     onChange={(e) => handleInputChange('duration', e.target.value)}
                                     required={!formData.overnight}
                                     disabled={formData.overnight}
-                                    className="appearance-none pl-10 bg-white dark:bg-zinc-800"
+                                    className="appearance-none pl-10 bg-white dark:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    placeholder={formData.overnight ? "24 hours for overnight" : "Enter duration"}
                                 />
                                 <Clock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                             </div>
+                            {formData.overnight && (
+                                <p className="text-sm text-gray-500 mt-1">Duration automatically set to 24 hours for overnight bookings</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label className="text-sm font-medium">Proposed Fee (GBP)</Label>
@@ -172,6 +181,7 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
                         label="Overnight"
                     />
 
+                    {/* Rest of the component remains the same */}
                     <div className="space-y-4">
                         <Label className="text-sm font-medium block">Meeting Type</Label>
                         <RadioGroup.Root

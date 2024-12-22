@@ -18,25 +18,32 @@ import {
     UserContext,
     UserDetailsContext
 } from '@/contexts/layout';
+import Link from 'next/link';
 
 interface Booking {
     id: string;
-    created_at: string;
-    sender_id: string;
-    recipient_id: string;
+    user_id: string | null;
     nickname: string;
-    firstName: string;
-    lastName: string;
-    contactNumber: string;
-    contactDate: string;
-    timeStart: string;
-    timeEnd: string;
-    duration: string;
+    first_name: string;
+    last_name: string;
+    contact_number: string;
+    contact_date: string;
+    time_start: string;
+    time_end: string;
+    duration: number;
     overnight: boolean;
-    meetingType: 'in-call' | 'out-call';
-    proposedFee: string;
+    meeting_type: 'in-call' | 'out-call';
+    proposed_fee: number;
+    address1: string;
+    address2: string;
+    town: string;
+    county: string;
+    post_code: string;
+    comments: string;
     status: 'pending' | 'accepted' | 'declined';
-    comments?: string;
+    created_at: string;
+    recipient_id: string;
+    sender_id: string;
 }
 
 export const BookingInbox = () => {
@@ -45,7 +52,8 @@ export const BookingInbox = () => {
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState<string | null>(null);
     const [user, setUser] = React.useState<{ id: string } | null>(null);
-    const [view, setView] = React.useState<'all' | 'sent' | 'received'>('all');
+    const [viewFilter, setViewFilter] = React.useState<'all' | 'sent' | 'received'>('all');
+    const [statusFilter, setStatusFilter] = React.useState<'all' | 'pending' | 'accepted' | 'declined'>('all');
     const [open, setOpen] = React.useState(false);
 
     // Fetch current user
@@ -130,25 +138,26 @@ export const BookingInbox = () => {
         }
     };
 
+    const getFilteredBookings = () => {
+        if (!bookings || !user) return [];
+
+        return bookings.filter(booking => {
+            // Check if booking matches the view filter (sent/received)
+            const isViewMatch = viewFilter === 'all' ? true :
+                viewFilter === 'sent' ? booking.sender_id === user.id :
+                    booking.recipient_id === user.id;
+
+            // Check if booking matches the status filter
+            const isStatusMatch = statusFilter === 'all' ? true :
+                booking.status === statusFilter;
+
+            return isViewMatch && isStatusMatch;
+        });
+    };
+
+
     const isSentBooking = (booking: Booking) => booking.sender_id === user?.id;
 
-    const getFilteredBookings = (status?: Booking['status']) => {
-        let filtered = bookings;
-
-        // Filter by sent/received if view is not 'all'
-        if (view === 'sent') {
-            filtered = filtered.filter(b => isSentBooking(b));
-        } else if (view === 'received') {
-            filtered = filtered.filter(b => !isSentBooking(b));
-        }
-
-        // Filter by status if provided
-        if (status) {
-            filtered = filtered.filter(b => b.status === status);
-        }
-
-        return filtered;
-    };
 
     const BookingCard = ({ booking }: { booking: Booking }) => {
         const sent = isSentBooking(booking);
@@ -160,7 +169,7 @@ export const BookingInbox = () => {
                         <div>
                             <div className="flex items-center gap-2">
                                 <h3 className="text-lg font-semibold">
-                                    {booking.firstName} {booking.lastName}
+                                    {booking.first_name} {booking.last_name}
                                 </h3>
                                 <Badge
                                     variant={sent ? "secondary" : "outline"}
@@ -171,6 +180,9 @@ export const BookingInbox = () => {
                                     ) : (
                                         <><ArrowDownLeft className="h-3 w-3" /> Received</>
                                     )}
+                                </Badge>
+                                <Badge variant="outline" className="text-sm">
+                                    <Link href={`/profile/${encodeURIComponent(booking.nickname)}`}>{booking.nickname}</Link>
                                 </Badge>
                             </div>
                             <p className="text-sm text-gray-500">
@@ -183,23 +195,23 @@ export const BookingInbox = () => {
                     <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                             <p className="text-sm font-medium text-gray-500">Contact Details</p>
-                            <p className="text-sm">{booking.contactNumber}</p>
+                            <p className="text-sm">{booking.contact_number}</p>
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-500">Meeting Type</p>
-                            <p className="text-sm capitalize">{booking.meetingType}</p>
+                            <p className="text-sm capitalize">{booking.meeting_type}</p>
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-500">Date & Time</p>
                             <p className="text-sm">
-                                {new Date(booking.contactDate).toLocaleDateString()},
-                                {booking.timeStart} - {booking.timeEnd}
+                                {new Date(booking.contact_date).toLocaleDateString()},{' '}
+                                {booking.time_start} - {booking.time_end}
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-gray-500">Duration</p>
+                            <p className="text-sm font-medium text-gray-500">Duration & Fee</p>
                             <p className="text-sm">
-                                {booking.duration} hours {booking.overnight && '(Overnight)'}
+                                {booking.duration} hours {booking.overnight && '(Overnight)'} • £{booking.proposed_fee}
                             </p>
                         </div>
                     </div>
@@ -208,6 +220,19 @@ export const BookingInbox = () => {
                         <div className="mb-4">
                             <p className="text-sm font-medium text-gray-500">Comments</p>
                             <p className="text-sm mt-1">{booking.comments}</p>
+                        </div>
+                    )}
+
+                    {booking.meeting_type === 'out-call' && booking.address1 && (
+                        <div className="mb-4">
+                            <p className="text-sm font-medium text-gray-500">Address</p>
+                            <p className="text-sm mt-1">
+                                {booking.address1}
+                                {booking.address2 && <>, {booking.address2}</>}
+                                {booking.town && <>, {booking.town}</>}
+                                {booking.county && <>, {booking.county}</>}
+                                {booking.post_code && <>, {booking.post_code}</>}
+                            </p>
                         </div>
                     )}
 
@@ -260,72 +285,97 @@ export const BookingInbox = () => {
     if (loading) return <div>Loading bookings...</div>;
     if (error) return <div>Error: {error}</div>;
 
-    // At the end of your BookingInbox component
     const pathname = usePathname();
     console.log(user)
     return (
         <div>
             <UserContext.Provider value={user}>
-                {/* <UserDetailsContext.Provider value={props.userDetails}> */}
                 <OpenContext.Provider value={{ open, setOpen }}>
                     <div className="flex h-full w-full flex-col dark:bg-zinc-950">
                         <Navbar className="mb-24" brandText={getActiveRoute(routes, pathname)} />
                     </div>
                 </OpenContext.Provider>
-                {/* </UserDetailsContext.Provider> */}
             </UserContext.Provider>
-            <div className="max-w-4xl mx-auto mt-20">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Booking Inbox</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Tabs value={view} onValueChange={(value: 'all' | 'sent' | 'received') => setView(value)} className="mb-6">
-                            <TabsList>
-                                <TabsTrigger value="all">All Bookings</TabsTrigger>
-                                <TabsTrigger value="sent">Sent</TabsTrigger>
-                                <TabsTrigger value="received">Received</TabsTrigger>
-                            </TabsList>
-                        </Tabs>
+            <div className="max-w-7xl mx-auto mt-20 px-4">
+                <div className="flex gap-6">
+                    {/* Sidebar Filters */}
+                    <div className="w-64 flex-shrink-0">
+                        <Card>
+                            <CardContent className="p-4">
+                                <div className="space-y-6">
+                                    {/* View Filter */}
+                                    <div>
+                                        <h3 className="font-medium text-sm text-gray-500 mb-3">View</h3>
+                                        <div className="space-y-2">
+                                            {[
+                                                { value: 'all', label: 'All Bookings' },
+                                                { value: 'sent', label: 'Sent' },
+                                                { value: 'received', label: 'Received' }
+                                            ].map((item) => (
+                                                <button
+                                                    key={item.value}
+                                                    onClick={() => setViewFilter(item.value as typeof viewFilter)}
+                                                    className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                                        ${viewFilter === item.value
+                                                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-100'
+                                                            : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                                                        }`}
+                                                >
+                                                    {item.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
 
-                        <Tabs defaultValue="pending" className="space-y-4">
-                            <TabsList>
-                                <TabsTrigger value="all">All</TabsTrigger>
-                                <TabsTrigger value="pending">Pending</TabsTrigger>
-                                <TabsTrigger value="accepted">Accepted</TabsTrigger>
-                                <TabsTrigger value="declined">Declined</TabsTrigger>
-                            </TabsList>
+                                    {/* Status Filter */}
+                                    <div>
+                                        <h3 className="font-medium text-sm text-gray-500 mb-3">Status</h3>
+                                        <div className="space-y-2">
+                                            {[
+                                                { value: 'all', label: 'All Status', color: 'blue' },
+                                                { value: 'pending', label: 'Pending', color: 'yellow' },
+                                                { value: 'accepted', label: 'Accepted', color: 'green' },
+                                                { value: 'declined', label: 'Declined', color: 'red' }
+                                            ].map((item) => (
+                                                <button
+                                                    key={item.value}
+                                                    onClick={() => setStatusFilter(item.value as typeof statusFilter)}
+                                                    className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                                        ${statusFilter === item.value
+                                                            ? `bg-${item.color}-50 text-${item.color}-700 dark:bg-${item.color}-900 dark:text-${item.color}-100`
+                                                            : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                                                        }`}
+                                                >
+                                                    {item.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
 
-                            <TabsContent value="all">
-                                {getFilteredBookings().length === 0 ? (
-                                    <p className="text-gray-500">No bookings found</p>
-                                ) : (
-                                    getFilteredBookings().map(booking => (
-                                        <BookingCard key={booking.id} booking={booking} />
-                                    ))
-                                )}
-                            </TabsContent>
-
-                            <TabsContent value="pending">
-                                {getFilteredBookings('pending').map(booking => (
-                                    <BookingCard key={booking.id} booking={booking} />
-                                ))}
-                            </TabsContent>
-
-                            <TabsContent value="accepted">
-                                {getFilteredBookings('accepted').map(booking => (
-                                    <BookingCard key={booking.id} booking={booking} />
-                                ))}
-                            </TabsContent>
-
-                            <TabsContent value="declined">
-                                {getFilteredBookings('declined').map(booking => (
-                                    <BookingCard key={booking.id} booking={booking} />
-                                ))}
-                            </TabsContent>
-                        </Tabs>
-                    </CardContent>
-                </Card>
+                    {/* Main Content */}
+                    <div className="flex-1">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Booking Inbox</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {getFilteredBookings().length === 0 ? (
+                                        <p className="text-gray-500 text-center py-8">No bookings found</p>
+                                    ) : (
+                                        getFilteredBookings().map(booking => (
+                                            <BookingCard key={booking.id} booking={booking} />
+                                        ))
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
             </div>
         </div>
     );
