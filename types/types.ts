@@ -104,8 +104,8 @@ export interface ProfilePageProps {
   params: {
     full_name: string;
   };
-  user: User | null | undefined;
-  userDetails: { [x: string]: any } | null;
+  // user: User | null | undefined;
+  // userDetails: { [x: string]: any } | null;
 }
 
 export interface Price {

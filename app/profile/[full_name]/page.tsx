@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+
 import { Card } from '@/components/ui/card';
-import { MapPin, Calendar, User2, Activity, Heart, Image as ImageIcon, Lock, MessageSquare, Clock, Phone } from 'lucide-react';
+
 import DashboardLayout from '@/components/layout';
-import { Button } from '@/components/ui/button';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Image from 'next/image';
-import classNames from 'classnames';
+
 import ImageGallery from '@/components/ui/Image-gallery';
-import GalleryGrid from '@/components/ui/gallery-grid';
+
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { AboutSection } from '@/components/profile/about-section';
 import { RatesSection } from '@/components/profile/rates-section';
@@ -19,10 +18,16 @@ import { ProfileOverview } from '@/components/profile/profile-overview';
 import { GallerySection } from '@/components/profile/gallery-section';
 import { InterviewSection } from '@/components/profile/interview-section';
 import { UserDetails, ProfilePageProps } from '@/types/types';
+import { getUserDetails, getUser } from '@/utils/supabase/queries';
+import BookingForm from '@/components/profile/booking-section';
 
 const supabase = createClient();
+const [user, userDetails] = await Promise.all([
+    getUser(supabase),
+    getUserDetails(supabase)
+]);
 
-export default function ProfilePage({ params, user, userDetails }: ProfilePageProps) {
+export default function ProfilePage({ params }: ProfilePageProps) {
     const { full_name } = params;
     const [fetchedUserDetails, setFetchedUserDetails] = useState<UserDetails | null>(null);
     const [loading, setLoading] = useState(true);
@@ -130,6 +135,9 @@ export default function ProfilePage({ params, user, userDetails }: ProfilePagePr
                         <TabsTrigger value="interview" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
                             Interview
                         </TabsTrigger>
+                        <TabsTrigger value="booking" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
+                            Make a Booking
+                        </TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="profile">
@@ -149,6 +157,9 @@ export default function ProfilePage({ params, user, userDetails }: ProfilePagePr
 
                     <TabsContent value="interview">
                         <InterviewSection userDetails={fetchedUserDetails} />
+                    </TabsContent>
+                    <TabsContent value="booking">
+                        <BookingForm userDetails={fetchedUserDetails} senderId={user.id} user={user} />
                     </TabsContent>
                 </Tabs>
             </div>
