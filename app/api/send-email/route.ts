@@ -8,31 +8,85 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { recipientEmail, bookingDetails, type } = body;
 
+    const emailTemplate = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            .container {
+              background-color: #ffffff;
+              border-radius: 8px;
+              padding: 24px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 24px;
+            }
+            .logo {
+              color: #4F46E5;
+              font-size: 24px;
+              font-weight: bold;
+              margin-bottom: 16px;
+            }
+            .message {
+              background-color: #F3F4F6;
+              border-radius: 6px;
+              padding: 16px;
+              margin: 16px 0;
+            }
+            .button {
+              display: inline-block;
+              background-color: #4F46E5;
+              color: white;
+              text-decoration: none;
+              padding: 12px 24px;
+              border-radius: 6px;
+              margin: 16px 0;
+            }
+            .footer {
+              text-align: center;
+              color: #6B7280;
+              font-size: 14px;
+              margin-top: 24px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <div class="logo">TinselMeet</div>
+            </div>
+            
+            <p>Hi,</p>
+            
+            <p>You've received a new message from the TinselMeet.com website. Please take a moment to review it by clicking the link below:</p>
+            
+            <div style="text-align: center;">
+              <a href="https://tinselmeet.com/bookings" class="button">View Message</a>
+            </div>
+            
+            <div class="footer">
+              <p>Best regards,<br>The TinselMeet Team</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
     const { data, error } = await resend.emails.send({
-      from: 'Bookings <hello@crowdfighter.com>', // Use this for testing
+      from: 'TinselMeet <hello@crowdfighter.com>',
       to: recipientEmail,
-      subject: type === 'new' ? 'New Booking Request' : 'Booking Status Update',
-      html:
-        type === 'new'
-          ? `
-          <h1>New Booking Request</h1>
-          <p>You have received a new booking request:</p>
-          <ul>
-            <li>Date: ${bookingDetails.contact_date}</li>
-            <li>Time: ${bookingDetails.time_start} - ${bookingDetails.time_end}</li>
-            <li>Duration: ${bookingDetails.duration} hours</li>
-            <li>Type: ${bookingDetails.meeting_type}</li>
-          </ul>
-        `
-          : `
-          <h1>Booking Status Update</h1>
-          <p>Your booking status has been updated to: ${bookingDetails.status}</p>
-          <p>Booking Details:</p>
-          <ul>
-            <li>Date: ${bookingDetails.contact_date}</li>
-            <li>Time: ${bookingDetails.time_start} - ${bookingDetails.time_end}</li>
-          </ul>
-        `
+      subject: 'New Message from TinselMeet',
+      html: emailTemplate
     });
 
     if (error) {
