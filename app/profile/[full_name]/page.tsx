@@ -32,6 +32,32 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     const [fetchedUserDetails, setFetchedUserDetails] = useState<UserDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [showMobile, setShowMobile] = useState(false);
+    const [activeTab, setActiveTab] = useState('profile');
+
+    const tabItems = [
+        { value: 'profile', label: 'Profile' },
+        { value: 'gallery', label: 'Gallery' },
+        { value: 'private', label: 'Private Gallery' },
+        { value: 'interview', label: 'Interview' },
+        { value: 'booking', label: 'Make a Booking' }
+    ];
+
+    const renderTabContent = (value: string) => {
+        switch (value) {
+            case 'profile':
+                return <ProfileOverview userDetails={fetchedUserDetails} />;
+            case 'gallery':
+                return <GallerySection images={fetchedUserDetails.free_gallery} />;
+            case 'private':
+                return <GallerySection images={fetchedUserDetails.private_gallery} isPrivate />;
+            case 'interview':
+                return <InterviewSection userDetails={fetchedUserDetails} />;
+            case 'booking':
+                return <BookingForm userDetails={fetchedUserDetails} user={user} />;
+            default:
+                return null;
+        }
+    };
 
     useEffect(() => {
         const fetchUserDetails = async () => {
@@ -121,48 +147,53 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 
                 <RatesSection userDetails={fetchedUserDetails} />
 
-                <Tabs defaultValue="profile" className="space-y-6">
-                    <TabsList className="bg-gray-100 dark:bg-zinc-800 p-1 rounded-lg">
-                        <TabsTrigger value="profile" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
-                            Profile
-                        </TabsTrigger>
-                        <TabsTrigger value="gallery" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
-                            Gallery
-                        </TabsTrigger>
-                        <TabsTrigger value="private" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
-                            Private Gallery
-                        </TabsTrigger>
-                        <TabsTrigger value="interview" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
-                            Interview
-                        </TabsTrigger>
-                        <TabsTrigger value="booking" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
-                            Make a Booking
-                        </TabsTrigger>
-                    </TabsList>
 
-                    <TabsContent value="profile">
-                        <ProfileOverview userDetails={fetchedUserDetails} />
-                    </TabsContent>
 
-                    <TabsContent value="gallery">
-                        <GallerySection images={fetchedUserDetails.free_gallery} />
-                    </TabsContent>
+                {/* Mobile Select */}
+                <div className="space-y-6">
+                    <div className="md:hidden">
+                        <select
+                            value={activeTab}
+                            onChange={(e) => setActiveTab(e.target.value)}
+                            className="w-full p-2 bg-gray-100 dark:bg-zinc-800 rounded-lg border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500"
+                        >
+                            {tabItems.map(tab => (
+                                <option key={tab.value} value={tab.value}>
+                                    {tab.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    {/* Desktop Tabs */}
+                    <div className="hidden md:block">
+                        <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab}>
+                            <TabsList className="bg-gray-100 dark:bg-zinc-800 p-1 rounded-lg w-full mb-6">
+                                {tabItems.map(tab => (
+                                    <TabsTrigger
+                                        key={tab.value}
+                                        value={tab.value}
+                                        className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700"
+                                    >
+                                        {tab.label}
+                                    </TabsTrigger>
+                                ))}
+                            </TabsList>
 
-                    <TabsContent value="private">
-                        <GallerySection
-                            images={fetchedUserDetails.private_gallery}
-                            isPrivate
-                        />
-                    </TabsContent>
+                            {/* Need to include TabsContent components for Tabs to work properly */}
 
-                    <TabsContent value="interview">
-                        <InterviewSection userDetails={fetchedUserDetails} />
-                    </TabsContent>
-                    <TabsContent value="booking">
-                        <BookingForm userDetails={fetchedUserDetails} user={user} />
-                    </TabsContent>
-                </Tabs>
+                            {tabItems.map(tab => (
+                                <TabsContent key={tab.value} value={tab.value}>
+                                    {renderTabContent(tab.value)}
+                                </TabsContent>
+                            ))}
+                        </Tabs>
+                    </div>
+
+                    <div>
+                        {renderTabContent(activeTab)}
+                    </div>
+                </div>
             </div>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 }

@@ -314,9 +314,9 @@ export const BookingInbox = () => {
                 </OpenContext.Provider>
             </UserContext.Provider>
             <div className="max-w-7xl mx-auto mt-20 px-4">
-                <div className="flex gap-6">
-                    {/* Sidebar Filters */}
-                    <div className="w-64 flex-shrink-0">
+                <div className="flex flex-col lg:flex-row gap-6">
+                    {/* Sidebar Filters - Desktop */}
+                    <div className="hidden lg:block lg:w-64 flex-shrink-0">
                         <Card>
                             <CardContent className="p-4">
                                 <div className="space-y-6">
@@ -333,7 +333,7 @@ export const BookingInbox = () => {
                                                     key={item.value}
                                                     onClick={() => setViewFilter(item.value as typeof viewFilter)}
                                                     className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors
-                                                        ${viewFilter === item.value
+                                        ${viewFilter === item.value
                                                             ? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-100'
                                                             : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
                                                         }`}
@@ -358,7 +358,7 @@ export const BookingInbox = () => {
                                                     key={item.value}
                                                     onClick={() => setStatusFilter(item.value as typeof statusFilter)}
                                                     className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors
-                                                        ${statusFilter === item.value
+                                        ${statusFilter === item.value
                                                             ? `bg-${item.color}-50 text-${item.color}-700 dark:bg-${item.color}-900 dark:text-${item.color}-100`
                                                             : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
                                                         }`}
@@ -373,11 +373,79 @@ export const BookingInbox = () => {
                         </Card>
                     </div>
 
+                    {/* Mobile Filters */}
+                    <div className="lg:hidden">
+                        <Button
+                            variant="outline"
+                            onClick={() => setOpen(!open)}
+                            className="w-full"
+                        >
+                            {open ? 'Hide Filters' : 'Show Filters'}
+                        </Button>
+
+                        {open && (
+                            <Card className="mt-4">
+                                <CardContent className="p-4">
+                                    <div className="space-y-6">
+                                        {/* View Filter */}
+                                        <div>
+                                            <h3 className="font-medium text-sm text-gray-500 mb-3">View</h3>
+                                            <div className="space-y-2">
+                                                {[
+                                                    { value: 'all', label: 'All Bookings' },
+                                                    { value: 'sent', label: 'Sent' },
+                                                    { value: 'received', label: 'Received' }
+                                                ].map((item) => (
+                                                    <button
+                                                        key={item.value}
+                                                        onClick={() => setViewFilter(item.value as typeof viewFilter)}
+                                                        className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                            ${viewFilter === item.value
+                                                                ? 'bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-100'
+                                                                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                                                            }`}
+                                                    >
+                                                        {item.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Status Filter */}
+                                        <div>
+                                            <h3 className="font-medium text-sm text-gray-500 mb-3">Status</h3>
+                                            <div className="space-y-2">
+                                                {[
+                                                    { value: 'all', label: 'All Status', color: 'blue' },
+                                                    { value: 'pending', label: 'Pending', color: 'yellow' },
+                                                    { value: 'accepted', label: 'Accepted', color: 'green' },
+                                                    { value: 'declined', label: 'Declined', color: 'red' }
+                                                ].map((item) => (
+                                                    <button
+                                                        key={item.value}
+                                                        onClick={() => setStatusFilter(item.value as typeof statusFilter)}
+                                                        className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors
+                                            ${statusFilter === item.value
+                                                                ? `bg-${item.color}-50 text-${item.color}-700 dark:bg-${item.color}-900 dark:text-${item.color}-100`
+                                                                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                                                            }`}
+                                                    >
+                                                        {item.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+
                     {/* Main Content */}
                     <div className="flex-1">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Booking Inbox</CardTitle>
+                                <CardTitle className="text-lg">Booking Inbox</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
@@ -393,6 +461,7 @@ export const BookingInbox = () => {
                         </Card>
                     </div>
                 </div>
+
             </div>
         </div>
     );

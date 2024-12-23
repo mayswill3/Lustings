@@ -71,26 +71,27 @@ const AddressFields = ({
         </div>
 
         {/* Town & County */}
-        <div className="grid grid-cols-2 gap-4">
-            <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-900">Town</Label>
                 <Input
                     value={formData.town}
                     onChange={(e) => handleInputChange('town', e.target.value)}
                     required
-                    className="mt-2 bg-white dark:bg-zinc-800"
+                    className="w-full mt-2 bg-white dark:bg-zinc-800"
                 />
             </div>
-            <div>
+            <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-900">County</Label>
                 <Input
                     value={formData.county}
                     onChange={(e) => handleInputChange('county', e.target.value)}
                     required
-                    className="mt-2 bg-white dark:bg-zinc-800"
+                    className="w-full mt-2 bg-white dark:bg-zinc-800"
                 />
             </div>
         </div>
+
 
         {/* Post Code */}
         <div className="grid grid-cols-2 gap-4">

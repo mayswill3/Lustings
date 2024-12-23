@@ -130,40 +130,41 @@ export const PersonalDetails: React.FC<PersonalDetailsProps> = ({
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
+                    {/* Name Fields */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
                             <Label className="text-sm font-medium text-gray-900">First Name</Label>
                             <Input
                                 required
                                 value={formData.first_name}
                                 onChange={(e) => handleInputChange('first_name', e.target.value)}
-                                className="mt-2 bg-white dark:bg-zinc-800"
+                                className="bg-white dark:bg-zinc-800"
                             />
                         </div>
-                        <div>
+                        <div className="space-y-2">
                             <Label className="text-sm font-medium text-gray-900">Last Name</Label>
                             <Input
                                 required
                                 value={formData.last_name}
                                 onChange={(e) => handleInputChange('last_name', e.target.value)}
-                                className="mt-2 bg-white dark:bg-zinc-800"
+                                className="bg-white dark:bg-zinc-800"
                             />
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label className="text-sm font-medium text-gray-900">Contact Number</Label>
-                            <Input
-                                required
-                                type="tel"
-                                value={formData.contact_number}
-                                onChange={(e) => handleInputChange('contact_number', e.target.value)}
-                                className="mt-2 bg-white dark:bg-zinc-800"
-                            />
-                        </div>
-                        <div className="hidden md:block"> {/* Empty div for grid alignment */}
-                        </div>
+                    {/* Contact Number - also update this to be consistent */}
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-gray-900" htmlFor="contact_number">
+                            Contact Number
+                        </Label>
+                        <Input
+                            id="contact_number"
+                            required
+                            type="tel"
+                            value={formData.contact_number}
+                            onChange={(e) => handleInputChange('contact_number', e.target.value)}
+                            className="w-full bg-white dark:bg-zinc-800"
+                        />
                     </div>
                 </div>
 
