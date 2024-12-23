@@ -57,10 +57,12 @@ const BookingForm: React.FC<BookingFormProps> = ({ userDetails, user }) => {
             const { data, error: submitError } = await supabase
                 .from('bookings')
                 .insert([{
+                    user_id: user.id,
                     sender_id: user.id,
                     sender_email: user.email,
                     recipient_id: userDetails.id,
                     recipient_email: userDetails.email,
+                    recipient_nickname: userDetails.full_name,
                     ...formData,
                     status: 'pending'
                 }])

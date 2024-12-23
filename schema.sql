@@ -142,6 +142,11 @@ create table public.bookings (
   county text,
   post_code text,
   comments text,
+  sender_id text,
+  sender_email: text,
+  recipient_id text,
+  recipient_email text,
+  recipient_nickname text,
   status text,
   created_at timestamp with time zone default now()
 );
@@ -175,6 +180,25 @@ CREATE TRIGGER sync_auth_user_email
 AFTER INSERT OR UPDATE OF email ON auth.users
 FOR EACH ROW
 EXECUTE FUNCTION sync_user_email();
+
+CREATE TABLE feedbacks (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    booking_id UUID REFERENCES bookings(id),
+    sender_id UUID REFERENCES auth.users(id),
+    recipient_id UUID REFERENCES auth.users(id),
+    feedback_type VARCHAR(10) CHECK (feedback_type IN ('positive', 'neutral', 'negative')),
+    comment TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    UNIQUE(booking_id, sender_id) -- Ensures one feedback per booking per sender
+);
+
+ALTER TABLE feedbacks
+DROP CONSTRAINT IF EXISTS feedbacks_booking_id_sender_id_key;
+
+-- And add a new constraint that ensures one feedback per role per booking
+ALTER TABLE feedbacks
+ADD CONSTRAINT one_feedback_per_role 
+UNIQUE (booking_id, sender_id, recipient_id);
 
 /**
 * CUSTOMERS

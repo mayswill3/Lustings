@@ -1,7 +1,7 @@
 'use client'
 
 // components/booking/BookingInbox.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -13,6 +13,7 @@ import { routes } from '@/components/routes';
 import { getActiveRoute } from '@/utils/navigation';
 import { usePathname } from 'next/navigation';
 import { Badge } from "@/components/ui/badge";
+import FeedbackModal from '@/components/modals/FeedbackModal';
 import {
     OpenContext,
     UserContext,
@@ -179,6 +180,56 @@ export const BookingInbox = () => {
 
     const BookingCard = ({ booking }: { booking: Booking }) => {
         const sent = isSentBooking(booking);
+        const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+        const [hasFeedback, setHasFeedback] = useState(false);
+
+        const checkFeedback = async () => {
+            try {
+                const { data } = await supabase
+                    .from('feedbacks')
+                    .select('id')
+                    .eq('booking_id', booking.id)
+                    .eq('sender_id', user?.id)
+                    .single();
+
+                setHasFeedback(!!data);
+            } catch (error) {
+                // If no feedback found, error will be thrown, which is fine
+                setHasFeedback(false);
+            }
+        };
+
+        // Check feedback on mount and when modal closes
+        React.useEffect(() => {
+            if (booking.status === 'accepted') {
+                checkFeedback();
+            }
+        }, [booking.id, showFeedbackModal]); // Add showFeedbackModal as dependency
+
+        const renderFeedbackButton = () => {
+            if (booking.status !== 'accepted') return null;
+
+            if (hasFeedback) {
+                return (
+                    <div className="text-sm font-medium text-gray-500 bg-gray-50 px-3 py-2 rounded-md">
+                        ✓ Feedback submitted
+                    </div>
+                );
+            }
+
+            return (
+                <Button
+                    variant="outline"
+                    onClick={() => setShowFeedbackModal(true)}
+                    className="bg-blue-50 text-blue-700 hover:bg-blue-100"
+                >
+                    {sent ? "Leave Feedback as Sender" : "Leave Feedback as Receiver"}
+                </Button>
+            );
+        };
+
+
+
 
         return (
             <Card className="mb-4">
@@ -199,9 +250,18 @@ export const BookingInbox = () => {
                                         <><ArrowDownLeft className="h-3 w-3" /> Received</>
                                     )}
                                 </Badge>
-                                <Badge variant="outline" className="text-sm">
-                                    <Link href={`/profile/${encodeURIComponent(booking.nickname)}`}>{booking.nickname}</Link>
-                                </Badge>
+                                {sent ? (
+                                    <Badge variant="outline" className="text-sm">
+                                        <Link href={`/profile/${encodeURIComponent(booking.recipient_nickname
+                                        )}`}>{booking.recipient_nickname
+                                            }</Link>
+                                    </Badge>
+                                ) : (
+                                    <Badge variant="outline" className="text-sm">
+                                        <Link href={`/profile/${encodeURIComponent(booking.nickname)}`}>{booking.nickname}</Link>
+                                    </Badge>
+                                )}
+
                             </div>
                             <p className="text-sm text-gray-500">
                                 {formatDistanceToNow(new Date(booking.created_at), { addSuffix: true })}
@@ -254,25 +314,35 @@ export const BookingInbox = () => {
                         </div>
                     )}
 
-                    {!sent && booking.status === 'pending' && (
-                        <div className="flex justify-end space-x-3">
-                            <Button
-                                variant="outline"
-                                onClick={() => handleStatusChange(booking.id, 'declined')}
-                                className="text-red-600 border-red-200 hover:bg-red-50"
-                            >
-                                <XCircle className="mr-2 h-4 w-4" />
-                                Decline
-                            </Button>
-                            <Button
-                                onClick={() => handleStatusChange(booking.id, 'accepted')}
-                                className="bg-green-600 text-white hover:bg-green-700"
-                            >
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Accept
-                            </Button>
-                        </div>
-                    )}
+                    <div className="flex justify-end space-x-3">
+                        {!sent && booking.status === 'pending' && (
+                            <>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => handleStatusChange(booking.id, 'declined')}
+                                    className="text-red-600 border-red-200 hover:bg-red-50"
+                                >
+                                    <XCircle className="mr-2 h-4 w-4" />
+                                    Decline
+                                </Button>
+                                <Button
+                                    onClick={() => handleStatusChange(booking.id, 'accepted')}
+                                    className="bg-green-600 text-white hover:bg-green-700"
+                                >
+                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                    Accept
+                                </Button>
+                            </>
+                        )}
+                        {renderFeedbackButton()}
+                    </div>
+                    {/* Add FeedbackModal */}
+                    <FeedbackModal
+                        isOpen={showFeedbackModal}
+                        onClose={() => setShowFeedbackModal(false)}
+                        booking={booking}
+                        user={user}
+                    />
                 </CardContent>
             </Card>
         );

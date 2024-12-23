@@ -17,6 +17,7 @@ import { RatesSection } from '@/components/profile/rates-section';
 import { ProfileOverview } from '@/components/profile/profile-overview';
 import { GallerySection } from '@/components/profile/gallery-section';
 import { InterviewSection } from '@/components/profile/interview-section';
+import { ProfileFeedbackSection } from '@/components/profile/profile-feedback';
 import { UserDetails, ProfilePageProps } from '@/types/types';
 import { getUserDetails, getUser } from '@/utils/supabase/queries';
 import BookingForm from '@/components/profile/booking-section';
@@ -39,7 +40,8 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         { value: 'gallery', label: 'Gallery' },
         { value: 'private', label: 'Private Gallery' },
         { value: 'interview', label: 'Interview' },
-        { value: 'booking', label: 'Make a Booking' }
+        { value: 'booking', label: 'Make a Booking' },
+        { value: 'feedback', label: 'Feedback' }
     ];
 
     const renderTabContent = (value: string) => {
@@ -54,6 +56,8 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 return <InterviewSection userDetails={fetchedUserDetails} />;
             case 'booking':
                 return <BookingForm userDetails={fetchedUserDetails} user={user} />;
+            case 'feedback':
+                return <ProfileFeedbackSection userId={fetchedUserDetails.id} />;
             default:
                 return null;
         }
@@ -163,6 +167,11 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                 </option>
                             ))}
                         </select>
+
+                        {/* Mobile Content - Only shows on mobile */}
+                        <div className="md:hidden mt-6">
+                            {renderTabContent(activeTab)}
+                        </div>
                     </div>
                     {/* Desktop Tabs */}
                     <div className="hidden md:block">
@@ -187,10 +196,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                 </TabsContent>
                             ))}
                         </Tabs>
-                    </div>
-
-                    <div>
-                        {renderTabContent(activeTab)}
                     </div>
                 </div>
             </div>
