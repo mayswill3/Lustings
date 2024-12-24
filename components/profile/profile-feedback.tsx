@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import Link from 'next/link';
 import { Badge } from "@/components/ui/badge";
 
 const supabase = createClient();
@@ -21,7 +22,6 @@ interface Feedback {
 
 export const ProfileFeedbackSection = ({ userId }: { userId: string }) => {
     const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-    console.log(feedbacks)
     useEffect(() => {
         const fetchFeedbacks = async () => {
             // First get the feedbacks
@@ -60,10 +60,27 @@ export const ProfileFeedbackSection = ({ userId }: { userId: string }) => {
         fetchFeedbacks();
     }, [userId]);
 
-    const feedbackCounts = {
-        positive: feedbacks.filter(f => f.feedback_type === 'positive').length,
-        neutral: feedbacks.filter(f => f.feedback_type === 'neutral').length,
-        negative: feedbacks.filter(f => f.feedback_type === 'negative').length
+    // Helper function to filter feedbacks by date range
+    const getFilteredFeedbacks = (months: number) => {
+        const cutoffDate = new Date();
+        cutoffDate.setMonth(cutoffDate.getMonth() - months);
+
+        return feedbacks.filter(feedback =>
+            new Date(feedback.created_at) >= cutoffDate
+        );
+    };
+
+    // Get counts for each time period
+    const getFeedbackCounts = (feedbackList: Feedback[]) => ({
+        positive: feedbackList.filter(f => f.feedback_type === 'positive').length,
+        neutral: feedbackList.filter(f => f.feedback_type === 'neutral').length,
+        negative: feedbackList.filter(f => f.feedback_type === 'negative').length
+    });
+
+    const feedbackPeriods = {
+        '1 month': getFilteredFeedbacks(1),
+        '6 months': getFilteredFeedbacks(6),
+        '12 months': getFilteredFeedbacks(12)
     };
 
     const getBadgeVariant = (type: string) => {
@@ -79,43 +96,83 @@ export const ProfileFeedbackSection = ({ userId }: { userId: string }) => {
 
     return (
         <div className="space-y-6">
-            {/* Feedback Counts */}
-            <div className="grid grid-cols-3 gap-4">
-                {Object.entries(feedbackCounts).map(([type, count]) => (
-                    <div key={type} className="text-center p-4 rounded-lg bg-gray-50 dark:bg-zinc-800">
-                        <div className="text-2xl font-bold">{count}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 capitalize">{type}</div>
-                    </div>
-                ))}
+            {/* Feedback Rating Table */}
+            <div>
+                <h2 className="text-xl font-semibold mb-4">Feedback ratings</h2>
+                <div className="bg-gray-50 dark:bg-zinc-900 border rounded-lg overflow-hidden">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b border-gray-200 dark:border-gray-700">
+                                <th className="px-6 py-4 text-left"></th>
+                                {Object.keys(feedbackPeriods).map(period => (
+                                    <th key={period} className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
+                                        {period}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[
+                                { type: 'positive', icon: '+', color: 'text-green-600' },
+                                { type: 'neutral', icon: '○', color: 'text-gray-600' },
+                                { type: 'negative', icon: '-', color: 'text-red-600' }
+                            ].map(({ type, icon, color }) => (
+                                <tr key={type} className="border-b border-gray-200 dark:border-gray-700 last:border-0">
+                                    <td className="px-6 py-4 flex items-center gap-2">
+                                        <span className={`text-xl ${color}`}>{icon}</span>
+                                        <span className="capitalize text-gray-700 dark:text-gray-300">{type}</span>
+                                    </td>
+                                    {Object.values(feedbackPeriods).map((periodFeedbacks, index) => (
+                                        <td key={index} className="px-6 py-4 text-center text-blue-600 font-medium">
+                                            {getFeedbackCounts(periodFeedbacks)[type as keyof typeof getFeedbackCounts]}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Feedback List */}
             <div className="space-y-4">
                 {feedbacks.map((feedback) => (
-                    <div key={feedback.id} className="p-4 rounded-lg border dark:border-gray-700">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700">
-                                {feedback.sender?.avatar_url && (
-                                    <img
-                                        src={feedback.sender.avatar_url}
-                                        alt="Avatar"
-                                        className="w-full h-full rounded-full object-cover"
-                                    />
-                                )}
-                            </div>
-                            <div className="flex-grow">
-                                <div className="font-medium dark:text-gray-200">
-                                    {feedback.sender?.full_name || 'Anonymous'}
-                                </div>
-                                <div className="text-sm text-gray-500 dark:text-gray-400">
-                                    {new Date(feedback.created_at).toLocaleDateString()}
-                                </div>
-                            </div>
-                            <div className={`px-2 py-1 rounded text-sm font-medium ${getBadgeVariant(feedback.feedback_type)}`}>
+                    <div key={feedback.id} className="bg-gray-50 dark:bg-zinc-900 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                        <div className="flex gap-4 items-start">
+                            {/* Feedback Type Badge */}
+                            <div
+                                className={`shrink-0 px-3 py-1 rounded-md text-sm font-medium capitalize ${getBadgeVariant(feedback.feedback_type)}`}
+                            >
                                 {feedback.feedback_type}
                             </div>
+
+                            {/* Content Container */}
+                            <div className="flex-1 min-w-0">
+                                {/* Header Row */}
+                                <div className="flex items-center justify-between mb-3">
+                                    <Link
+                                        href={`/profile/${feedback.sender?.full_name}`}
+                                        className="text-base font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                    >
+                                        {feedback.sender?.full_name || 'Anonymous'}
+                                    </Link>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                                        {new Date(feedback.created_at).toLocaleString('en-GB', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </span>
+                                </div>
+
+                                {/* Comment */}
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                                    {feedback.comment}
+                                </p>
+                            </div>
                         </div>
-                        <p className="text-gray-700 dark:text-gray-300">{feedback.comment}</p>
                     </div>
                 ))}
             </div>
