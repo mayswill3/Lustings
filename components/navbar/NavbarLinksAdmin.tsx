@@ -21,7 +21,7 @@ import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Sun, Moon, HelpCircle, LogOut, Settings, CreditCard, MessageSquareQuestion, X } from 'lucide-react';
+import { Sun, Moon, HelpCircle, LogOut, Settings, CreditCard, MessageSquareQuestion, X, Mail } from 'lucide-react';
 
 const supabase = createClient();
 
@@ -72,6 +72,13 @@ export default function HeaderLinks(props: { [x: string]: any }) {
   // Mobile Icons Component
   const MobileNav = () => (
     <div className="flex items-center space-x-4">
+      {/* Mail/Bookings Icon */}
+      <button
+        onClick={() => router.push('/bookings')}
+        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+      >
+        <Mail className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+      </button>
       {/* Theme Toggle */}
       <button
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -182,6 +189,13 @@ export default function HeaderLinks(props: { [x: string]: any }) {
   // Desktop Menu with Dropdowns
   const DesktopMenu = () => (
     <div className="hidden md:flex items-center space-x-4">
+      {/* Mail/Bookings Icon */}
+      <button
+        onClick={() => router.push('/bookings')}
+        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+      >
+        <Mail className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+      </button>
       {/* Theme Toggle */}
       <button
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}

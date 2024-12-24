@@ -2,31 +2,66 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+
 import { Card } from '@/components/ui/card';
-import { MapPin, Calendar, User2, Activity, Heart, Image as ImageIcon, Lock, MessageSquare, Clock, Phone } from 'lucide-react';
+
 import DashboardLayout from '@/components/layout';
-import { Button } from '@/components/ui/button';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Image from 'next/image';
-import classNames from 'classnames';
+
 import ImageGallery from '@/components/ui/Image-gallery';
-import GalleryGrid from '@/components/ui/gallery-grid';
+
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { AboutSection } from '@/components/profile/about-section';
 import { RatesSection } from '@/components/profile/rates-section';
 import { ProfileOverview } from '@/components/profile/profile-overview';
 import { GallerySection } from '@/components/profile/gallery-section';
 import { InterviewSection } from '@/components/profile/interview-section';
+import { ProfileFeedbackSection } from '@/components/profile/profile-feedback';
 import { UserDetails, ProfilePageProps } from '@/types/types';
+import { getUserDetails, getUser } from '@/utils/supabase/queries';
+import BookingForm from '@/components/profile/booking-section';
 
 const supabase = createClient();
+const [user, userDetails] = await Promise.all([
+    getUser(supabase),
+    getUserDetails(supabase)
+]);
 
-export default function ProfilePage({ params, user, userDetails }: ProfilePageProps) {
+export default function ProfilePage({ params }: ProfilePageProps) {
     const { full_name } = params;
     const [fetchedUserDetails, setFetchedUserDetails] = useState<UserDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [showMobile, setShowMobile] = useState(false);
+    const [activeTab, setActiveTab] = useState('profile');
+
+    const tabItems = [
+        { value: 'profile', label: 'Profile' },
+        { value: 'gallery', label: 'Gallery' },
+        { value: 'private', label: 'Private Gallery' },
+        { value: 'interview', label: 'Interview' },
+        { value: 'booking', label: 'Make a Booking' },
+        { value: 'feedback', label: 'Feedback' }
+    ];
+
+    const renderTabContent = (value: string) => {
+        switch (value) {
+            case 'profile':
+                return <ProfileOverview userDetails={fetchedUserDetails} />;
+            case 'gallery':
+                return <GallerySection images={fetchedUserDetails.free_gallery} />;
+            case 'private':
+                return <GallerySection images={fetchedUserDetails.private_gallery} isPrivate />;
+            case 'interview':
+                return <InterviewSection userDetails={fetchedUserDetails} />;
+            case 'booking':
+                return <BookingForm userDetails={fetchedUserDetails} user={user} />;
+            case 'feedback':
+                return <ProfileFeedbackSection userId={fetchedUserDetails.id} />;
+            default:
+                return null;
+        }
+    };
 
     useEffect(() => {
         const fetchUserDetails = async () => {
@@ -116,42 +151,54 @@ export default function ProfilePage({ params, user, userDetails }: ProfilePagePr
 
                 <RatesSection userDetails={fetchedUserDetails} />
 
-                <Tabs defaultValue="profile" className="space-y-6">
-                    <TabsList className="bg-gray-100 dark:bg-zinc-800 p-1 rounded-lg">
-                        <TabsTrigger value="profile" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
-                            Profile
-                        </TabsTrigger>
-                        <TabsTrigger value="gallery" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
-                            Gallery
-                        </TabsTrigger>
-                        <TabsTrigger value="private" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
-                            Private Gallery
-                        </TabsTrigger>
-                        <TabsTrigger value="interview" className="data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700">
-                            Interview
-                        </TabsTrigger>
-                    </TabsList>
 
-                    <TabsContent value="profile">
-                        <ProfileOverview userDetails={fetchedUserDetails} />
-                    </TabsContent>
 
-                    <TabsContent value="gallery">
-                        <GallerySection images={fetchedUserDetails.free_gallery} />
-                    </TabsContent>
+                {/* Mobile Select */}
+                <div className="space-y-6">
+                    <div className="md:hidden">
+                        <select
+                            value={activeTab}
+                            onChange={(e) => setActiveTab(e.target.value)}
+                            className="w-full p-2 bg-gray-100 dark:bg-zinc-800 rounded-lg border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500"
+                        >
+                            {tabItems.map(tab => (
+                                <option key={tab.value} value={tab.value}>
+                                    {tab.label}
+                                </option>
+                            ))}
+                        </select>
 
-                    <TabsContent value="private">
-                        <GallerySection
-                            images={fetchedUserDetails.private_gallery}
-                            isPrivate
-                        />
-                    </TabsContent>
+                        {/* Mobile Content - Only shows on mobile */}
+                        <div className="md:hidden mt-6">
+                            {renderTabContent(activeTab)}
+                        </div>
+                    </div>
+                    {/* Desktop Tabs */}
+                    <div className="hidden md:block">
+                        <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab}>
+                            <TabsList className="bg-gray-100 dark:bg-zinc-800 p-1 rounded-lg w-full mb-6">
+                                {tabItems.map(tab => (
+                                    <TabsTrigger
+                                        key={tab.value}
+                                        value={tab.value}
+                                        className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700"
+                                    >
+                                        {tab.label}
+                                    </TabsTrigger>
+                                ))}
+                            </TabsList>
 
-                    <TabsContent value="interview">
-                        <InterviewSection userDetails={fetchedUserDetails} />
-                    </TabsContent>
-                </Tabs>
+                            {/* Need to include TabsContent components for Tabs to work properly */}
+
+                            {tabItems.map(tab => (
+                                <TabsContent key={tab.value} value={tab.value}>
+                                    {renderTabContent(tab.value)}
+                                </TabsContent>
+                            ))}
+                        </Tabs>
+                    </div>
+                </div>
             </div>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 }

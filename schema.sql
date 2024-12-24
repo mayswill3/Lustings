@@ -8,6 +8,7 @@ create table users (
     
     -- Basic user information
     full_name text,
+    email text,
     avatar_url text,
     phone_number text,
     nationality text,
@@ -107,6 +108,97 @@ create index on public.availability_status (booking_date);
 
 -- Add comment to table
 comment on table public.availability_status is 'Tracks when escorts are available for bookings';
+
+CREATE TABLE featured_profiles (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  feature_date DATE NOT NULL,
+  feature_start TIMESTAMP WITH TIME ZONE NOT NULL,
+  feature_end TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, feature_date)
+);
+
+CREATE INDEX idx_featured_profiles_user_id ON featured_profiles(user_id);
+CREATE INDEX idx_featured_profiles_feature_date ON featured_profiles(feature_date);
+
+create table public.bookings (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references auth.users,
+  nickname text,
+  first_name text,
+  last_name text,
+  contact_number text,
+  contact_date date,
+  time_start text,
+  time_end text,
+  duration integer,
+  overnight boolean,
+  meeting_type text,
+  proposed_fee decimal,
+  address1 text,
+  address2 text,
+  town text,
+  county text,
+  post_code text,
+  comments text,
+  sender_id text,
+  sender_email: text,
+  recipient_id text,
+  recipient_email text,
+  recipient_nickname text,
+  status text,
+  created_at timestamp with time zone default now()
+);
+
+-- Allow users to see bookings made to them
+CREATE POLICY "Users can view bookings made to them"
+ON public.bookings
+FOR SELECT
+TO authenticated
+USING (auth.uid() = user_id);
+
+-- Allow users to update status of bookings made to them
+CREATE POLICY "Users can update status of bookings made to them"
+ON public.bookings
+FOR UPDATE
+TO authenticated
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+CREATE OR REPLACE FUNCTION sync_user_email()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE users
+    SET email = NEW.email
+    WHERE id = NEW.id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER sync_auth_user_email
+AFTER INSERT OR UPDATE OF email ON auth.users
+FOR EACH ROW
+EXECUTE FUNCTION sync_user_email();
+
+CREATE TABLE feedbacks (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    booking_id UUID REFERENCES bookings(id),
+    sender_id UUID REFERENCES auth.users(id),
+    recipient_id UUID REFERENCES auth.users(id),
+    feedback_type VARCHAR(10) CHECK (feedback_type IN ('positive', 'neutral', 'negative')),
+    comment TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    UNIQUE(booking_id, sender_id) -- Ensures one feedback per booking per sender
+);
+
+ALTER TABLE feedbacks
+DROP CONSTRAINT IF EXISTS feedbacks_booking_id_sender_id_key;
+
+-- And add a new constraint that ensures one feedback per role per booking
+ALTER TABLE feedbacks
+ADD CONSTRAINT one_feedback_per_role 
+UNIQUE (booking_id, sender_id, recipient_id);
 
 /**
 * CUSTOMERS

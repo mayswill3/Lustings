@@ -8,6 +8,7 @@ import AGE_RANGES from "@/constants/age-ranges";
 import BOOKING_LENGTHS from "@/constants/booking-length";
 import ActivityMultiSelect from "@/components/search/ActivityMultiSelect";
 import { DISTANCE_OPTIONS } from "@/utils/location";
+import { Card } from "../ui/card";
 
 interface FilterSectionProps {
     searchTerm: string;
@@ -67,7 +68,7 @@ export function FilterSection({
     loading,
 }: FilterSectionProps) {
     return (
-        <div className="mb-3 p-2 sm:p-3 bg-white rounded">
+        <Card className="mb-3 p-2 sm:p-3">
             {/* Primary Search - Always visible */}
             <div className="relative mb-2">
                 <label className="text-xs font-medium text-gray-600">Search</label>
@@ -234,6 +235,6 @@ export function FilterSection({
             {postcodeError && (
                 <p className="text-red-500 text-xs mt-1">{postcodeError}</p>
             )}
-        </div>
+        </Card>
     );
 }
