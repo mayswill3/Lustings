@@ -97,8 +97,8 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                                     type="button"
                                     onClick={() => editor.chain().focus().toggleBold().run()}
                                     className={`p-1.5 sm:p-2 border rounded min-w-[32px] min-h-[32px] flex items-center justify-center ${editor.isActive('bold')
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                                         }`}
                                     title="Bold"
                                 >
@@ -108,8 +108,8 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                                     type="button"
                                     onClick={() => editor.chain().focus().toggleItalic().run()}
                                     className={`p-1.5 sm:p-2 border rounded min-w-[32px] min-h-[32px] flex items-center justify-center ${editor.isActive('italic')
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                                         }`}
                                     title="Italic"
                                 >
@@ -119,8 +119,8 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                                     type="button"
                                     onClick={() => editor.chain().focus().toggleStrike().run()}
                                     className={`p-1.5 sm:p-2 border rounded min-w-[32px] min-h-[32px] flex items-center justify-center ${editor.isActive('strike')
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                                         }`}
                                     title="Strikethrough"
                                 >
@@ -130,8 +130,8 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                                     type="button"
                                     onClick={() => editor.chain().focus().toggleUnderline().run()}
                                     className={`p-1.5 sm:p-2 border rounded min-w-[32px] min-h-[32px] flex items-center justify-center ${editor.isActive('underline')
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                                         }`}
                                     title="Underline"
                                 >
@@ -141,8 +141,8 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                                     type="button"
                                     onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                                     className={`p-1.5 sm:p-2 border rounded min-w-[32px] min-h-[32px] flex items-center justify-center ${editor.isActive('heading', { level: 1 })
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                                         }`}
                                     title="Heading 1"
                                 >
@@ -152,8 +152,8 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                                     type="button"
                                     onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                                     className={`p-1.5 sm:p-2 border rounded min-w-[32px] min-h-[32px] flex items-center justify-center ${editor.isActive('heading', { level: 2 })
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                                         }`}
                                     title="Heading 2"
                                 >
@@ -163,8 +163,8 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                                     type="button"
                                     onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
                                     className={`p-1.5 sm:p-2 border rounded min-w-[32px] min-h-[32px] flex items-center justify-center ${editor.isActive('heading', { level: 3 })
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                                         }`}
                                     title="Heading 3"
                                 >
@@ -174,8 +174,8 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                                     type="button"
                                     onClick={() => editor.chain().focus().toggleBlockquote().run()}
                                     className={`p-1.5 sm:p-2 border rounded min-w-[32px] min-h-[32px] flex items-center justify-center ${editor.isActive('blockquote')
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                                         }`}
                                     title="Blockquote"
                                 >
@@ -184,8 +184,8 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                                 <button
                                     onClick={() => editor.chain().focus().toggleBulletList().run()}
                                     className={`p-1.5 sm:p-2 border rounded min-w-[32px] min-h-[32px] flex items-center justify-center ${editor.isActive('bulletList')
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                                         }`}
                                     title="Bullet List"
                                 >
@@ -210,7 +210,7 @@ export const Tiptap = forwardRef<TiptapHandle, TiptapProps>(({ initialSummary = 
                 <div className="border border-gray-300 rounded-b-lg dark:border-zinc-700">
                     <EditorContent
                         editor={editor}
-                        className="p-2 sm:p-4 dark:bg-zinc-800 focus:outline-none min-h-[150px]"
+                        className="p-2 sm:p-4 dark:bg-zinc-800 focus:outline-none min-h-[150px] [&_.ProseMirror]:dark:text-white"
                     />
                 </div>
             </div>

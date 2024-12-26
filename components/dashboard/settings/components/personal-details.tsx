@@ -5,6 +5,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import Toggle from '@/components/ui/toggle';
+import { SectionHeader } from '@/components/ui/section-header';
 import { Tiptap } from '@/components/Tiptap';
 import { createClient } from '@/utils/supabase/client';
 import * as Switch from '@radix-ui/react-switch';
@@ -22,36 +24,6 @@ interface ToggleProps {
     onCheckedChange: (state: boolean) => void;
     label: string;
 }
-
-const Toggle = ({ name, checked, onCheckedChange, label }: ToggleProps) => {
-    return (
-        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors">
-            <span className="text-sm font-medium">{label}</span>
-            <Switch.Root
-                name={name}
-                className="w-11 h-6 bg-gray-300 rounded-full relative data-[state=checked]:bg-blue-500 transition-colors"
-                checked={checked}
-                onCheckedChange={onCheckedChange}
-            >
-                <Switch.Thumb className="block w-5 h-5 bg-white rounded-full transition-transform translate-x-0.5 data-[state=checked]:translate-x-[22px] shadow-lg" />
-            </Switch.Root>
-        </div>
-    );
-};
-
-const SectionHeader = ({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle?: string }) => (
-    <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-            {React.cloneElement(icon as React.ReactElement, {
-                className: "w-5 h-5 text-blue-600 dark:text-blue-400"
-            })}
-        </div>
-        <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
-            {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>}
-        </div>
-    </div>
-);
 
 export default function PersonalDetails() {
     const [user, setUser] = useState<{ id: string } | null>(null);

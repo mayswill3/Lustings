@@ -70,11 +70,19 @@ export default function RootLayout({
         <link rel="canonical" href="https://your-website.com" />
         <link rel="icon" href="/img/favicon.ico" />
       </head>
-      <body id={'root'} className="loading bg-custom-purple">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <SupabaseProvider>
-            <main id="skip">{children}</main>
-          </SupabaseProvider>
+      <body
+        id="root"
+        className="min-h-screen bg-white dark:bg-zinc-900 transition-colors duration-200"
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <main id="skip" className="text-gray-900 dark:text-gray-100">
+            {children}
+          </main>
         </ThemeProvider>
       </body>
     </html>

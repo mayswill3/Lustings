@@ -1,4 +1,3 @@
-// components/booking/BookingList.tsx
 import React, { useState } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,7 +63,7 @@ interface BookingActionsProps {
 const BookingBadge = ({ isSent }: { isSent: boolean }) => (
     <Badge
         variant={isSent ? "secondary" : "outline"}
-        className="flex items-center gap-1"
+        className="flex items-center gap-1 dark:bg-zinc-700 dark:text-zinc-200"
     >
         {isSent ? (
             <><ArrowUpRight className="h-3 w-3" /> Sent</>
@@ -75,11 +74,15 @@ const BookingBadge = ({ isSent }: { isSent: boolean }) => (
 );
 
 const UserLink = ({ booking, isSent }: { booking: Booking; isSent: boolean }) => (
-    <Badge variant="outline" className="text-sm">
+    <Badge
+        variant="outline"
+        className="text-sm dark:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-600"
+    >
         <Link
             href={`/profile/${encodeURIComponent(
                 isSent ? booking.recipient_nickname : booking.nickname
             )}`}
+            className="hover:text-blue-600 dark:hover:text-blue-400"
         >
             {isSent ? booking.recipient_nickname : booking.nickname}
         </Link>
@@ -87,7 +90,7 @@ const UserLink = ({ booking, isSent }: { booking: Booking; isSent: boolean }) =>
 );
 
 const BookingTimestamp = ({ date }: { date: string }) => (
-    <p className="text-sm text-gray-500">
+    <p className="text-sm text-gray-500 dark:text-gray-400">
         {formatDistanceToNow(new Date(date), { addSuffix: true })}
     </p>
 );
@@ -96,23 +99,23 @@ const BookingDetails = ({ booking }: { booking: Booking }) => (
     <>
         <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-                <p className="text-sm font-medium text-gray-500">Contact Details</p>
-                <p className="text-sm">{booking.contact_number}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Contact Details</p>
+                <p className="text-sm text-gray-700 dark:text-gray-200">{booking.contact_number}</p>
             </div>
             <div>
-                <p className="text-sm font-medium text-gray-500">Meeting Type</p>
-                <p className="text-sm capitalize">{booking.meeting_type}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Meeting Type</p>
+                <p className="text-sm capitalize text-gray-700 dark:text-gray-200">{booking.meeting_type}</p>
             </div>
             <div>
-                <p className="text-sm font-medium text-gray-500">Date & Time</p>
-                <p className="text-sm">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Date & Time</p>
+                <p className="text-sm text-gray-700 dark:text-gray-200">
                     {new Date(booking.contact_date).toLocaleDateString()},{' '}
                     {booking.time_start} - {booking.time_end}
                 </p>
             </div>
             <div>
-                <p className="text-sm font-medium text-gray-500">Duration & Fee</p>
-                <p className="text-sm">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Duration & Fee</p>
+                <p className="text-sm text-gray-700 dark:text-gray-200">
                     {booking.duration} hours {booking.overnight && '(Overnight)'} • £{booking.proposed_fee}
                 </p>
             </div>
@@ -120,15 +123,15 @@ const BookingDetails = ({ booking }: { booking: Booking }) => (
 
         {booking.comments && (
             <div className="mb-4">
-                <p className="text-sm font-medium text-gray-500">Comments</p>
-                <p className="text-sm mt-1">{booking.comments}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Comments</p>
+                <p className="text-sm mt-1 text-gray-700 dark:text-gray-200">{booking.comments}</p>
             </div>
         )}
 
         {booking.meeting_type === 'out-call' && booking.address1 && (
             <div className="mb-4">
-                <p className="text-sm font-medium text-gray-500">Address</p>
-                <p className="text-sm mt-1">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Address</p>
+                <p className="text-sm mt-1 text-gray-700 dark:text-gray-200">
                     {booking.address1}
                     {booking.address2 && <>, {booking.address2}</>}
                     {booking.town && <>, {booking.town}</>}
@@ -150,7 +153,7 @@ const BookingActions = ({
     if (booking.status === 'accepted') {
         if (hasFeedback) {
             return (
-                <div className="text-sm font-medium text-gray-500 bg-gray-50 px-3 py-2 rounded-md">
+                <div className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800 px-3 py-2 rounded-md">
                     ✓ Feedback submitted
                 </div>
             );
@@ -159,7 +162,7 @@ const BookingActions = ({
             <Button
                 variant="outline"
                 onClick={onFeedback}
-                className="bg-blue-50 text-blue-700 hover:bg-blue-100"
+                className="bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800"
             >
                 {isSent ? "Leave Feedback as Sender" : "Leave Feedback as Receiver"}
             </Button>
@@ -172,14 +175,18 @@ const BookingActions = ({
                 <Button
                     variant="outline"
                     onClick={() => onStatusChange(booking.id, 'declined')}
-                    className="text-red-600 border-red-200 hover:bg-red-50"
+                    className="text-red-600
+              border-red-200 dark:border-red-900/50
+              hover:bg-red-100/50 hover:text-red-700 
+              dark:hover:bg-red-900/50 dark:hover:text-red-300
+              transition-colors duration-200"
                 >
                     <XCircle className="mr-2 h-4 w-4" />
                     Decline
                 </Button>
                 <Button
                     onClick={() => onStatusChange(booking.id, 'accepted')}
-                    className="bg-green-600 text-white hover:bg-green-700"
+                    className="bg-green-600 text-white dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600"
                 >
                     <CheckCircle className="mr-2 h-4 w-4" />
                     Accept
@@ -222,12 +229,12 @@ const BookingCard: React.FC<BookingCardProps> = ({
     }, [booking.id, showFeedbackModal]);
 
     return (
-        <Card className="mb-4">
+        <Card className="mb-4 bg-white dark:bg-zinc-900 border dark:border-zinc-700">
             <CardContent className="pt-6">
                 <div className="flex justify-between items-start mb-4">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-semibold">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                                 {booking.first_name} {booking.last_name}
                             </h3>
                             <BookingBadge isSent={isSent} />
@@ -270,15 +277,19 @@ export const BookingList: React.FC<BookingListProps> = ({
 
     return (
         <div className="flex-1">
-            <Card>
+            <Card className="bg-white dark:bg-zinc-900 border dark:border-zinc-700">
                 <CardHeader>
-                    <CardTitle className="text-lg">Booking Inbox</CardTitle>
+                    <CardTitle className="text-lg text-gray-900 dark:text-gray-100">
+                        Booking Inbox
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
                         {bookings.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-8">
-                                <p className="text-gray-500 text-center">No bookings found</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-center">
+                                    No bookings found
+                                </p>
                             </div>
                         ) : (
                             bookings.map(booking => (

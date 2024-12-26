@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { SectionHeader } from '@/components/ui/section-header';
 import { Card } from "@/components/ui/card";
 import * as Select from '@radix-ui/react-select';
 import { Calendar, Clock, UserCircle, ChevronDownIcon, ChevronUpIcon, Users, Phone } from 'lucide-react';
@@ -24,24 +25,10 @@ interface PersonalDetailsProps {
     user: any;
 }
 
-const SectionHeader = ({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle?: string }) => (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
-        <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg w-fit">
-            {React.cloneElement(icon as React.ReactElement, {
-                className: "w-5 w-5 text-blue-600 dark:text-blue-400"
-            })}
-        </div>
-        <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
-            {subtitle && <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>}
-        </div>
-    </div>
-);
-
 const TimeSelect = ({ value, onValueChange, placeholder, timeSlots }) => (
     <div className="relative w-full">
         <Select.Root value={value} onValueChange={onValueChange}>
-            <Select.Trigger className="inline-flex items-center justify-between w-full rounded-md border border-gray-200 px-3 py-2 text-sm bg-white dark:bg-zinc-800 pl-10">
+            <Select.Trigger className="inline-flex items-center justify-between w-full rounded-md border border-gray-200 dark:border-zinc-700 px-3 py-2 text-sm bg-white dark:bg-zinc-800 pl-10 text-gray-900 dark:text-white">
                 <Select.Value placeholder={placeholder} />
                 <Select.Icon>
                     <ChevronDownIcon className="h-4 w-4" />
@@ -50,7 +37,7 @@ const TimeSelect = ({ value, onValueChange, placeholder, timeSlots }) => (
             <Clock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
 
             <Select.Portal>
-                <Select.Content position="popper" className="w-[var(--radix-select-trigger-width)] overflow-hidden bg-white dark:bg-zinc-800 rounded-md border border-gray-200 shadow-lg">
+                <Select.Content position="popper" className="w-[var(--radix-select-trigger-width)] overflow-hidden bg-white dark:bg-zinc-800 rounded-md border border-gray-200 dark:border-zinc-700 shadow-lg">
                     <Select.ScrollUpButton className="flex items-center justify-center h-6">
                         <ChevronUpIcon className="h-4 w-4" />
                     </Select.ScrollUpButton>
@@ -59,8 +46,7 @@ const TimeSelect = ({ value, onValueChange, placeholder, timeSlots }) => (
                             <Select.Item
                                 key={time}
                                 value={time}
-                                className="relative flex items-center px-8 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700 focus:bg-gray-100 outline-none cursor-default"
-                            >
+                                className="relative flex items-center px-8 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-zinc-700 text-gray-900 dark:text-white">
                                 <Select.ItemText>{time}</Select.ItemText>
                             </Select.Item>
                         ))}
@@ -101,7 +87,7 @@ export const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             <div className="space-y-6">
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="nickname">Nickname</Label>
+                        <Label htmlFor="nickname">Display Name</Label>
                         <div className="relative">
                             <Input
                                 id="nickname"
@@ -160,7 +146,7 @@ export const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 
                 </div>
 
-                <Separator />
+                <Separator className="bg-gray-200 dark:bg-zinc-700" />
 
                 <div className="space-y-4">
                     <Label>Preferred Contact Time</Label>

@@ -12,6 +12,7 @@ import { BookingList } from '@/components/booking/BookingList';
 import { UserContext, OpenContext } from '@/contexts/layout';
 import { useBookings } from '../../components/hooks/useBookings';
 import { Booking } from '@/types/booking';
+import { Card } from '@/components/ui/card';
 
 const supabase = createClient();
 
@@ -52,10 +53,10 @@ export const BookingInbox = () => {
     const filteredBookings = getFilteredBookings(bookings);
 
     return (
-        <div>
+        <Card>
             <UserContext.Provider value={user}>
                 <OpenContext.Provider value={{ open, setOpen }}>
-                    <div className="flex h-full w-full flex-col dark:bg-zinc-950">
+                    <div className="flex h-full w-full flex-col dark:bg-zinc-900">
                         <Navbar
                             className="mb-24"
                             brandText={getActiveRoute(routes, pathname)}
@@ -100,7 +101,7 @@ export const BookingInbox = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </Card>
     );
 };
 

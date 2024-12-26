@@ -4,14 +4,16 @@ import { useState, useEffect } from 'react';
 import { MapPin } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { SectionHeader } from '@/components/ui/section-header';
+import { FormField } from '@/components/ui/form-field';
 import { UK_REGIONS } from '@/constants/locations';
 
-const FormField = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <label className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full">
-        <span className="min-w-[180px] text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
-        <div className="flex-1">{children}</div>
-    </label>
-);
+// const FormField = ({ label, children }: { label: string; children: React.ReactNode }) => (
+//     <label className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full">
+//         <span className="min-w-[180px] text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
+//         <div className="flex-1">{children}</div>
+//     </label>
+// );
 
 const LocationDetailsSection = ({ userDetails }) => {
     const [selectedRegion, setSelectedRegion] = useState(userDetails?.location?.region || '');
@@ -55,10 +57,7 @@ const LocationDetailsSection = ({ userDetails }) => {
 
     return (
         <Card className="p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-6">
-                <MapPin size={24} />
-                <h2 className="text-lg font-semibold">Location Details</h2>
-            </div>
+            <SectionHeader icon={<MapPin size={24} />} title="Location Details" />
             <div className="grid gap-6">
                 <div className="grid sm:grid-cols-2 gap-6">
                     <FormField label="Country">

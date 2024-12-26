@@ -21,7 +21,7 @@ import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Sun, Moon, HelpCircle, LogOut, Settings, CreditCard, MessageSquareQuestion, X, Mail } from 'lucide-react';
+import { Sun, Moon, HelpCircle, LogOut, Settings, CreditCard, X, Mail } from 'lucide-react';
 
 const supabase = createClient();
 
@@ -62,27 +62,30 @@ export default function HeaderLinks(props: { [x: string]: any }) {
   const MenuItem = ({ icon: Icon, children, onClick, className = '' }) => (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-zinc-800 ${className}`}
+      className={`w-full flex items-center gap-2 px-4 py-2 text-sm 
+                 text-gray-700 dark:text-gray-200 
+                 hover:bg-gray-100 dark:hover:bg-zinc-800/50 
+                 transition-colors duration-200 ${className}`}
     >
       <Icon className="h-4 w-4" />
       <span>{children}</span>
     </button>
   );
 
-  // Mobile Icons Component
   const MobileNav = () => (
     <div className="flex items-center space-x-4">
-      {/* Mail/Bookings Icon */}
       <button
         onClick={() => router.push('/bookings')}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 
+                 rounded-full transition-colors duration-200"
       >
         <Mail className="h-5 w-5 text-gray-600 dark:text-gray-300" />
       </button>
-      {/* Theme Toggle */}
+
       <button
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 
+                 rounded-full transition-colors duration-200"
       >
         {theme === 'light' ? (
           <Moon className="h-5 w-5 text-gray-600" />
@@ -91,21 +94,14 @@ export default function HeaderLinks(props: { [x: string]: any }) {
         )}
       </button>
 
-      {/* Help Icon */}
-      <button
-        onClick={() => setIsDrawerOpen(true)}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
-      >
-        <HelpCircle className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-      </button>
-
-      {/* User Avatar */}
       <button
         onClick={() => setIsDrawerOpen(true)}
         className="flex items-center space-x-3 cursor-pointer"
       >
         <Avatar>
-          <AvatarFallback className="text-sm font-semibold bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+          <AvatarFallback className="text-sm font-semibold 
+                                   bg-blue-100 dark:bg-blue-900 
+                                   text-blue-600 dark:text-blue-400">
             {user?.user_metadata.full_name
               ? user.user_metadata.full_name[0]
               : user?.email[0].toUpperCase()}
@@ -115,21 +111,35 @@ export default function HeaderLinks(props: { [x: string]: any }) {
     </div>
   );
 
-  // Mobile Menu with Drawer
+  const DrawerMenuItem = ({ icon: Icon, children, onClick, variant }) => (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-2 px-4 py-3 text-sm 
+                   ${variant === 'destructive'
+          ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10'
+          : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-800/50'}
+                   transition-colors duration-200 rounded-lg`}
+    >
+      <Icon className="h-5 w-5" />
+      <span>{children}</span>
+    </button>
+  );
+
   const MobileMenu = () => (
     <div className="md:hidden">
       <MobileNav />
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent className="h-[96vh]">
+        <DrawerContent className="h-[96vh] bg-white dark:bg-zinc-900">
           <DrawerHeader className="border-b border-gray-200 dark:border-zinc-700">
-            <DrawerTitle className="flex items-center justify-between">
+            <DrawerTitle className="flex items-center justify-between text-gray-900 dark:text-gray-100">
               <span>Menu</span>
-              <DrawerClose className="p-1 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full">
-                <X className="h-5 w-5" />
+              <DrawerClose className="p-1 hover:bg-gray-100 dark:hover:bg-zinc-800/50 rounded-full">
+                <X className="h-5 w-5 text-gray-600 dark:text-gray-300" />
               </DrawerClose>
             </DrawerTitle>
           </DrawerHeader>
           <div className="p-4 space-y-4">
+            {/* User Info */}
             <div className="flex items-center gap-3 px-4 py-3">
               <Avatar className="h-10 w-10">
                 <AvatarFallback className="text-sm font-semibold bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
@@ -139,7 +149,7 @@ export default function HeaderLinks(props: { [x: string]: any }) {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-medium dark:text-white">
+                <p className="font-medium text-gray-900 dark:text-white">
                   {user?.user_metadata.full_name || user?.email}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
@@ -148,58 +158,49 @@ export default function HeaderLinks(props: { [x: string]: any }) {
               </div>
             </div>
             <div className="border-t border-gray-200 dark:border-zinc-700" />
-            <DrawerMenuItem
-              icon={Settings}
-              onClick={() => router.push('/dashboard/settings')}
-            >
-              Settings
-            </DrawerMenuItem>
-            <DrawerMenuItem
-              icon={CreditCard}
-              onClick={() => window.open('https://horizon-ui.com/boilerplate-shadcn#pricing', '_blank')}
-            >
-              Pricing
-            </DrawerMenuItem>
-            <DrawerMenuItem
-              icon={MessageSquareQuestion}
-              onClick={() => window.location.href = 'mailto:hello@horizon-ui.com'}
-            >
-              Help & Support
-            </DrawerMenuItem>
-            <DrawerMenuItem
-              icon={HelpCircle}
-              onClick={() => window.location.href = '/#faqs'}
-            >
-              FAQs & More
-            </DrawerMenuItem>
-            <div className="border-t border-gray-200 dark:border-zinc-700" />
-            <DrawerMenuItem
-              icon={LogOut}
-              variant="destructive"
-              onClick={handleSignOut}
-            >
-              Sign out
-            </DrawerMenuItem>
+
+            {/* Menu Items */}
+            <div className="space-y-1">
+              <DrawerMenuItem
+                icon={Mail}
+                onClick={() => router.push('/bookings')}
+              >
+                Bookings
+              </DrawerMenuItem>
+              <DrawerMenuItem
+                icon={Settings}
+                onClick={() => router.push('/dashboard/settings')}
+              >
+                Settings
+              </DrawerMenuItem>
+              <DrawerMenuItem
+                icon={LogOut}
+                variant="destructive"
+                onClick={handleSignOut}
+              >
+                Sign out
+              </DrawerMenuItem>
+            </div>
           </div>
         </DrawerContent>
       </Drawer>
     </div>
   );
 
-  // Desktop Menu with Dropdowns
   const DesktopMenu = () => (
     <div className="hidden md:flex items-center space-x-4">
-      {/* Mail/Bookings Icon */}
       <button
         onClick={() => router.push('/bookings')}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 
+                 rounded-full transition-colors duration-200"
       >
         <Mail className="h-5 w-5 text-gray-600 dark:text-gray-300" />
       </button>
-      {/* Theme Toggle */}
+
       <button
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 
+                 rounded-full transition-colors duration-200"
       >
         {theme === 'light' ? (
           <Moon className="h-5 w-5 text-gray-600" />
@@ -208,44 +209,6 @@ export default function HeaderLinks(props: { [x: string]: any }) {
         )}
       </button>
 
-      {/* Help Dropdown */}
-      <DropdownMenu className="relative" ref={helpRef}>
-        <DropdownMenuTrigger
-          onClick={() => {
-            setIsHelpOpen(!isHelpOpen);
-            setIsUserMenuOpen(false);
-          }}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
-        >
-          <HelpCircle className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          isOpen={isHelpOpen}
-          className="w-56 right-0 z-50"
-        >
-          <MenuItem
-            icon={CreditCard}
-            onClick={() => window.open('https://horizon-ui.com/boilerplate-shadcn#pricing', '_blank')}
-          >
-            Pricing
-          </MenuItem>
-          <MenuItem
-            icon={MessageSquareQuestion}
-            onClick={() => window.location.href = 'mailto:hello@horizon-ui.com'}
-          >
-            Help & Support
-          </MenuItem>
-          <div className="my-1 border-t border-gray-200 dark:border-zinc-700" />
-          <MenuItem
-            icon={HelpCircle}
-            onClick={() => window.location.href = '/#faqs'}
-          >
-            FAQs & More
-          </MenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      {/* User Menu Dropdown */}
       <DropdownMenu className="relative" ref={userRef}>
         <DropdownMenuTrigger
           onClick={() => {
@@ -255,7 +218,9 @@ export default function HeaderLinks(props: { [x: string]: any }) {
           className="flex items-center space-x-3 cursor-pointer"
         >
           <Avatar>
-            <AvatarFallback className="text-sm font-semibold bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+            <AvatarFallback className="text-sm font-semibold 
+                                     bg-blue-100 dark:bg-blue-900 
+                                     text-blue-600 dark:text-blue-400">
               {user?.user_metadata.full_name
                 ? user.user_metadata.full_name[0]
                 : user?.email[0].toUpperCase()}
@@ -264,10 +229,11 @@ export default function HeaderLinks(props: { [x: string]: any }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           isOpen={isUserMenuOpen}
-          className="w-56 right-0 z-50"
+          className="w-56 right-0 z-50 bg-white dark:bg-zinc-900 
+                    border border-gray-200 dark:border-zinc-700"
         >
           <div className="px-4 py-3 border-b border-gray-200 dark:border-zinc-700">
-            <p className="text-sm font-medium dark:text-white">
+            <p className="text-sm font-medium text-gray-900 dark:text-white">
               {user?.user_metadata.full_name || user?.email}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -284,7 +250,7 @@ export default function HeaderLinks(props: { [x: string]: any }) {
             <MenuItem
               icon={LogOut}
               onClick={handleSignOut}
-              className="text-red-600 dark:text-red-400"
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
             >
               Sign out
             </MenuItem>

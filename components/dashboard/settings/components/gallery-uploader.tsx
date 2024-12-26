@@ -173,7 +173,7 @@ export default function GalleryUploader(props: Props) {
                     ) : (
                         <Lock className="w-5 h-5 text-purple-500" />
                     )}
-                    <h3 className="text-lg sm:text-xl font-bold">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                         {type === 'free' ? 'Public Gallery' : 'Private Gallery'}
                     </h3>
                 </div>
@@ -236,7 +236,7 @@ export default function GalleryUploader(props: Props) {
     );
 
     return (
-        <div className="container mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-4">
+        <div className="mt-10">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">
                     Image Galleries
