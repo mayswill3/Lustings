@@ -98,6 +98,11 @@ export interface UserDetails {
       };
     };
   };
+  availability?: {
+    status_start: string;
+    status_end: string;
+    booking_date: string;
+  }[];
 }
 
 export interface ProfilePageProps {
