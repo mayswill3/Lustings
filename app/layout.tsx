@@ -72,7 +72,7 @@ export default function RootLayout({
       </head>
       <body
         id="root"
-        className="min-h-screen bg-white dark:bg-zinc-900 transition-colors duration-200"
+        className="min-h-screen bg-custom-purple dark:bg-zinc-900 transition-colors duration-200"
       >
         <ThemeProvider
           attribute="class"

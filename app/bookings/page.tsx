@@ -53,7 +53,7 @@ export const BookingInbox = () => {
     const filteredBookings = getFilteredBookings(bookings);
 
     return (
-        <Card>
+        <>
             <UserContext.Provider value={user}>
                 <OpenContext.Provider value={{ open, setOpen }}>
                     <div className="flex h-full w-full flex-col dark:bg-zinc-900">
@@ -64,7 +64,6 @@ export const BookingInbox = () => {
                     </div>
                 </OpenContext.Provider>
             </UserContext.Provider>
-
             <div className="max-w-7xl mx-auto mt-20 px-4">
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Desktop Filters */}
@@ -101,7 +100,7 @@ export const BookingInbox = () => {
                     </div>
                 </div>
             </div>
-        </Card>
+        </>
     );
 };
 
