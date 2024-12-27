@@ -1,5 +1,4 @@
-// components/booking/BookingCard.tsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,43 +8,15 @@ import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { StatusBadge } from './StatusBadge';
 import FeedbackModal from '@/components/modals/FeedbackModal';
+import { BookingCardProps } from '@/types/booking';
 
 const supabase = createClient();
 
-interface BookingCardProps {
-    booking: {
-        id: string;
-        first_name: string;
-        last_name: string;
-        nickname: string;
-        recipient_nickname: string;
-        contact_number: string;
-        contact_date: string;
-        time_start: string;
-        time_end: string;
-        duration: number;
-        overnight: boolean;
-        meeting_type: 'in-call' | 'out-call';
-        proposed_fee: number;
-        address1: string;
-        address2: string;
-        town: string;
-        county: string;
-        post_code: string;
-        comments: string;
-        status: 'pending' | 'accepted' | 'declined';
-        created_at: string;
-        sender_id: string;
-        recipient_id: string;
-    };
-    user: { id: string };
-    handleStatusChange: (bookingId: string, status: 'accepted' | 'declined') => void;
-}
-
-export const BookingCard = ({ booking, user, handleStatusChange }: BookingCardProps) => {
+const BookingCard = ({ booking, user, handleStatusChange }: BookingCardProps) => {
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [hasFeedback, setHasFeedback] = useState(false);
-    const isSent = booking.sender_id === user.id;
+
+    const isSentBooking = booking.sender_id === user.id;
 
     const checkFeedback = async () => {
         try {
@@ -63,13 +34,13 @@ export const BookingCard = ({ booking, user, handleStatusChange }: BookingCardPr
     };
 
     useEffect(() => {
-        if (booking.status === 'accepted') {
+        if (booking.status === 'completed') {
             checkFeedback();
         }
     }, [booking.id, showFeedbackModal]);
 
     const renderFeedbackButton = () => {
-        if (booking.status !== 'accepted') return null;
+        if (booking.status !== 'completed') return null;
 
         if (hasFeedback) {
             return (
@@ -85,7 +56,7 @@ export const BookingCard = ({ booking, user, handleStatusChange }: BookingCardPr
                 onClick={() => setShowFeedbackModal(true)}
                 className="bg-blue-50 text-blue-700 hover:bg-blue-100"
             >
-                {isSent ? "Leave Feedback as Sender" : "Leave Feedback as Receiver"}
+                {isSentBooking ? "Rate Your Experience" : "Rate This Meeting"}
             </Button>
         );
     };
@@ -100,10 +71,10 @@ export const BookingCard = ({ booking, user, handleStatusChange }: BookingCardPr
                                 {booking.first_name} {booking.last_name}
                             </h3>
                             <Badge
-                                variant={isSent ? "secondary" : "outline"}
+                                variant={isSentBooking ? "secondary" : "outline"}
                                 className="flex items-center gap-1"
                             >
-                                {isSent ? (
+                                {isSentBooking ? (
                                     <><ArrowUpRight className="h-3 w-3" /> Sent</>
                                 ) : (
                                     <><ArrowDownLeft className="h-3 w-3" /> Received</>
@@ -112,10 +83,10 @@ export const BookingCard = ({ booking, user, handleStatusChange }: BookingCardPr
                             <Badge variant="outline" className="text-sm">
                                 <Link
                                     href={`/profile/${encodeURIComponent(
-                                        isSent ? booking.recipient_nickname : booking.nickname
+                                        isSentBooking ? booking.recipient_nickname : booking.nickname
                                     )}`}
                                 >
-                                    {isSent ? booking.recipient_nickname : booking.nickname}
+                                    {isSentBooking ? booking.recipient_nickname : booking.nickname}
                                 </Link>
                             </Badge>
                         </div>
@@ -171,7 +142,7 @@ export const BookingCard = ({ booking, user, handleStatusChange }: BookingCardPr
                 )}
 
                 <div className="flex justify-end space-x-3">
-                    {!isSent && booking.status === 'pending' && (
+                    {!isSentBooking && booking.status === 'pending' && (
                         <>
                             <Button
                                 variant="outline"

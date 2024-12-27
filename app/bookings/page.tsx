@@ -3,7 +3,6 @@
 
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { createClient } from '@/utils/supabase/client';
 import { getActiveRoute } from '@/utils/navigation';
 import { routes } from '@/components/routes';
 import Navbar from '@/components/navbar/NavbarAdmin';
@@ -12,9 +11,6 @@ import { BookingList } from '@/components/booking/BookingList';
 import { UserContext, OpenContext } from '@/contexts/layout';
 import { useBookings } from '../../components/hooks/useBookings';
 import { Booking } from '@/types/booking';
-import { Card } from '@/components/ui/card';
-
-const supabase = createClient();
 
 export const BookingInbox = () => {
     const [viewFilter, setViewFilter] = useState<'all' | 'sent' | 'received'>('all');

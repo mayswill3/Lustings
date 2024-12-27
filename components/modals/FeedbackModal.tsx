@@ -23,24 +23,28 @@ const FeedbackModal = ({ isOpen, onClose, booking, user }: FeedbackModalProps) =
         e.preventDefault();
         if (!type) return;
 
+        // Check if booking is completed before allowing feedback
+        if (booking.status !== 'completed') {
+            console.error('Cannot leave feedback until booking is completed');
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             const { error } = await supabase
                 .from('feedbacks')
                 .insert([{
                     booking_id: booking.id,
-                    sender_id: user.id,  // Current user is always the sender of feedback
-                    recipient_id: isSender ? booking.recipient_id : booking.sender_id, // If current user is the booking sender, recipient is booking.recipient_id, otherwise it's booking.sender_id
+                    sender_id: user.id,
+                    recipient_id: isSender ? booking.recipient_id : booking.sender_id,
                     feedback_type: type,
                     comment
                 }]);
 
             if (error) throw error;
             onClose();
-            // You could add a success toast here
         } catch (error) {
             console.error('Error submitting feedback:', error);
-            // You could add an error toast here
         } finally {
             setIsSubmitting(false);
         }

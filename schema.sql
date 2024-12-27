@@ -200,6 +200,13 @@ ALTER TABLE feedbacks
 ADD CONSTRAINT one_feedback_per_role 
 UNIQUE (booking_id, sender_id, recipient_id);
 
+ALTER TABLE bookings 
+DROP CONSTRAINT IF EXISTS bookings_status_check;
+
+ALTER TABLE bookings
+ADD CONSTRAINT bookings_status_check 
+CHECK (status IN ('pending', 'accepted', 'declined', 'completed'));
+
 /**
 * CUSTOMERS
 * Note: this is a private table that contains a mapping of user IDs to Stripe customer IDs.
