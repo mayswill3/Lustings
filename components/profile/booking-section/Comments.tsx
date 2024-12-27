@@ -29,7 +29,13 @@ export const Comments: React.FC<CommentsProps> = ({
                 value={formData.comments}
                 onChange={(e) => handleCommentChange(e.target.value)}
                 placeholder="Enter any additional details or special requests..."
-                className="min-h-[120px] resize-none border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                className="min-h-[120px] resize-none 
+                    border-gray-200 dark:border-gray-700 
+                    bg-white dark:bg-zinc-800
+                    text-gray-900 dark:text-gray-100 
+                    focus:border-purple-500 dark:focus:border-purple-400 
+                    focus:ring-purple-500 dark:focus:ring-purple-400 
+                    placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
         </FormSection>
     );

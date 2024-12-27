@@ -136,7 +136,7 @@ export function AvailabilityList({ userId }: DateListProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <h3 className="font-semibold">Select Days:</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white">Select Days:</h3>
         <Button
           variant="link"
           onClick={handleSelectAll}
@@ -172,7 +172,7 @@ export function AvailabilityList({ userId }: DateListProps) {
       </div>
 
       <div className="pt-4 border-t">
-        <p className="text-sm font-medium">
+        <p className="text-sm font-medium text-gray-900 dark:text-white">
           Selected Days: {selectedDates.length}
         </p>
       </div>

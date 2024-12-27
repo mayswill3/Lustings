@@ -71,7 +71,7 @@ export function FilterSection({
         <Card className="mb-3 p-2 sm:p-3">
             {/* Primary Search - Always visible */}
             <div className="relative mb-2">
-                <label className="text-xs font-medium text-gray-600">Search</label>
+                <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Search</label>
                 <div className="flex gap-2 mt-1">
                     <div className="relative flex-1">
                         <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-3.5 w-3.5" />
@@ -85,7 +85,7 @@ export function FilterSection({
                     </div>
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className="px-3 h-8 border rounded-md text-xs flex items-center gap-1 bg-gray-50 hover:bg-gray-100"
+                        className="px-3 h-8 border rounded-md text-xs flex items-center gap-1 bg-gray-50 dark:bg-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-600 text-gray-900 dark:text-white border-gray-200 dark:border-zinc-600"
                     >
                         <SlidersHorizontal className="h-3.5 w-3.5" />
                         <span className="hidden sm:inline">Filters</span>
@@ -96,11 +96,11 @@ export function FilterSection({
             {/* Primary Filters - Always visible */}
             <div className="grid grid-cols-2 gap-2 mb-2">
                 <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-600">Gender</label>
+                    <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Gender</label>
                     <select
                         value={selectedGender}
                         onChange={(e) => setSelectedGender(e.target.value)}
-                        className="h-8 border rounded-md px-2 bg-white text-xs w-full"
+                        className="h-8 border rounded-md px-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white border-gray-200 dark:border-zinc-700 text-xs w-full"
                     >
                         <option value="">All Genders</option>
                         {GENDERS.map((gender) => (
@@ -109,11 +109,11 @@ export function FilterSection({
                     </select>
                 </div>
                 <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-600">Age</label>
+                    <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Age</label>
                     <select
                         value={selectedAge}
                         onChange={(e) => setSelectedAge(e.target.value)}
-                        className="h-8 border rounded-md px-2 bg-white text-xs w-full"
+                        className="h-8 border rounded-md px-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white border-gray-200 dark:border-zinc-700 text-xs w-full"
                     >
                         <option value="">Any Age</option>
                         {AGE_RANGES.map((range) => (
@@ -128,7 +128,7 @@ export function FilterSection({
                 {/* Location Search */}
                 <div className="grid grid-cols-3 gap-2">
                     <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600">Postcode</label>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Postcode</label>
                         <div className="relative">
                             <Input
                                 type="text"
@@ -145,11 +145,11 @@ export function FilterSection({
                         </div>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600">Distance</label>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Distance</label>
                         <select
                             value={selectedDistance}
                             onChange={(e) => setSelectedDistance(e.target.value ? Number(e.target.value) : "")}
-                            className="h-8 border rounded-md px-2 bg-white text-xs w-full disabled:bg-gray-100"
+                            className="h-8 border rounded-md px-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white border-gray-200 dark:border-zinc-700 text-xs w-full"
                             disabled={!searchPostcode || !searchCoordinates}
                         >
                             <option value="">Select radius</option>
@@ -159,7 +159,7 @@ export function FilterSection({
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600">&nbsp;</label>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-300">&nbsp;</label>
                         <button
                             onClick={filterByDistance}
                             disabled={!searchCoordinates || !selectedDistance || loading}
@@ -172,11 +172,11 @@ export function FilterSection({
 
                 <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600">Ethnicity</label>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Ethnicity</label>
                         <select
                             value={selectedEthnicity}
                             onChange={(e) => setSelectedEthnicity(e.target.value)}
-                            className="h-8 border rounded-md px-2 bg-white text-xs w-full"
+                            className="h-8 border rounded-md px-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white border-gray-200 dark:border-zinc-700 text-xs w-full"
                         >
                             <option value="">Any Ethnicity</option>
                             {PHYSICAL_OPTIONS.ETHNICITY.map((ethnicity) => (
@@ -185,11 +185,11 @@ export function FilterSection({
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600">Nationality</label>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Nationality</label>
                         <select
                             value={selectedNationality}
                             onChange={(e) => setSelectedNationality(e.target.value)}
-                            className="h-8 border rounded-md px-2 bg-white text-xs w-full"
+                            className="h-8 border rounded-md px-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white border-gray-200 dark:border-zinc-700 text-xs w-full"
                         >
                             <option value="">Any Nationality</option>
                             {NATIONALITIES.map((nation) => (
@@ -201,18 +201,18 @@ export function FilterSection({
 
                 <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600">Services</label>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Services</label>
                         <ActivityMultiSelect
                             selectedActivities={selectedActivities}
                             setSelectedActivities={setSelectedActivities}
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-xs font-medium text-gray-600">Duration</label>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-300">Duration</label>
                         <select
                             value={selectedBookingLength}
                             onChange={(e) => setSelectedBookingLength(e.target.value)}
-                            className="w-full h-8 border rounded-md px-2 bg-white text-xs"
+                            className="h-8 border rounded-md px-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white border-gray-200 dark:border-zinc-700 text-xs w-full"
                         >
                             <option value="">Any Duration</option>
                             {BOOKING_LENGTHS.map((length) => (
@@ -226,14 +226,14 @@ export function FilterSection({
             {/* Clear Filters Button */}
             <button
                 onClick={clearFilters}
-                className="w-full h-8 bg-gray-100 text-gray-700 px-3 rounded-md hover:bg-gray-200 transition-colors text-xs mt-2"
+                className="w-full h-8 bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-gray-200 px-3 rounded-md hover:bg-gray-200 dark:hover:bg-zinc-600 transition-colors text-xs mt-2"
             >
                 Clear All
             </button>
 
             {/* Error messages */}
             {postcodeError && (
-                <p className="text-red-500 text-xs mt-1">{postcodeError}</p>
+                <p className="text-red-500 dark:text-red-400 text-xs mt-1">{postcodeError}</p>
             )}
         </Card>
     );

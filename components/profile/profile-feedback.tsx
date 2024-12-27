@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
 import { Badge } from "@/components/ui/badge";
+import FeedbackRatingsTable from './feedback-section/FeedbackRatingsTable';
 
 const supabase = createClient();
 
@@ -86,58 +87,31 @@ export const ProfileFeedbackSection = ({ userId }: { userId: string }) => {
     const getBadgeVariant = (type: string) => {
         switch (type) {
             case 'positive':
-                return 'bg-green-100 text-green-800 border-green-200';
+                return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800';
             case 'negative':
-                return 'bg-red-100 text-red-800 border-red-200';
+                return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800';
             default:
-                return 'bg-gray-100 text-gray-800 border-gray-200';
+                return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700';
         }
     };
 
     return (
         <div className="space-y-6">
-            {/* Feedback Rating Table */}
-            <div>
-                <h2 className="text-xl font-semibold mb-4">Feedback ratings</h2>
-                <div className="bg-gray-50 dark:bg-zinc-900 border rounded-lg overflow-hidden">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-gray-200 dark:border-gray-700">
-                                <th className="px-6 py-4 text-left"></th>
-                                {Object.keys(feedbackPeriods).map(period => (
-                                    <th key={period} className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-300">
-                                        {period}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {[
-                                { type: 'positive', icon: '+', color: 'text-green-600' },
-                                { type: 'neutral', icon: '○', color: 'text-gray-600' },
-                                { type: 'negative', icon: '-', color: 'text-red-600' }
-                            ].map(({ type, icon, color }) => (
-                                <tr key={type} className="border-b border-gray-200 dark:border-gray-700 last:border-0">
-                                    <td className="px-6 py-4 flex items-center gap-2">
-                                        <span className={`text-xl ${color}`}>{icon}</span>
-                                        <span className="capitalize text-gray-700 dark:text-gray-300">{type}</span>
-                                    </td>
-                                    {Object.values(feedbackPeriods).map((periodFeedbacks, index) => (
-                                        <td key={index} className="px-6 py-4 text-center text-blue-600 font-medium">
-                                            {getFeedbackCounts(periodFeedbacks)[type as keyof typeof getFeedbackCounts]}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <FeedbackRatingsTable
+                feedbackPeriods={feedbackPeriods}
+                getFeedbackCounts={getFeedbackCounts}
+            />
 
             {/* Feedback List */}
             <div className="space-y-4">
                 {feedbacks.map((feedback) => (
-                    <div key={feedback.id} className="bg-gray-50 dark:bg-zinc-900 rounded-lg p-6 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+                    <div
+                        key={feedback.id}
+                        className="bg-gray-50 dark:bg-zinc-900 rounded-lg p-6 
+                            hover:bg-gray-100 dark:hover:bg-zinc-800 
+                            transition-colors border border-transparent 
+                            hover:border-gray-200 dark:hover:border-gray-700"
+                    >
                         <div className="flex gap-4 items-start">
                             {/* Feedback Type Badge */}
                             <div
@@ -152,7 +126,10 @@ export const ProfileFeedbackSection = ({ userId }: { userId: string }) => {
                                 <div className="flex items-center justify-between mb-3">
                                     <Link
                                         href={`/profile/${feedback.sender?.full_name}`}
-                                        className="text-base font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                        className="text-base font-semibold 
+                                            text-gray-900 dark:text-gray-100
+                                            hover:text-blue-600 dark:hover:text-blue-400 
+                                            transition-colors"
                                     >
                                         {feedback.sender?.full_name || 'Anonymous'}
                                     </Link>
@@ -176,6 +153,8 @@ export const ProfileFeedbackSection = ({ userId }: { userId: string }) => {
                     </div>
                 ))}
             </div>
-        </div>
+        </div >
     );
 };
+
+export default ProfileFeedbackSection;

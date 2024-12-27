@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/utils/supabase/client';
 import { getURL, getStatusRedirect } from '@/utils/helpers';
 import { Input } from '@/components/ui/input';
+import { SectionHeader } from '@/components/ui/section-header';
+import { FormField } from '@/components/ui/form-field';
 import { toast } from 'sonner';
 import Toggle from '@/components/ui/toggle';
 import { MapPin, User2, Lock, Settings2, Clock } from 'lucide-react';
@@ -22,20 +24,6 @@ interface Props {
 }
 
 const supabase = createClient();
-
-const SectionHeader = ({ icon, title }: { icon: React.ReactNode; title: string }) => (
-    <div className="flex items-center gap-2 mb-6 pb-2 border-b border-gray-200 dark:border-gray-700">
-        <div className="text-blue-600 dark:text-blue-400">{icon}</div>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
-    </div>
-);
-
-const FormField = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <label className="flex flex-col space-y-2 w-full">
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
-        <div className="w-full">{children}</div>
-    </label>
-);
 
 // Will add 'Webcam Work', 'Phone Chat', 'SMS Chat', 'Content Creator' in the future
 const SERVICE_TYPES = ['Escort Services',];
@@ -204,6 +192,17 @@ export default function GeneralDetails(props: Props) {
                     {/* Personal Information */}
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <FormField label="Display Name">
+                                <Input
+                                    type="text"
+                                    name="fullName"
+                                    defaultValue={userDetails?.full_name ?? ''}
+                                    placeholder="Enter display name"
+                                    className="w-full h-9 sm:h-10"
+                                />
+                            </FormField>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormField label="First Name">
                                 <Input
                                     type="text"
@@ -333,7 +332,7 @@ export default function GeneralDetails(props: Props) {
 
 
                 {/* Privacy Settings Section */}
-                <Card className="p-6 shadow-sm">
+                {/* <Card className="p-6 shadow-sm">
                     <SectionHeader icon={<Lock size={24} />} title="Privacy Settings" />
                     <div className="space-y-4">
                         <Toggle
@@ -348,7 +347,7 @@ export default function GeneralDetails(props: Props) {
                             label="Hide my profile pictures"
                         />
                     </div>
-                </Card>
+                </Card> */}
 
                 {/* Profile Preferences Section */}
                 {userDetails?.member_type === 'Seeking Services' && (

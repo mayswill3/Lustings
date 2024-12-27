@@ -1,10 +1,12 @@
 // types/booking.ts
 
+// User Types
 export interface User {
   id: string;
   email?: string;
 }
 
+// Booking Types
 export interface Booking {
   id: string;
   user_id: string | null;
@@ -34,10 +36,11 @@ export interface Booking {
   recipient_email: string;
 }
 
-export type BookingStatus = 'pending' | 'accepted' | 'declined';
+export type BookingStatus = 'pending' | 'accepted' | 'declined' | 'completed';
 export type ViewFilter = 'all' | 'sent' | 'received';
 export type StatusFilter = 'all' | BookingStatus;
 
+// Component Props
 export interface BookingFiltersProps {
   viewFilter: ViewFilter;
   statusFilter: StatusFilter;
@@ -63,6 +66,15 @@ export interface BookingCardProps {
   handleEmailNotification: (booking: Booking, type: 'update') => Promise<void>;
 }
 
+export interface BookingActionsProps {
+  booking: Booking;
+  isSentBooking: boolean;
+  hasFeedback: boolean;
+  handleStatusChange: (id: string, status: BookingStatus) => Promise<void>;
+  onFeedback: () => void;
+}
+
+// Feedback Types
 export interface Feedback {
   id: string;
   booking_id: string;
@@ -86,16 +98,19 @@ export interface FeedbackModalProps {
   user: User;
 }
 
+// Badge Props
 export interface StatusBadgeProps {
   status: BookingStatus;
 }
 
+// Email Types
 export interface EmailNotification {
   recipientEmail: string;
   bookingDetails: Booking;
   type: 'new' | 'update';
 }
 
+// Hook Return Types
 export interface UseBookingsReturn {
   bookings: Booking[];
   loading: boolean;

@@ -63,22 +63,45 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         }
     };
 
-    useEffect(() => {
-        const fetchUserDetails = async () => {
-            const { data, error } = await supabase
+    const fetchUserDetailsAndAvailability = async () => {
+        try {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+
+            // First get user details
+            const userResponse = await supabase
                 .from('users')
                 .select('*')
                 .eq('full_name', full_name)
                 .single();
 
-            if (!error) {
-                setFetchedUserDetails(data);
-            }
-            setLoading(false);
-        };
+            if (userResponse.error) throw userResponse.error;
 
-        fetchUserDetails();
+            // Then get availability using the user's ID
+            const availabilityResponse = await supabase
+                .from('availability_status')
+                .select('*')
+                .eq('user_id', userResponse.data.id)
+                .eq('booking_date', today)
+                .gte('status_end', now.toISOString());
+
+            setFetchedUserDetails({
+                ...userResponse.data,
+                availability_status: availabilityResponse.data || []
+            });
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUserDetailsAndAvailability();
+        const interval = setInterval(fetchUserDetailsAndAvailability, 60000);
+        return () => clearInterval(interval);
     }, [full_name]);
+
 
     if (loading) {
         return (
@@ -123,7 +146,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         const date = new Date(createdAt);
         return date.toLocaleDateString('en-GB'); // formats as DD/MM/YYYY
     };
-
+    console.log(fetchedUserDetails)
     return (
 
         <DashboardLayout user={user} userDetails={userDetails} title="Profile Page" description="View user details">
@@ -140,6 +163,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                 showMobile={showMobile}
                                 setShowMobile={setShowMobile}
                                 calculateAge={calculateAge}
+                                availability={fetchedUserDetails?.availability_status}
                             />
                             <AboutSection
                                 userDetails={fetchedUserDetails}

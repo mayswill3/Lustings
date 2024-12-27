@@ -50,12 +50,12 @@ const DashboardLayout: React.FC<Props> = (props: Props) => {
     <UserContext.Provider value={props.user}>
       <UserDetailsContext.Provider value={props.userDetails}>
         <OpenContext.Provider value={{ open, setOpen }}>
-          <div className="flex h-full w-full flex-col dark:bg-zinc-950">
+          <div className="flex h-full w-full flex-col dark:bg-zinc-900">
             <Navbar brandText={getActiveRoute(routes, pathname)} />
             {/* Original Sidebar */}
             <Sidebar routes={routes} setOpen={setOpen} className />
-            <div className="h-full w-full dark:bg-zinc-950">
-              <main className={`mx-2.5 flex-none transition-all dark:bg-zinc-950 md:pr-2 xl:ml-[328px]`}>
+            <div className="h-full w-full dark:bg-zinc-900">
+              <main className={`mx-2.5 flex-none transition-all dark:bg-zinc-900 md:pr-2 xl:ml-[328px]`}>
                 <div className="mx-auto min-h-screen p-2 xl:!pt-[90px] md:p-2">
                   {props.children}
                 </div>

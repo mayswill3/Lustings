@@ -341,35 +341,35 @@ export default function EscortingOptions(props: Props) {
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr>
-                                        <th className="text-left px-2 py-1 font-medium">Duration</th>
+                                        <th className="text-left px-2 py-1 font-medium text-gray-900 dark:text-white">Duration</th>
                                         {timeSlots.map(({ id, label }) => (
-                                            <th key={id} className="px-2 py-1 font-medium">{label}</th>
+                                            <th key={id} className="px-2 py-1 font-medium text-gray-900 dark:text-white">{label}</th>
                                         ))}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td className="px-2 py-1">In-call</td>
+                                        <td className="px-2 py-1 text-gray-900 dark:text-white">In-call</td>
                                         {timeSlots.map(({ id }) => (
                                             <td key={id} className="px-1 py-1">
                                                 <Input
                                                     type="text"
                                                     value={rates.inCall[id]}
                                                     onChange={(e) => handleNumberInput(e, 'inCall', id)}
-                                                    className="w-16 h-8 text-sm"
+                                                    className="w-16 h-8 text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
                                                 />
                                             </td>
                                         ))}
                                     </tr>
                                     <tr>
-                                        <td className="px-2 py-1">Out-call</td>
+                                        <td className="px-2 py-1 text-gray-900 dark:text-white">Out-call</td>
                                         {timeSlots.map(({ id }) => (
                                             <td key={id} className="px-1 py-1">
                                                 <Input
                                                     type="text"
                                                     value={rates.outCall[id]}
                                                     onChange={(e) => handleNumberInput(e, 'outCall', id)}
-                                                    className="w-16 h-8 text-sm"
+                                                    className="w-16 h-8 text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
                                                 />
                                             </td>
                                         ))}
@@ -430,13 +430,13 @@ export default function EscortingOptions(props: Props) {
                             </div>
                         </div>
                     </CollapsibleSection>
-                    <CollapsibleSection
+                    {/* <CollapsibleSection
                         title="Featured Profile"
                         icon={<Star />} // Import Star from lucide-react
                         defaultOpen={false}
                     >
                         <FeaturedProfileList userId={userDetails?.id} />
-                    </CollapsibleSection>
+                    </CollapsibleSection> */}
 
                     {/* Save Buttons */}
                     <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mt-6">

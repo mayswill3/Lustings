@@ -130,8 +130,8 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
-            <Card className="p-6">
+        <div className="w-full space-y-8">
+            <Card className="p-4 sm:p-6">
                 <SectionHeader
                     icon={<Clock />}
                     title="Booking Details"
@@ -150,7 +150,7 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
                                     onChange={(e) => handleInputChange('duration', e.target.value)}
                                     required={!formData.overnight}
                                     disabled={formData.overnight}
-                                    className="appearance-none pl-10 bg-white dark:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full appearance-none pl-10 bg-white dark:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
                                     placeholder={formData.overnight ? "24 hours for overnight" : "Enter duration"}
                                 />
                                 <Clock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -168,7 +168,7 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
                                     value={formData.proposed_fee}
                                     onChange={(e) => handleInputChange('proposed_fee', e.target.value)}
                                     required
-                                    className="appearance-none pl-10 bg-white dark:bg-zinc-800"
+                                    className="w-full appearance-none pl-10 bg-white dark:bg-zinc-800"
                                 />
                                 <PoundSterling className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                             </div>

@@ -38,7 +38,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
 }) => {
     return (
         <div className="flex justify-end items-center gap-4">
-            <Button
+            {/* <Button
                 type="button"
                 variant="outline"
                 onClick={() => setShowAvailability(true)}
@@ -46,7 +46,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
             >
                 <Calendar className="mr-2 h-4 w-4" />
                 View Availability
-            </Button>
+            </Button> */}
             <Button
                 type="submit"
                 onClick={onSubmit}

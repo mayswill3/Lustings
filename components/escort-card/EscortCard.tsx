@@ -33,11 +33,10 @@ export function EscortCard({ escort, isAvailable, calculateAge }: EscortCardProp
                     </div>
                 </div>
 
-                {/* Fixed height content container */}
+                {/* Details container */}
                 <div className="p-2 h-28 flex flex-col justify-between">
-                    {/* Personal details with fixed height */}
                     <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-1 text-[14px]">
+                        <div className="flex items-center gap-1 text-[14px] text-gray-700 dark:text-gray-200">
                             {escort.personal_details?.dob && (
                                 <span>
                                     {calculateAge(escort.personal_details.dob)},
@@ -55,7 +54,7 @@ export function EscortCard({ escort, isAvailable, calculateAge }: EscortCardProp
                             )}
                         </div>
                         {escort.location && (
-                            <div className="flex items-center gap-1 text-[14px]">
+                            <div className="flex items-center gap-1 text-[14px] text-gray-700 dark:text-gray-200">
                                 <span>
                                     <span className="font-semibold capitalize">{escort.location.region || ''}</span>
                                     {escort.location.county && (
@@ -69,7 +68,7 @@ export function EscortCard({ escort, isAvailable, calculateAge }: EscortCardProp
                     {/* Summary with fixed height and ellipsis */}
                     {escort?.summary && (
                         <div className="h-12 overflow-hidden">
-                            <p className="text-[14px] line-clamp-2 capitalize">
+                            <p className="text-[14px] line-clamp-2 capitalize text-gray-600 dark:text-gray-300">
                                 {escort.summary}
                             </p>
                         </div>
