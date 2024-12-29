@@ -17,27 +17,6 @@ interface Props {
     userDetails: { [x: string]: any } | null;
 }
 
-
-// Component Types
-interface ToggleProps {
-    id?: string;
-    name?: string;
-    checked: boolean;
-    onCheckedChange: (checked: boolean) => void;
-}
-
-interface LabelProps {
-    htmlFor?: string;
-    children: React.ReactNode;
-}
-
-interface SelectProps {
-    value: string;
-    onValueChange: (value: string) => void;
-    children: React.ReactNode;
-    placeholder?: string;
-}
-
 // Main Component
 export default function EscortingOptions(props: Props) {
     const [isAvailable, setIsAvailable] = useState(false);
@@ -230,30 +209,6 @@ export default function EscortingOptions(props: Props) {
             </div>
         );
     }
-
-
-    const timeSlots = [
-        { id: '15mins', label: '15m' },
-        { id: '30mins', label: '30m' },
-        { id: '45mins', label: '45m' },
-        { id: '1hour', label: '1h' },
-        { id: '1.5hours', label: '1.5h' },
-        { id: '2hours', label: '2h' },
-        { id: '3hours', label: '3h' },
-        { id: '4hours', label: '4h' },
-        { id: 'overnight', label: 'O/N' },
-    ];
-
-    const handleNumberInput = (e: React.ChangeEvent<HTMLInputElement>, type: 'inCall' | 'outCall', timeSlot: string) => {
-        const value = e.target.value.replace(/[^0-9]/g, '');
-        setRates(prev => ({
-            ...prev,
-            [type]: {
-                ...prev[type],
-                [timeSlot]: value
-            }
-        }));
-    };
 
     return (
         <div className="max-w-full sm:max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
