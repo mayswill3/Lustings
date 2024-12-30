@@ -21,7 +21,9 @@ import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { Sun, Moon, HelpCircle, LogOut, Settings, CreditCard, X, Mail } from 'lucide-react';
+import { Sun, Moon, HelpCircle, LogOut, Settings, CreditCard, X, Mail, Coins, Plus } from 'lucide-react';
+import { CreditPurchaseDialog } from '@/components/credit-purchase/CreditPurchaseDialog';
+import { Button } from '@/components/ui/button';
 
 const supabase = createClient();
 
@@ -32,6 +34,8 @@ export default function HeaderLinks(props: { [x: string]: any }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [credits, setCredits] = useState({ regular: 0, trial: 0 });
+  const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState(false);
 
   // Refs for dropdown containers
   const helpRef = useRef<HTMLDivElement>(null);
@@ -51,6 +55,29 @@ export default function HeaderLinks(props: { [x: string]: any }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Fetch credits
+  useEffect(() => {
+    const fetchCredits = async () => {
+      if (user?.id) {
+        const { data, error } = await supabase
+          .from('users')
+          .select('credits, trial_credits')
+          .eq('id', user.id)
+          .single();
+
+        if (!error && data) {
+          setCredits({
+            regular: data.credits || 0,
+            trial: data.trial_credits || 0
+          });
+        }
+      }
+    };
+
+    fetchCredits();
+  }, [user]);
+
 
   const handleSignOut = async (e) => {
     e.preventDefault();
@@ -125,6 +152,36 @@ export default function HeaderLinks(props: { [x: string]: any }) {
     </button>
   );
 
+  const CreditsDisplay = ({ className = '', showPurchaseButton = false }) => (
+    <div className={`px-4 py-2 space-y-2 border-t border-gray-200 dark:border-zinc-700 ${className}`}>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+          <Coins className="h-4 w-4" />
+          Credits
+        </span>
+        <span className="font-medium text-gray-900 dark:text-white">{credits.regular}</span>
+      </div>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+          <CreditCard className="h-4 w-4" />
+          Trial Credits
+        </span>
+        <span className="font-medium text-gray-900 dark:text-white">{credits.trial}</span>
+      </div>
+      {showPurchaseButton && (
+        <Button
+          onClick={() => setIsPurchaseDialogOpen(true)}
+          className="w-full mt-2 flex items-center justify-center gap-2"
+          variant="outline"
+          size="sm"
+        >
+          <Plus className="h-4 w-4" />
+          Buy Credits
+        </Button>
+      )}
+    </div>
+  );
+
   const MobileMenu = () => (
     <div className="md:hidden">
       <MobileNav />
@@ -157,6 +214,10 @@ export default function HeaderLinks(props: { [x: string]: any }) {
                 </p>
               </div>
             </div>
+
+            {/* Credits Display with Purchase Button */}
+            <CreditsDisplay showPurchaseButton={true} />
+
             <div className="border-t border-gray-200 dark:border-zinc-700" />
 
             {/* Menu Items */}
@@ -240,6 +301,10 @@ export default function HeaderLinks(props: { [x: string]: any }) {
               {user?.email}
             </p>
           </div>
+
+          {/* Credits Display with Purchase Button */}
+          <CreditsDisplay showPurchaseButton={true} />
+
           <div className="py-2">
             <MenuItem
               icon={Settings}
@@ -264,6 +329,13 @@ export default function HeaderLinks(props: { [x: string]: any }) {
     <>
       <MobileMenu />
       <DesktopMenu />
+
+      {/* Credit Purchase Dialog */}
+      <CreditPurchaseDialog
+        isOpen={isPurchaseDialogOpen}
+        onClose={() => setIsPurchaseDialogOpen(false)}
+        userId={user?.id}
+      />
     </>
   );
 }

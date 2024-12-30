@@ -207,6 +207,51 @@ ALTER TABLE bookings
 ADD CONSTRAINT bookings_status_check 
 CHECK (status IN ('pending', 'accepted', 'declined', 'completed'));
 
+-- Create the stored procedure for adding credits
+create or replace function add_credits(user_id uuid, amount int)
+returns void
+language plpgsql
+security definer
+as $$
+begin
+  update users
+  set credits = credits + amount
+  where id = user_id;
+end;
+$$;
+
+-- Drop the existing function if it exists
+drop function if exists increment_credits;
+
+-- Create the increment_credits function
+create or replace function increment_credits(user_id uuid, increment_amount int)
+returns int
+language plpgsql
+as $$
+declare
+    current_credits int;
+begin
+    -- Get current credits
+    select COALESCE(credits, 0) into current_credits 
+    from users 
+    where id = user_id;
+
+    -- Return new credit amount
+    return current_credits + increment_amount;
+end;
+$$;
+
+create table verification (
+    id uuid references users(id) primary key,  -- Assuming you want to link it to the user's ID
+    files text[],  -- Store the URLs of uploaded files
+    is_british boolean,  -- Store British citizenship status
+    verification_number integer,  -- Store the verification number
+    verified boolean default false,  -- Track if the user is verified
+    images_submitted boolean default false,  -- Track if all images have been submitted
+    created_at timestamp with time zone default current_timestamp,
+    updated_at timestamp with time zone default current_timestamp
+);
+
 /**
 * CUSTOMERS
 * Note: this is a private table that contains a mapping of user IDs to Stripe customer IDs.

@@ -71,7 +71,12 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             // First get user details
             const userResponse = await supabase
                 .from('users')
-                .select('*')
+                .select(`
+                    *,
+                    verification (
+                        verified
+                    )
+                `)
                 .eq('full_name', full_name)
                 .single();
 
@@ -146,7 +151,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         const date = new Date(createdAt);
         return date.toLocaleDateString('en-GB'); // formats as DD/MM/YYYY
     };
-    console.log(fetchedUserDetails)
+
     return (
 
         <DashboardLayout user={user} userDetails={userDetails} title="Profile Page" description="View user details">
