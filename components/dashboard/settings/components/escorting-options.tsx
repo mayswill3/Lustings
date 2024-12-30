@@ -9,6 +9,7 @@ import { LocationPreferences } from './escorting-options/LocationPreferences';
 import { RatesConfiguration } from './escorting-options/RatesConfiguration';
 import { AvailabilityStatus } from './escorting-options/AvailabilityStatus';
 import { checkAvailability } from '@/utils/availability';
+import VerificationUploader from './escorting-options/verification-upload';
 
 const supabase = createClient();
 
@@ -234,6 +235,9 @@ export default function EscortingOptions(props: Props) {
                         availabilityLoading={availabilityLoading}
                         setAvailabilityLoading={setAvailabilityLoading}
                         userId={userDetails?.id}
+                    />
+                    <VerificationUploader
+                        user={user}
                     />
 
                     {/* Save Buttons */}

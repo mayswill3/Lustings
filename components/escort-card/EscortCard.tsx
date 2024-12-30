@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { CheckCircle } from 'lucide-react';
 
 interface EscortCardProps {
     escort: any;
@@ -14,17 +15,22 @@ export function EscortCard({ escort, isAvailable, calculateAge }: EscortCardProp
     return (
         <Link href={`/profile/${encodeURIComponent(escort.full_name)}`}>
             <Card className="overflow-hidden hover:shadow-lg transition-shadow !p-2 h-full">
-                {/* Fixed aspect ratio container */}
                 <div className="relative aspect-[3/4]">
                     <img
                         src={escort.profile_pictures?.[0] || '/placeholder-image.jpg'}
                         alt={escort.full_name}
                         className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-2 right-2">
+                    <div className="absolute top-2 right-2 flex flex-col gap-2">
                         {isAvailable && (
                             <Badge className="bg-green-500 text-white">
                                 Available Today
+                            </Badge>
+                        )}
+                        {escort.verification?.verified && (
+                            <Badge className="bg-blue-500 text-white flex items-center gap-1">
+                                <CheckCircle className="w-4 h-4" />
+                                Verified
                             </Badge>
                         )}
                     </div>
@@ -33,7 +39,6 @@ export function EscortCard({ escort, isAvailable, calculateAge }: EscortCardProp
                     </div>
                 </div>
 
-                {/* Details container */}
                 <div className="p-2 h-28 flex flex-col justify-between">
                     <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-1 text-[14px] text-gray-700 dark:text-gray-200">
@@ -65,7 +70,6 @@ export function EscortCard({ escort, isAvailable, calculateAge }: EscortCardProp
                         )}
                     </div>
 
-                    {/* Summary with fixed height and ellipsis */}
                     {escort?.summary && (
                         <div className="h-12 overflow-hidden">
                             <p className="text-[14px] line-clamp-2 capitalize text-gray-600 dark:text-gray-300">

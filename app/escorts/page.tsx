@@ -101,8 +101,15 @@ export default function EscortGrid() {
 
                 const { data: escortData } = await supabase
                     .from('users')
-                    .select('*')
+                    .select(`
+                        *,
+                        verification!left(
+                            verified,
+                            id
+                        )
+                    `)
                     .eq('member_type', 'Offering Services');
+
 
                 setEscorts(escortData || []);
                 setAvailableEscorts(new Set(availableIds?.map(a => a.user_id) || []));
@@ -259,7 +266,9 @@ export default function EscortGrid() {
                         {filteredEscorts.map((escort) => (
                             <EscortCard
                                 key={escort.id}
-                                escort={escort}
+                                escort={{
+                                    ...escort,
+                                }}
                                 isAvailable={availableEscorts.has(escort.id)}
                                 calculateAge={calculateAge}
                             />

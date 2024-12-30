@@ -212,7 +212,13 @@ export default function AvailableEscorts() {
 
             const { data, error } = await supabase
                 .from('users')
-                .select('*')
+                .select(`
+                    *,
+                    verification!left(
+                        verified,
+                        id
+                    )
+                `)
                 .in('id', availableIds.map(a => a.user_id));
 
             if (error) throw error;

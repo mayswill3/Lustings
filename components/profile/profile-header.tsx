@@ -1,6 +1,7 @@
 // components/profile/profile-header.tsx
-import { Phone, MapPin, Calendar, User2, Heart } from 'lucide-react';
+import { Phone, MapPin, Calendar, User2, Heart, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface ProfileHeaderProps {
     userDetails: any;
@@ -47,6 +48,12 @@ export const ProfileHeader = ({ userDetails, showMobile, setShowMobile, calculat
                     <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
                         {userDetails.full_name}
                     </h1>
+                    {userDetails.verification?.verified && (
+                        <Badge className="bg-blue-500 text-white">
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            Verified
+                        </Badge>
+                    )}
                     {isAvailable && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                             <span className="w-2 h-2 mr-1.5 bg-green-400 rounded-full"></span>

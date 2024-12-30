@@ -233,7 +233,13 @@ export default function FilteredEscortPage() {
             // Fetch all escorts
             const { data: escortData, error: escortError } = await supabase
                 .from('users')
-                .select('*')
+                .select(`
+                    *,
+                    verification!left(
+                        verified,
+                        id
+                    )
+                `)
                 .eq('member_type', 'Offering Services');
 
             if (escortError) throw escortError;
