@@ -28,7 +28,7 @@ export default function DefaultAuthLayout(props: DefaultAuthLayoutProps) {
           </div>
         </a>
         {children}
-        <div className="absolute right-0 hidden h-full min-h-[100vh] xl:block xl:w-[50vw] 2xl:w-[44vw]">
+        {/* <div className="absolute right-0 hidden h-full min-h-[100vh] xl:block xl:w-[50vw] 2xl:w-[44vw]">
           <div className="absolute flex h-full w-full flex-col items-end justify-center bg-zinc-950 dark:bg-zinc-900">
             <div
               className={`mb-[160px] mt-8 flex w-full items-center justify-center `}
@@ -52,7 +52,7 @@ export default function DefaultAuthLayout(props: DefaultAuthLayoutProps) {
               </h5>
             </div>
           </div>
-        </div>
+        </div> */}
         <Footer />
       </div>
       {/* <Button

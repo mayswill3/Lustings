@@ -101,18 +101,18 @@ export default function HeaderLinks(props: { [x: string]: any }) {
 
   const MobileNav = () => (
     <div className="flex items-center space-x-4">
-      <button
-        onClick={() => router.push('/bookings')}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 
-                 rounded-full transition-colors duration-200"
-      >
-        <Mail className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-      </button>
+      {user && (
+        <button
+          onClick={() => router.push('/bookings')}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 rounded-full transition-colors duration-200"
+        >
+          <Mail className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+        </button>
+      )}
 
       <button
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 
-                 rounded-full transition-colors duration-200"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 rounded-full transition-colors duration-200"
       >
         {theme === 'light' ? (
           <Moon className="h-5 w-5 text-gray-600" />
@@ -121,22 +121,31 @@ export default function HeaderLinks(props: { [x: string]: any }) {
         )}
       </button>
 
-      <button
-        onClick={() => setIsDrawerOpen(true)}
-        className="flex items-center space-x-3 cursor-pointer"
-      >
-        <Avatar>
-          <AvatarFallback className="text-sm font-semibold 
-                                   bg-blue-100 dark:bg-blue-900 
-                                   text-blue-600 dark:text-blue-400">
-            {user?.user_metadata.full_name
-              ? user.user_metadata.full_name[0]
-              : user?.email[0].toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-      </button>
+      {user ? (
+        <button
+          onClick={() => setIsDrawerOpen(true)}
+          className="flex items-center space-x-3 cursor-pointer"
+        >
+          <Avatar>
+            <AvatarFallback className="text-sm font-semibold bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+              {user?.user_metadata.full_name
+                ? user.user_metadata.full_name[0]
+                : user?.email[0].toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </button>
+      ) : (
+        <Button
+          onClick={() => router.push('/dashboard/signin/password_signin')}
+          variant="ghost"
+          size="sm"
+        >
+          Sign in
+        </Button>
+      )}
     </div>
   );
+
 
   const DrawerMenuItem = ({ icon: Icon, children, onClick, variant }) => (
     <button
@@ -172,7 +181,7 @@ export default function HeaderLinks(props: { [x: string]: any }) {
         <Button
           onClick={() => setIsPurchaseDialogOpen(true)}
           className="w-full mt-2 flex items-center justify-center gap-2"
-          variant="outline"
+          variant="default"
           size="sm"
         >
           <Plus className="h-4 w-4" />
@@ -250,18 +259,18 @@ export default function HeaderLinks(props: { [x: string]: any }) {
 
   const DesktopMenu = () => (
     <div className="hidden md:flex items-center space-x-4">
-      <button
-        onClick={() => router.push('/bookings')}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 
-                 rounded-full transition-colors duration-200"
-      >
-        <Mail className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-      </button>
+      {user && (
+        <button
+          onClick={() => router.push('/bookings')}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 rounded-full transition-colors duration-200"
+        >
+          <Mail className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+        </button>
+      )}
 
       <button
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 
-                 rounded-full transition-colors duration-200"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 rounded-full transition-colors duration-200"
       >
         {theme === 'light' ? (
           <Moon className="h-5 w-5 text-gray-600" />
@@ -270,58 +279,69 @@ export default function HeaderLinks(props: { [x: string]: any }) {
         )}
       </button>
 
-      <DropdownMenu className="relative" ref={userRef}>
-        <DropdownMenuTrigger
-          onClick={() => {
-            setIsUserMenuOpen(!isUserMenuOpen);
-            setIsHelpOpen(false);
-          }}
-          className="flex items-center space-x-3 cursor-pointer"
-        >
-          <Avatar>
-            <AvatarFallback className="text-sm font-semibold 
+      {user ? (
+
+        <DropdownMenu className="relative" ref={userRef}>
+          <DropdownMenuTrigger
+            onClick={() => {
+              setIsUserMenuOpen(!isUserMenuOpen);
+              setIsHelpOpen(false);
+            }}
+            className="flex items-center space-x-3 cursor-pointer"
+          >
+            <Avatar>
+              <AvatarFallback className="text-sm font-semibold 
                                      bg-blue-100 dark:bg-blue-900 
                                      text-blue-600 dark:text-blue-400">
-              {user?.user_metadata.full_name
-                ? user.user_metadata.full_name[0]
-                : user?.email[0].toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          isOpen={isUserMenuOpen}
-          className="w-56 right-0 z-50 bg-white dark:bg-zinc-900 
+                {user?.user_metadata.full_name
+                  ? user.user_metadata.full_name[0]
+                  : user?.email[0].toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            isOpen={isUserMenuOpen}
+            className="w-56 right-0 z-50 bg-white dark:bg-zinc-900 
                     border border-gray-200 dark:border-zinc-700"
+          >
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-zinc-700">
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {user?.user_metadata.full_name || user?.email}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                {user?.email}
+              </p>
+            </div>
+
+            {/* Credits Display with Purchase Button */}
+            <CreditsDisplay showPurchaseButton={true} />
+
+            <div className="py-2">
+              <MenuItem
+                icon={Settings}
+                onClick={() => router.push('/dashboard/settings')}
+              >
+                Settings
+              </MenuItem>
+              <MenuItem
+                icon={LogOut}
+                onClick={handleSignOut}
+                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+              >
+                Sign out
+              </MenuItem>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Button
+          onClick={() => router.push('/dashboard/signin/password_signin')}
+          variant="ghost"
+          size="sm"
         >
-          <div className="px-4 py-3 border-b border-gray-200 dark:border-zinc-700">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">
-              {user?.user_metadata.full_name || user?.email}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-              {user?.email}
-            </p>
-          </div>
-
-          {/* Credits Display with Purchase Button */}
-          <CreditsDisplay showPurchaseButton={true} />
-
-          <div className="py-2">
-            <MenuItem
-              icon={Settings}
-              onClick={() => router.push('/dashboard/settings')}
-            >
-              Settings
-            </MenuItem>
-            <MenuItem
-              icon={LogOut}
-              onClick={handleSignOut}
-              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-            >
-              Sign out
-            </MenuItem>
-          </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          Sign in
+        </Button>
+      )}
     </div>
   );
 

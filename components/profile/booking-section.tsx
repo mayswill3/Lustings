@@ -8,6 +8,8 @@ import { FormActions } from './booking-section/FormActions';
 import { AvailabilityModal } from './booking-section/AvailabilityModal';
 import { createClient } from '@/utils/supabase/client';
 import { CalendarRange } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 const supabase = createClient();
 
@@ -17,6 +19,31 @@ interface BookingFormProps {
 }
 
 const BookingForm: React.FC<BookingFormProps> = ({ userDetails, user }) => {
+    const router = useRouter();
+
+    if (!user) {
+        return (
+            <Card>
+                <CardContent className="flex flex-col items-center justify-center p-12">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                        Sign in Required
+                    </h2>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6 text-center">
+                        You need to be signed in to make a booking
+                    </p>
+                    <Button
+                        onClick={() => {
+                            // Store current page URL in localStorage
+                            localStorage.setItem('redirectAfterSignIn', window.location.pathname);
+                            router.push('/dashboard/signin/password_signin');
+                        }}
+                    >
+                        Sign in to Book
+                    </Button>
+                </CardContent>
+            </Card>
+        );
+    }
     const [formData, setFormData] = React.useState({
         nickname: '',
         first_name: '',

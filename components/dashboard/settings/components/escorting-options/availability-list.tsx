@@ -193,35 +193,37 @@ export function AvailabilityList({ userId }: DateListProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <h3 className="font-semibold text-gray-900 dark:text-white">Select Days:</h3>
-        <Button
-          variant="link"
-          onClick={handleSelectAll}
-          disabled={loading}
-          className="text-purple-600 hover:text-purple-700"
-        >
-          Select All
-        </Button>
-        <Button
-          variant="link"
-          onClick={handleSelectNone}
-          disabled={loading}
-          className="text-purple-600 hover:text-purple-700"
-        >
-          Select None
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button
+            variant="secondary"
+            onClick={handleSelectAll}
+            disabled={loading}
+            className="text-purple-600 hover:text-purple-700 flex-1 sm:flex-none"
+          >
+            Select All
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleSelectNone}
+            disabled={loading}
+            className="text-purple-600 hover:text-purple-700 flex-1 sm:flex-none"
+          >
+            Select None
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
         {dates.map(({ formatted, key }) => (
-          <div key={key}>
+          <div key={key} className="flex justify-between items-center pb-2">
+            <span className="text-sm">{formatted}</span>
             <Toggle
               name={key}
               checked={pendingDates.includes(key)}
               onCheckedChange={(checked) => handleDateToggle(key, checked)}
               disabled={loading}
-              label={formatted}
             />
           </div>
         ))}

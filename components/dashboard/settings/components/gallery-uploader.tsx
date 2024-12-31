@@ -179,7 +179,7 @@ export default function GalleryUploader(props: Props) {
                 </div>
                 <Button
                     onClick={() => addImageSlot(type)}
-                    variant="outline"
+                    variant="default"
                     size="sm"
                     className="flex items-center gap-2"
                 >

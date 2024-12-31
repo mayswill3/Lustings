@@ -73,7 +73,7 @@ export const ProfileHeader = ({ userDetails, showMobile, setShowMobile, calculat
                         ) : (
                             <Button
                                 onClick={() => setShowMobile(true)}
-                                variant="outline"
+                                variant="secondary"
                                 className="w-full lg:w-auto flex items-center justify-center gap-2"
                             >
                                 <Phone className="w-4 h-4" />

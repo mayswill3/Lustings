@@ -212,7 +212,7 @@ export default function EscortingOptions(props: Props) {
     }
 
     return (
-        <div className="max-w-full sm:max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+        <div className="max-w-full sm:max-w-5xl mx-auto p-2 sm:p-6 space-y-6">
             <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                     <LocationPreferences

@@ -55,13 +55,37 @@ export const RatesConfiguration: React.FC<RatesConfigurationProps> = ({
         }));
     };
 
+    const RateCard = ({ type, rates }: { type: 'inCall' | 'outCall', rates: RateType }) => (
+        <div className="bg-white dark:bg-zinc-800 rounded-lg p-4 mb-4">
+            <h3 className="font-medium mb-3">{type === 'inCall' ? 'In-call' : 'Out-call'}</h3>
+            <div className="grid grid-cols-2 gap-4">
+                {timeSlots.map(({ id, label }) => (
+                    <div key={id} className="flex items-center">
+                        <span className="text-sm flex-1">{label}</span>
+                        <Input
+                            type="text"
+                            value={rates[id]}
+                            onChange={(e) => handleNumberInput(e, type, id)}
+                            className="w-20 h-8 text-sm"
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
     return (
         <CollapsibleSection
             title="Rate Configuration"
             icon={<Clock />}
             defaultOpen={false}
         >
-            <div className="overflow-x-auto">
+            {/* Mobile View */}
+            <div className="sm:hidden">
+                <RateCard type="inCall" rates={rates.inCall} />
+                <RateCard type="outCall" rates={rates.outCall} />
+            </div>
+            {/* Desktop View */}
+            <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>
                         <tr>
