@@ -43,7 +43,7 @@ const TabButton = ({ active, onClick, icon, label }: TabButtonProps) => (
 
 export default function Settings(props: Props) {
   const [activeTab, setActiveTab] = useState('general');
- 
+
   // Base tabs that are always shown
   const baseTabs = [
     {
@@ -124,19 +124,37 @@ export default function Settings(props: Props) {
             {/* Main Content */}
             <Card className="overflow-hidden bg-white dark:bg-zinc-800 shadow-sm">
               {/* Tabs Navigation */}
-              <div className="border-b border-gray-200 dark:border-zinc-700">
-                <div className="flex overflow-x-auto scrollbar-hide -mb-px">
-                  {tabs.map((tab) => (
-                    <TabButton
-                      key={tab.id}
-                      active={activeTab === tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      icon={tab.icon}
-                      label={tab.label}
-                    />
-                  ))}
+              <>
+                {/* Mobile Select */}
+                <div className="sm:hidden border-b border-gray-200 dark:border-zinc-700 p-2">
+                  <select
+                    value={activeTab}
+                    onChange={(e) => setActiveTab(e.target.value)}
+                    className="w-full p-2 bg-white dark:bg-zinc-800 rounded border border-gray-200 dark:border-zinc-700"
+                  >
+                    {tabs.map((tab) => (
+                      <option key={tab.id} value={tab.id}>
+                        {tab.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
+
+                {/* Desktop Tabs */}
+                <div className="hidden sm:block border-b border-gray-200 dark:border-zinc-700">
+                  <div className="flex overflow-x-auto scrollbar-hide -mb-px">
+                    {tabs.map((tab) => (
+                      <TabButton
+                        key={tab.id}
+                        active={activeTab === tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        icon={tab.icon}
+                        label={tab.label}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </>
 
 
               {/* Tab Content */}

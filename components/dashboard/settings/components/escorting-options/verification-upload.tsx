@@ -280,7 +280,7 @@ const VerificationUploader = ({ user }: Props) => {
                 <div className="mt-8 flex justify-center">
                     <Button
                         onClick={handleSubmit}
-                        className="w-full sm:w-auto px-8 py-3 rounded-lg"
+                        variant='default'
                         disabled={isSubmitting || uploadedFiles.every((url) => url === null)}
                     >
                         {isSubmitting ? 'Saving...' : 'Submit Verification'}

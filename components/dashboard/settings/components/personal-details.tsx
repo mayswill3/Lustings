@@ -253,15 +253,16 @@ export default function PersonalDetails() {
                     />
                     <div className="relative">
                         <div className="max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 scrollbar-track-transparent">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
                                 {ACTIVITIES.map((activity) => (
-                                    <Toggle
-                                        key={activity}
-                                        name="activities"
-                                        label={activity}
-                                        checked={activities.includes(activity)}
-                                        onCheckedChange={() => toggleActivity(activity)}
-                                    />
+                                    <div key={activity} className="flex justify-between items-center  pb-2">
+                                        <span className="text-sm">{activity}</span>
+                                        <Toggle
+                                            name="activities"
+                                            checked={activities.includes(activity)}
+                                            onCheckedChange={() => toggleActivity(activity)}
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         </div>

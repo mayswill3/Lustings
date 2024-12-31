@@ -52,9 +52,8 @@ const BookingCard = ({ booking, user, handleStatusChange }: BookingCardProps) =>
 
         return (
             <Button
-                variant="outline"
+                variant="default"
                 onClick={() => setShowFeedbackModal(true)}
-                className="bg-blue-50 text-blue-700 hover:bg-blue-100"
             >
                 {isSentBooking ? "Rate Your Experience" : "Rate This Meeting"}
             </Button>
@@ -145,16 +144,19 @@ const BookingCard = ({ booking, user, handleStatusChange }: BookingCardProps) =>
                     {!isSentBooking && booking.status === 'pending' && (
                         <>
                             <Button
-                                variant="outline"
+                                variant="destructive"
+                                size='lg'
                                 onClick={() => handleStatusChange(booking.id, 'declined')}
-                                className="text-red-600 border-red-200 hover:bg-red-50"
+                                className="flex items-center"
                             >
                                 <XCircle className="mr-2 h-4 w-4" />
                                 Decline
                             </Button>
                             <Button
+                                variant="secondary"
+                                size='lg'
                                 onClick={() => handleStatusChange(booking.id, 'accepted')}
-                                className="bg-green-600 text-white hover:bg-green-700"
+                                className="flex items-center"
                             >
                                 <CheckCircle className="mr-2 h-4 w-4" />
                                 Accept

@@ -172,7 +172,7 @@ export default function HeaderLinks(props: { [x: string]: any }) {
         <Button
           onClick={() => setIsPurchaseDialogOpen(true)}
           className="w-full mt-2 flex items-center justify-center gap-2"
-          variant="outline"
+          variant="default"
           size="sm"
         >
           <Plus className="h-4 w-4" />
