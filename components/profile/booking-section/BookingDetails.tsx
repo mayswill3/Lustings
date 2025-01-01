@@ -8,21 +8,28 @@ import { Clock, MapPin, PoundSterling } from 'lucide-react';
 import Toggle from '@/components/ui/toggle';
 
 interface FormData {
+    nickname: string;
+    first_name: string;
+    last_name: string;
+    contact_number: string;
+    contact_date: string;
+    time_start: string;
+    time_end: string;
     duration: string;
-    proposed_fee: string;
     overnight: boolean;
-    meeting_type: 'in-call' | 'out-call';
+    meeting_type: 'in-call' | 'out-call' | string; // Add string to accept both
+    proposed_fee: string;
     address1: string;
     address2: string;
     town: string;
     county: string;
     post_code: string;
-    [key: string]: any;
+    comments: string;
 }
 
 interface BookingDetailsProps {
     formData: FormData;
-    setFormData: (data: FormData) => void;
+    setFormData: React.Dispatch<React.SetStateAction<FormData>>;
 }
 
 const SectionHeader = ({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle?: string }) => (
@@ -116,7 +123,22 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
     setFormData
 }) => {
     const handleInputChange = (field: keyof FormData, value: any) => {
-        if (field === 'overnight') {
+        if (field === 'proposed_fee') {
+            // Ensure proposed fee is not negative
+            const numericValue = Math.max(0, Number(value) || 0);
+            setFormData({
+                ...formData,
+                [field]: numericValue.toString()
+            });
+        }
+        if (field === 'duration') {
+            // Ensure duration is at least 1 and not negative
+            const numericValue = Math.max(0, Number(value) || 0);
+            setFormData({
+                ...formData,
+                [field]: numericValue.toString()
+            });
+        } else if (field === 'overnight') {
             // If overnight is being turned on, set duration to 24
             // If overnight is being turned off, reset duration to empty string
             setFormData({
@@ -145,7 +167,6 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
                             <div className="relative">
                                 <Input
                                     type="number"
-                                    min="1"
                                     value={formData.duration}
                                     onChange={(e) => handleInputChange('duration', e.target.value)}
                                     required={!formData.overnight}
@@ -164,7 +185,6 @@ export const BookingDetails: React.FC<BookingDetailsProps> = ({
                             <div className="relative">
                                 <Input
                                     type="number"
-                                    min="0"
                                     value={formData.proposed_fee}
                                     onChange={(e) => handleInputChange('proposed_fee', e.target.value)}
                                     required

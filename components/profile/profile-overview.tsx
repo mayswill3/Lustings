@@ -21,6 +21,11 @@ interface ProfileOverviewProps {
             with?: string[];
             activities?: string[];
         };
+        faqs?: {
+            id: string;
+            question: string;
+            answer: string;
+        }[];
     };
 }
 
