@@ -8,11 +8,16 @@ import type { ToastActionElement, ToastProps } from '@/components/ui/toast';
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
 
-type ToasterToast = ToastProps & {
+type ToasterToast = typeof ToastProps & {
   id: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
-  action?: ToastActionElement;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 const actionTypes = {

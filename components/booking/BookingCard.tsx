@@ -70,7 +70,7 @@ const BookingCard = ({ booking, user, handleStatusChange }: BookingCardProps) =>
                                 {booking.first_name} {booking.last_name}
                             </h3>
                             <Badge
-                                variant={isSentBooking ? "secondary" : "outline"}
+                                variant={isSentBooking ? "secondary" : "primary"}
                                 className="flex items-center gap-1"
                             >
                                 {isSentBooking ? (
@@ -79,7 +79,7 @@ const BookingCard = ({ booking, user, handleStatusChange }: BookingCardProps) =>
                                     <><ArrowDownLeft className="h-3 w-3" /> Received</>
                                 )}
                             </Badge>
-                            <Badge variant="outline" className="text-sm">
+                            <Badge variant="primary" className="text-sm">
                                 <Link
                                     href={`/profile/${encodeURIComponent(
                                         isSentBooking ? booking.recipient_nickname : booking.nickname

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
@@ -28,8 +28,10 @@ export default function EscortingOptions(props: Props) {
         canAccommodate: false,
         willTravel: false,
     });
-    const [user, setUser] = useState<{ id: string } | null>(null);
+    const [user, setUser] = useState<User | null>();
+
     const [userDetails, setUserDetails] = useState<{
+        id: string;
         preferences?: {
             escorting?: {
                 locationInfo?: {
@@ -157,7 +159,7 @@ export default function EscortingOptions(props: Props) {
     }, []);
 
     // Update handleSubmit to ensure rates are properly structured
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: Event | FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
 

@@ -137,7 +137,7 @@ export default function HeaderLinks(props: { [x: string]: any }) {
       ) : (
         <Button
           onClick={() => router.push('/dashboard/signin/password_signin')}
-          variant="ghost"
+          variant="default"
           size="sm"
         >
           Sign in
@@ -234,12 +234,14 @@ export default function HeaderLinks(props: { [x: string]: any }) {
               <DrawerMenuItem
                 icon={Mail}
                 onClick={() => router.push('/bookings')}
+                variant="default"
               >
                 Bookings
               </DrawerMenuItem>
               <DrawerMenuItem
                 icon={Settings}
                 onClick={() => router.push('/dashboard/settings')}
+                variant="default"
               >
                 Settings
               </DrawerMenuItem>
@@ -281,7 +283,7 @@ export default function HeaderLinks(props: { [x: string]: any }) {
 
       {user ? (
 
-        <DropdownMenu className="relative" ref={userRef}>
+        <DropdownMenu className="relative">
           <DropdownMenuTrigger
             onClick={() => {
               setIsUserMenuOpen(!isUserMenuOpen);
@@ -336,7 +338,7 @@ export default function HeaderLinks(props: { [x: string]: any }) {
       ) : (
         <Button
           onClick={() => router.push('/dashboard/signin/password_signin')}
-          variant="ghost"
+          variant="default"
           size="sm"
         >
           Sign in

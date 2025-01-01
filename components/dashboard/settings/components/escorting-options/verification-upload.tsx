@@ -19,7 +19,7 @@ const VerificationUploader = ({ user }: Props) => {
     const [isBritish, setIsBritish] = useState(false);
     const [randomNumber] = useState(() => Math.floor(1000 + Math.random() * 9000));
     const [verificationStatus, setVerificationStatus] = useState<'not_verified' | 'submitted' | 'verified'>('not_verified');
-    const inputRefs = useRef<HTMLInputElement[]>([]);
+    const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const verificationCategories = [
         {
@@ -227,7 +227,11 @@ const VerificationUploader = ({ user }: Props) => {
 
                                     <input
                                         type="file"
-                                        ref={(el) => (inputRefs.current[index] = el!)}
+                                        ref={(el) => {
+                                            if (inputRefs.current) {
+                                                inputRefs.current[index] = el;
+                                            }
+                                        }}
                                         accept="image/*,.pdf"
                                         className="hidden"
                                         id={`file-input-${index}`}

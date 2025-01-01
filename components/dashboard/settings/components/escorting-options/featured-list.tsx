@@ -137,7 +137,6 @@ export function FeaturedProfileList({ userId }: FeaturedProfileListProps) {
                 <h3 className="font-semibold">Select dates to feature your profile:</h3>
                 <div className="flex gap-4">
                     <Button
-                        variant="link"
                         onClick={handleSelectAll}
                         disabled={loading}
                         className="text-purple-600 hover:text-purple-700"
@@ -145,7 +144,6 @@ export function FeaturedProfileList({ userId }: FeaturedProfileListProps) {
                         Select All
                     </Button>
                     <Button
-                        variant="link"
                         onClick={handleSelectNone}
                         disabled={loading}
                         className="text-purple-600 hover:text-purple-700"

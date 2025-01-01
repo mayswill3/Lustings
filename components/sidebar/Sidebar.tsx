@@ -4,8 +4,11 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { Users, Star, MapPin, Calendar, Phone } from 'lucide-react';
+import { IRoute } from '@/types/types';
 
 interface SidebarProps {
+  routes: IRoute[];
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   variant?: string;
 }
 
@@ -40,8 +43,8 @@ function Sidebar(props: SidebarProps) {
       >
         <Icon
           className={`h-5 w-5 ${isActive
-              ? 'text-purple-700 dark:text-purple-300'
-              : 'text-gray-400 dark:text-gray-500'
+            ? 'text-purple-700 dark:text-purple-300'
+            : 'text-gray-400 dark:text-gray-500'
             }`}
         />
         <span className="text-base font-medium">{name}</span>

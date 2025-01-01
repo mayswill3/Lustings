@@ -15,12 +15,16 @@ interface FormData {
     contact_date: string;
     time_start: string;
     time_end: string;
-    [key: string]: any;
+    duration: string;
+    overnight: boolean;
+    meeting_type: string;
+    proposed_fee: string;
+    comments: string;
 }
 
 interface PersonalDetailsProps {
     formData: FormData;
-    setFormData: (data: FormData) => void;
+    setFormData: React.Dispatch<React.SetStateAction<FormData>>;
     timeSlots: string[];
     user: any;
 }

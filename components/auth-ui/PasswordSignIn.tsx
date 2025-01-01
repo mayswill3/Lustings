@@ -44,9 +44,7 @@ export default function PasswordSignIn({
               placeholder="name@example.com"
               type="email"
               name="email"
-              autoCapitalize="none"
               autoComplete="email"
-              autoCorrect="off"
             />
             <label
               className="text-zinc-950 mt-2 dark:text-white"

@@ -13,12 +13,18 @@ interface Props {
     userDetails: { profile_pictures?: (string | null)[] } | null;
 }
 
+interface GallerySectionProps {
+    type: 'free' | 'private';
+    images: (string | null)[];
+    inputRefs: React.MutableRefObject<(HTMLInputElement | null)[]>;
+}
+
 export default function GalleryUploader(props: Props) {
     const [freeGallery, setFreeGallery] = useState<(string | null)[]>([]);
     const [privateGallery, setPrivateGallery] = useState<(string | null)[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const freeInputRefs = useRef<HTMLInputElement[]>([]);
-    const privateInputRefs = useRef<HTMLInputElement[]>([]);
+    const freeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+    const privateInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     useEffect(() => {
         const fetchGalleries = async () => {
@@ -214,7 +220,11 @@ export default function GalleryUploader(props: Props) {
                             <>
                                 <input
                                     type="file"
-                                    ref={(el) => (inputRefs.current[index] = el!)}
+                                    ref={(el) => {
+                                        if (inputRefs.current) {
+                                            inputRefs.current[index] = el;
+                                        }
+                                    }}
                                     accept="image/*"
                                     className="hidden"
                                     id={`${type}-file-input-${index}`}

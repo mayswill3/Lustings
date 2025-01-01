@@ -343,7 +343,7 @@ export default function FilteredEscortPage() {
                                         <div className="flex items-center gap-2">
                                             <MapPin className="h-4 w-4 text-purple-500" />
                                             <span className="font-medium">{regionName}</span>
-                                            <Badge variant="outline" className="ml-2">
+                                            <Badge variant="primary" className="ml-2">
                                                 {escortsInRegion.length}
                                             </Badge>
                                         </div>
@@ -371,7 +371,7 @@ export default function FilteredEscortPage() {
                                                             }`}
                                                     >
                                                         <span>{county}</span>
-                                                        <Badge variant="outline" className="bg-gray-50">
+                                                        <Badge variant="primary" className="bg-gray-50">
                                                             {countyCount}
                                                         </Badge>
                                                     </button>

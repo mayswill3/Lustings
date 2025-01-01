@@ -98,11 +98,12 @@ export interface UserDetails {
       };
     };
   };
-  availability?: {
+  availability_status?: Array<{
+    user_id: string;
     status_start: string;
     status_end: string;
     booking_date: string;
-  }[];
+  }>;
 }
 
 export interface ProfilePageProps {

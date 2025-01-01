@@ -3,13 +3,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { FormSection } from './FormSection';
 
 interface FormData {
+    nickname: string;
+    first_name: string;
+    last_name: string;
+    contact_number: string;
+    contact_date: string;
+    time_start: string;
+    time_end: string;
+    duration: string;
+    overnight: boolean;
+    meeting_type: string;
     comments: string;
-    [key: string]: any;
+    // Add any other properties from your full form data
 }
 
 interface CommentsProps {
     formData: FormData;
-    setFormData: (data: FormData) => void;
+    setFormData: React.Dispatch<React.SetStateAction<FormData>>;
 }
 
 export const Comments: React.FC<CommentsProps> = ({

@@ -200,7 +200,7 @@ export default function FAQDetails() {
                                     <div className="flex gap-2 mt-2 sm:mt-0">
                                         <Button
                                             type="button"
-                                            variant="ghost"
+                                            variant="default"
                                             size="sm"
                                             onClick={() => setEditingFaq(faq)}
                                         >
@@ -208,7 +208,7 @@ export default function FAQDetails() {
                                         </Button>
                                         <Button
                                             type="button"
-                                            variant="ghost"
+                                            variant="default"
                                             size="sm"
                                             onClick={() => deleteFaq(faq.id)}
                                         >

@@ -14,7 +14,58 @@ const formatDuration = (key: string) => {
         .replace(/\b\w/g, c => c.toUpperCase());
 };
 
-export const RatesSection = ({ userDetails }) => {
+interface RateTableProps {
+    title: string;
+    rates?: Record<string, string | number>;
+}
+
+const RateTable: React.FC<RateTableProps> = ({ title, rates }) => {
+    const sortedRates = Object.entries(rates || {})
+        .filter(([_, value]) => value !== '')
+        .sort(([durationA], [durationB]) => {
+            const timeA = timeToMinutes(durationA);
+            const timeB = timeToMinutes(durationB);
+            return timeA - timeB;
+        });
+
+    return (
+        <div>
+            <h3 className="text-md font-semibold mb-3 text-gray-700 dark:text-gray-300">{title}</h3>
+            <div className="grid grid-cols-3 md:grid-cols-9 gap-2">
+                {sortedRates.map(([duration, rate]) => (
+                    <div
+                        key={duration}
+                        className="bg-gray-100 dark:bg-zinc-800 rounded-md p-2 text-center"
+                    >
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1 capitalize">
+                            {formatDuration(duration)}
+                        </div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {String(rate)}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+interface UserDetailsProps {
+    preferences?: {
+        escorting?: {
+            locationInfo?: {
+                willTravel?: boolean;
+                canAccommodate?: boolean;
+            };
+            rates?: {
+                inCall?: Record<string, string | number>;
+                outCall?: Record<string, string | number>;
+            };
+        };
+    };
+}
+
+export const RatesSection: React.FC<{ userDetails: UserDetailsProps }> = ({ userDetails }) => {
     if (!userDetails.preferences?.escorting?.locationInfo?.willTravel &&
         !userDetails.preferences?.escorting?.locationInfo?.canAccommodate) {
         return null;
@@ -44,33 +95,4 @@ export const RatesSection = ({ userDetails }) => {
     );
 };
 
-const RateTable = ({ title, rates }) => {
-    const sortedRates = Object.entries(rates || {})
-        .filter(([_, value]) => value !== '')
-        .sort(([durationA], [durationB]) => {
-            const timeA = timeToMinutes(durationA);
-            const timeB = timeToMinutes(durationB);
-            return timeA - timeB;
-        });
-
-    return (
-        <div>
-            <h3 className="text-md font-semibold mb-3 text-gray-700 dark:text-gray-300">{title}</h3>
-            <div className="grid grid-cols-3 md:grid-cols-9 gap-2">
-                {sortedRates.map(([duration, rate]) => (
-                    <div
-                        key={duration}
-                        className="bg-gray-100 dark:bg-zinc-800 rounded-md p-2 text-center"
-                    >
-                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1 capitalize">
-                            {formatDuration(duration)}
-                        </div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {rate}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
+export default RatesSection;
