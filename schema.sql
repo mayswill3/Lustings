@@ -267,3 +267,5 @@ create table if not exists credit_changes (
 -- Add indexes for better query performance
 create index if not exists credit_changes_user_id_idx on credit_changes(user_id);
 create index if not exists credit_changes_created_at_idx on credit_changes(created_at);
+
+ALTER TABLE users ADD CONSTRAINT unique_full_name UNIQUE (full_name);
