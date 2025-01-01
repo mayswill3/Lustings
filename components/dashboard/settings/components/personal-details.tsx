@@ -1,4 +1,3 @@
-/*eslint-disable*/
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
@@ -9,19 +8,18 @@ import Toggle from '@/components/ui/toggle';
 import { SectionHeader } from '@/components/ui/section-header';
 import { Tiptap } from '@/components/Tiptap';
 import { createClient } from '@/utils/supabase/client';
-import * as Switch from '@radix-ui/react-switch';
 import * as RadioGroup from '@radix-ui/react-radio-group';
 import { Calendar, Users, Heart, Activity, ChevronDown } from 'lucide-react';
 import { ACTIVITIES } from '@/constants/activities';
 import GENDERS from '@/constants/gender';
 import { User } from '@supabase/supabase-js';
-
+import { toast } from 'sonner';
 
 const supabase = createClient();
 
 interface PersonalDetailsProps {
     user: User;
-    userDetails: {
+    userDetails?: {
         full_name?: string;
         personal_details?: {
             dob?: string;
@@ -37,55 +35,100 @@ interface PersonalDetailsProps {
     };
 }
 
-export default function PersonalDetails({ user, userDetails }: PersonalDetailsProps) {
+const ORIENTATION_OPTIONS = ['bi-curious', 'bi-sexual', 'gay', 'straight'];
+const PARTNER_PREFERENCES = ['Men', 'Women', 'Couples MF', 'Couples MM', 'Couples FF', 'Moresomes'];
+
+export default function PersonalDetails({ user, userDetails: initialUserDetails }: PersonalDetailsProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [userDetails, setUserDetails] = useState(initialUserDetails);
+    const [isLoading, setIsLoading] = useState(!initialUserDetails);
+    const [activities, setActivities] = useState<string[]>([]);
+    const [withPreferences, setWithPreferences] = useState<string[]>([]);
+    const [transStatus, setTransStatus] = useState(false);
+
     const tiptapRef = useRef<{
         getSummary: () => string;
         getDetails: () => string;
     }>(null);
 
-    const [activities, setActivities] = useState(userDetails?.personal_details?.activities || []);
-    const [withPreferences, setWithPreferences] = useState(userDetails?.personal_details?.with || []);
-    const [transStatus, setTransStatus] = useState(userDetails?.personal_details?.trans || false);
-    const options = ['bi-curious', 'bi-sexual', 'gay', 'straight'];
+    // Fetch user details if not provided as props
+    useEffect(() => {
+        const fetchUserDetails = async () => {
+            if (!initialUserDetails && user?.id) {
+                try {
+                    const { data, error } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('id', user.id)
+                        .single();
 
+                    if (error) throw error;
+                    setUserDetails(data);
+
+                    // Initialize states with fetched data
+                    if (data?.personal_details) {
+                        setActivities(data.personal_details.activities || []);
+                        setWithPreferences(data.personal_details.with || []);
+                        setTransStatus(data.personal_details.trans || false);
+                    }
+                } catch (error) {
+                    console.error('Error fetching user details:', error);
+                    toast.error('Failed to load user details');
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        fetchUserDetails();
+    }, [user?.id, initialUserDetails]);
+
+    // Update local states when userDetails changes
+    useEffect(() => {
+        if (userDetails?.personal_details) {
+            setActivities(userDetails.personal_details.activities || []);
+            setWithPreferences(userDetails.personal_details.with || []);
+            setTransStatus(userDetails.personal_details.trans || false);
+        }
+    }, [userDetails]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        const formData = new FormData(e.currentTarget);
-
-        // Extract form data
-        const dob = formData.get('dob')?.toString().trim();
-        const gender = formData.get('gender')?.toString().trim();
-        const orientation = formData.get('orientation')?.toString().trim();
-
-        const personalDetails = {
-            dob,
-            gender,
-            trans: transStatus,
-            orientation,
-            activities,
-            with: withPreferences
-        };
-        const summary = tiptapRef.current?.getSummary() || '';
-        const details = tiptapRef.current?.getDetails() || '';
-
         try {
+            const formData = new FormData(e.currentTarget);
+
+            const personalDetails = {
+                dob: formData.get('dob')?.toString().trim(),
+                gender: formData.get('gender')?.toString().trim(),
+                orientation: formData.get('orientation')?.toString().trim(),
+                trans: transStatus,
+                activities,
+                with: withPreferences
+            };
+
+            const summary = tiptapRef.current?.getSummary() || '';
+            const details = tiptapRef.current?.getDetails() || '';
+
             const { error } = await supabase
                 .from('users')
-                .update({ personal_details: personalDetails, summary, details })
-                .eq('id', user?.id);
+                .update({
+                    personal_details: personalDetails,
+                    summary,
+                    details
+                })
+                .eq('id', user.id);
 
             if (error) throw error;
 
-            console.log('Personal details updated successfully');
+            toast.success('Personal details updated successfully');
         } catch (error) {
             console.error('Error updating personal details:', error);
+            toast.error('Failed to update personal details');
+        } finally {
+            setIsSubmitting(false);
         }
-
-        setIsSubmitting(false);
     };
 
     const toggleActivity = (activity: string) => {
@@ -104,12 +147,7 @@ export default function PersonalDetails({ user, userDetails }: PersonalDetailsPr
         );
     };
 
-    if (!userDetails) {
-        return <div>Loading...</div>;
-    }
-
-
-    if (!userDetails) {
+    if (isLoading) {
         return (
             <div className="min-h-[400px] flex items-center justify-center">
                 <div className="animate-pulse text-gray-500 dark:text-gray-400">Loading...</div>
@@ -117,8 +155,15 @@ export default function PersonalDetails({ user, userDetails }: PersonalDetailsPr
         );
     }
 
-    const personalDetails = userDetails.personal_details || {};
+    if (!userDetails) {
+        return (
+            <div className="min-h-[400px] flex items-center justify-center">
+                <div className="text-red-500">Error loading user details</div>
+            </div>
+        );
+    }
 
+    const personalDetails = userDetails.personal_details || {};
 
     return (
         <div className="max-w-4xl mx-auto space-y-8">
@@ -126,7 +171,7 @@ export default function PersonalDetails({ user, userDetails }: PersonalDetailsPr
                 {/* Basic Information Card */}
                 <Card className="p-6">
                     <SectionHeader
-                        icon={<Users />}
+                        icon={<Users size={24} />}
                         title="Basic Information"
                     />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -156,24 +201,15 @@ export default function PersonalDetails({ user, userDetails }: PersonalDetailsPr
                                         {gender}
                                     </option>
                                 ))}
-
                             </select>
                         </div>
-                        {/* <div className="md:col-span-2">
-                            <Toggle
-                                name="trans"
-                                label="Trans"
-                                checked={transStatus}
-                                onCheckedChange={setTransStatus}
-                            />
-                        </div> */}
                     </div>
                 </Card>
 
                 {/* Orientation Card */}
                 <Card className="p-6">
                     <SectionHeader
-                        icon={<Heart />}
+                        icon={<Heart size={24} />}
                         title="Orientation"
                     />
                     <RadioGroup.Root
@@ -181,7 +217,7 @@ export default function PersonalDetails({ user, userDetails }: PersonalDetailsPr
                         name="orientation"
                         defaultValue={personalDetails.orientation || ''}
                     >
-                        {options.map((option) => (
+                        {ORIENTATION_OPTIONS.map((option) => (
                             <div key={option} className="flex items-center space-x-2">
                                 <RadioGroup.Item
                                     value={option}
@@ -204,7 +240,7 @@ export default function PersonalDetails({ user, userDetails }: PersonalDetailsPr
                 {/* Activities Card */}
                 <Card className="p-6">
                     <SectionHeader
-                        icon={<Activity />}
+                        icon={<Activity size={24} />}
                         title="Activities"
                         subtitle="Please select the activities you're interested in"
                     />
@@ -222,7 +258,6 @@ export default function PersonalDetails({ user, userDetails }: PersonalDetailsPr
                                 ))}
                             </div>
                         </div>
-                        {/* Scroll Fade Effect */}
                         <div className="absolute bottom-0 left-0 right-2 h-8 bg-gradient-to-t from-white dark:from-zinc-800 to-transparent pointer-events-none" />
                     </div>
                 </Card>
@@ -230,28 +265,26 @@ export default function PersonalDetails({ user, userDetails }: PersonalDetailsPr
                 {/* Preferences Card */}
                 <Card className="p-6">
                     <SectionHeader
-                        icon={<Users />}
+                        icon={<Users size={24} />}
                         title="Partner Preferences"
                     />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {['Men', 'Women', 'Couples MF', 'Couples MM', 'Couples FF', 'Moresomes'].map(
-                            (preference) => (
-                                <Toggle
-                                    key={preference}
-                                    name="with"
-                                    label={preference}
-                                    checked={withPreferences.includes(preference)}
-                                    onCheckedChange={() => toggleWithPreference(preference)}
-                                />
-                            )
-                        )}
+                        {PARTNER_PREFERENCES.map((preference) => (
+                            <Toggle
+                                key={preference}
+                                name="with"
+                                label={preference}
+                                checked={withPreferences.includes(preference)}
+                                onCheckedChange={() => toggleWithPreference(preference)}
+                            />
+                        ))}
                     </div>
                 </Card>
 
                 {/* Description Card */}
                 <Card className="p-6">
                     <SectionHeader
-                        icon={<ChevronDown />}
+                        icon={<ChevronDown size={24} />}
                         title="Additional Details"
                     />
                     <div className="mt-4">
@@ -263,7 +296,7 @@ export default function PersonalDetails({ user, userDetails }: PersonalDetailsPr
                     </div>
                 </Card>
 
-                {/* Submit Button */}
+                {/* Submit Buttons */}
                 <div className="sticky bottom-4 z-10 px-4 sm:px-0">
                     <Card className="p-3 sm:p-4 bg-white/80 backdrop-blur-sm dark:bg-zinc-900/80">
                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-end">
@@ -278,12 +311,10 @@ export default function PersonalDetails({ user, userDetails }: PersonalDetailsPr
                                 type="button"
                                 onClick={async () => {
                                     setIsSubmitting(true);
-
                                     const form = document.getElementById('settingsForm') as HTMLFormElement;
                                     if (form) {
                                         form.requestSubmit();
                                     }
-
                                     setTimeout(() => {
                                         setIsSubmitting(false);
                                         window.location.href = `/profile/${encodeURIComponent(userDetails?.full_name || '')}`;
