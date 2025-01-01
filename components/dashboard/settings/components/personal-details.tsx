@@ -14,21 +14,15 @@ import * as RadioGroup from '@radix-ui/react-radio-group';
 import { Calendar, Users, Heart, Activity, ChevronDown } from 'lucide-react';
 import { ACTIVITIES } from '@/constants/activities';
 import GENDERS from '@/constants/gender';
+import { User } from '@supabase/supabase-js';
 
 
 const supabase = createClient();
 
-interface ToggleProps {
-    name: string;
-    checked: boolean;
-    onCheckedChange: (state: boolean) => void;
-    label: string;
-}
-
-export default function PersonalDetails() {
-    const [user, setUser] = useState<{ id: string } | null>(null);
-    const [userDetails, setUserDetails] = useState<{
-        full_name?: string
+interface PersonalDetailsProps {
+    user: User;
+    userDetails: {
+        full_name?: string;
         personal_details?: {
             dob?: string;
             gender?: string;
@@ -39,59 +33,22 @@ export default function PersonalDetails() {
         };
         summary?: string;
         details?: string;
-    } | null>(null);
+        [key: string]: any;
+    };
+}
+
+export default function PersonalDetails({ user, userDetails }: PersonalDetailsProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const tiptapRef = useRef<{
         getSummary: () => string;
         getDetails: () => string;
     }>(null);
 
-    const [transStatus, setTransStatus] = useState(false);
-    const [activities, setActivities] = useState<string[]>([]);
-    const [withPreferences, setWithPreferences] = useState<string[]>([]);
+    const [activities, setActivities] = useState(userDetails?.personal_details?.activities || []);
+    const [withPreferences, setWithPreferences] = useState(userDetails?.personal_details?.with || []);
+    const [transStatus, setTransStatus] = useState(userDetails?.personal_details?.trans || false);
     const options = ['bi-curious', 'bi-sexual', 'gay', 'straight'];
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                // Fetch user
-                const {
-                    data: { user },
-                    error: userError,
-                } = await supabase.auth.getUser();
-
-                if (userError) {
-                    console.error('Error fetching user:', userError);
-                    return;
-                }
-
-                setUser(user);
-
-                // Fetch userDetails
-                const { data: userDetails, error: detailsError } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('id', user?.id)
-                    .single();
-
-                if (detailsError) {
-                    console.error('Error fetching user details:', detailsError);
-                    return;
-                }
-
-                setUserDetails(userDetails);
-
-                // Set initial states
-                setTransStatus(userDetails.personal_details?.trans || false);
-                setActivities(userDetails.personal_details?.activities || []);
-                setWithPreferences(userDetails.personal_details?.with || []);
-            } catch (error) {
-                console.error('Unexpected error fetching user data:', error);
-            }
-        };
-
-        fetchUserData();
-    }, []);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -253,16 +210,15 @@ export default function PersonalDetails() {
                     />
                     <div className="relative">
                         <div className="max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 scrollbar-track-transparent">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                 {ACTIVITIES.map((activity) => (
-                                    <div key={activity} className="flex justify-between items-center  pb-2">
-                                        <span className="text-sm">{activity}</span>
-                                        <Toggle
-                                            name="activities"
-                                            checked={activities.includes(activity)}
-                                            onCheckedChange={() => toggleActivity(activity)}
-                                        />
-                                    </div>
+                                    <Toggle
+                                        key={activity}
+                                        name="activities"
+                                        label={activity}
+                                        checked={activities.includes(activity)}
+                                        onCheckedChange={() => toggleActivity(activity)}
+                                    />
                                 ))}
                             </div>
                         </div>

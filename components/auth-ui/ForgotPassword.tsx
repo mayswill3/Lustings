@@ -46,9 +46,7 @@ export default function ForgotPassword({
               placeholder="name@example.com"
               type="email"
               name="email"
-              autoCapitalize="none"
               autoComplete="email"
-              autoCorrect="off"
             />
           </div>
           <Button

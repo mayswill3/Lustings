@@ -24,7 +24,7 @@ export default function ProfilePictureUploader(props: Props) {
     const [uploadedUrls, setUploadedUrls] = useState<(string | null)[]>([null, null, null]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const inputRefs = useRef<HTMLInputElement[]>([]);
+    const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     // Fetch user and userDetails on load
     useEffect(() => {
@@ -191,7 +191,11 @@ export default function ProfilePictureUploader(props: Props) {
                         >
                             <input
                                 type="file"
-                                ref={(el) => (inputRefs.current[index] = el!)}
+                                ref={(el) => {
+                                    if (inputRefs.current) {
+                                        inputRefs.current[index] = el;
+                                    }
+                                }}
                                 accept="image/*"
                                 className="hidden"
                                 id={`file-input-${index}`}

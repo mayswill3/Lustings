@@ -137,7 +137,7 @@ export default function HeaderLinks(props: { [x: string]: any }) {
       ) : (
         <Button
           onClick={() => router.push('/dashboard/signin/password_signin')}
-          variant="ghost"
+          variant="default"
           size="sm"
         >
           Sign in
@@ -336,7 +336,7 @@ export default function HeaderLinks(props: { [x: string]: any }) {
       ) : (
         <Button
           onClick={() => router.push('/dashboard/signin/password_signin')}
-          variant="ghost"
+          variant="default"
           size="sm"
         >
           Sign in

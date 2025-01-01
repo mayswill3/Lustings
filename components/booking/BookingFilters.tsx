@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 interface BookingFiltersProps {
     viewFilter: 'all' | 'sent' | 'received';
     statusFilter: 'all' | 'pending' | 'accepted' | 'declined';
-    setViewFilter: (filter: 'all' | 'sent' | 'received') => void;
-    setStatusFilter: (filter: 'all' | 'pending' | 'accepted' | 'declined') => void;
+    setViewFilter: React.Dispatch<React.SetStateAction<'all' | 'sent' | 'received'>>;
+    setStatusFilter: React.Dispatch<React.SetStateAction<'all' | 'pending' | 'accepted' | 'declined'>>;
     isMobile?: boolean;
+    isOpen?: boolean;
+    setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const BookingFilters = ({

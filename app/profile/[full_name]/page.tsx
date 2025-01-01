@@ -151,7 +151,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         const date = new Date(createdAt);
         return date.toLocaleDateString('en-GB'); // formats as DD/MM/YYYY
     };
-
+    console.log(userDetails)
     return (
 
         <DashboardLayout user={user} userDetails={userDetails} title="Profile Page" description="View user details">
@@ -204,7 +204,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     </div>
                     {/* Desktop Tabs */}
                     <div className="hidden md:block">
-                        <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab}>
+                        <Tabs defaultValue="profile"  >
                             <TabsList className="bg-gray-100 dark:bg-zinc-800 p-1 rounded-lg w-full mb-6">
                                 {tabItems.map(tab => (
                                     <TabsTrigger
