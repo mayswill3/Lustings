@@ -197,17 +197,20 @@ export const CreditPurchaseDialog: React.FC<CreditPurchaseDialogProps> = ({
                 {creditPackages.map((pkg) => (
                     <div
                         key={pkg.id}
-                        className="flex items-center justify-between p-4 rounded-lg border hover:border-blue-500 transition-colors"
+                        className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition-colors bg-white dark:bg-gray-800"
                     >
                         <div>
-                            <h3 className="font-medium">{pkg.name}</h3>
-                            <p className="text-sm text-gray-500">{pkg.description}</p>
+                            <h3 className="font-medium text-gray-900 dark:text-white">{pkg.name}</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-300">{pkg.description}</p>
                         </div>
                         <div className="flex items-center gap-4">
-                            <span className="font-medium">${pkg.price.toFixed(2)}</span>
+                            <span className="font-medium text-gray-900 dark:text-white">
+                                £{pkg.price.toFixed(2)}
+                            </span>
                             <Button
                                 onClick={() => handleBuyCredits(pkg.id)}
                                 disabled={loading === pkg.id}
+                                className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
                             >
                                 {loading === pkg.id ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />

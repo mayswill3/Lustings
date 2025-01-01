@@ -16,9 +16,13 @@ const supabase = createClient(
 export async function POST(req: Request) {
   try {
     const body = await req.text();
-    const signature = headers().get('stripe-signature')!;
+    const signature = headers().get('stripe-signature');
 
-    // Verify webhook signature
+    if (!signature) {
+      console.error('No stripe signature found');
+      return NextResponse.json({ error: 'No signature' }, { status: 400 });
+    }
+
     const event = stripe.webhooks.constructEvent(
       body,
       signature,
@@ -27,7 +31,22 @@ export async function POST(req: Request) {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      const { userId, credits } = session.metadata!;
+      const { userId, credits } = session.metadata || {};
+
+      if (!userId || !credits) {
+        console.error('Missing required metadata:', { userId, credits });
+        return NextResponse.json(
+          { error: 'Missing metadata' },
+          { status: 400 }
+        );
+      }
+
+      // Log the incoming data
+      console.log('Processing credits update:', {
+        userId,
+        credits,
+        eventType: event.type
+      });
 
       // First, get current credits
       const { data: userData, error: fetchError } = await supabase
@@ -38,21 +57,34 @@ export async function POST(req: Request) {
 
       if (fetchError) {
         console.error('Error fetching user credits:', fetchError);
-        throw fetchError;
+        return NextResponse.json(
+          { error: 'Database fetch error' },
+          { status: 500 }
+        );
       }
 
-      const currentCredits = userData?.credits || 0;
-      const newCredits = currentCredits + parseInt(credits);
+      const currentCredits = userData?.credits || BigInt(0);
+      const newCredits = currentCredits + BigInt(credits);
+
+      // Log before update
+      console.log('Updating credits:', {
+        currentCredits: currentCredits.toString(),
+        addingCredits: credits,
+        newTotal: newCredits.toString()
+      });
 
       // Update user's credits
       const { error: updateError } = await supabase
         .from('users')
-        .update({ credits: newCredits })
+        .update({ credits: newCredits.toString() })
         .eq('id', userId);
 
       if (updateError) {
         console.error('Error updating credits:', updateError);
-        throw updateError;
+        return NextResponse.json(
+          { error: 'Database update error' },
+          { status: 500 }
+        );
       }
 
       console.log(
@@ -63,6 +95,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error('Error processing webhook:', error);
-    return NextResponse.json({ error: 'Webhook error' }, { status: 400 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 400 }
+    );
   }
 }

@@ -24,12 +24,12 @@ export async function POST(req: Request) {
       line_items: [
         {
           price_data: {
-            currency: 'usd',
+            currency: 'gbp',
             product_data: {
               name: selectedPackage.name,
               description: selectedPackage.description
             },
-            unit_amount: Math.round(selectedPackage.price * 100) // Convert to cents
+            unit_amount: Math.round(selectedPackage.price * 100) // Convert to pence
           },
           quantity: 1
         }

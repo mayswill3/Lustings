@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { CheckCircle } from 'lucide-react';
+import PlaceholderImage from '@/public/placeholder-image.jpg';
 
 interface EscortCardProps {
     escort: any;
@@ -17,7 +18,7 @@ export function EscortCard({ escort, isAvailable, calculateAge }: EscortCardProp
             <Card className="overflow-hidden hover:shadow-lg transition-shadow !p-2 h-full">
                 <div className="relative aspect-[3/4]">
                     <img
-                        src={escort.profile_pictures?.[0] || '/placeholder-image.jpg'}
+                        src={escort.profile_pictures?.[0] || PlaceholderImage.src}
                         alt={escort.full_name}
                         className="w-full h-full object-cover"
                     />

@@ -241,3 +241,7 @@ BEGIN
     RETURN current_credits + increment_amount;
 END;
 $$;
+
+CREATE POLICY "Allow all users to read" ON users
+FOR SELECT
+USING (true);
