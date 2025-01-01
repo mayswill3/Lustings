@@ -39,7 +39,7 @@ export default function GeneralDetails(props: Props) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showServices, setShowServices] = useState(false);
-    const [fullNameInput, setFullNameInput] = useState(userDetails?.full_name ?? '');
+    const [fullNameInput, setFullNameInput] = useState('');
     const [fullNameError, setFullNameError] = useState<string | null>(null);
 
     const checkFullNameAvailability = async (fullName: string, userId: string) => {
@@ -71,6 +71,12 @@ export default function GeneralDetails(props: Props) {
             setFullNameError(null);
         }
     };
+
+    useEffect(() => {
+        if (userDetails?.full_name) {
+            setFullNameInput(userDetails.full_name);
+        }
+    }, [userDetails]);
 
     // Fetch User and User Details on Load
     useEffect(() => {
