@@ -39,6 +39,38 @@ export default function GeneralDetails(props: Props) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showServices, setShowServices] = useState(false);
+    const [fullNameInput, setFullNameInput] = useState(userDetails?.full_name ?? '');
+    const [fullNameError, setFullNameError] = useState<string | null>(null);
+
+    const checkFullNameAvailability = async (fullName: string, userId: string) => {
+        const { data, error } = await supabase
+            .from('users')
+            .select('id')
+            .eq('full_name', fullName)
+            .neq('id', userId) // Exclude current user
+            .single();
+
+        return !data; // Returns true if name is available
+    };
+
+    const validateFullName = async (name: string) => {
+        if (!name) {
+            setFullNameError('Display name is required');
+            return;
+        }
+
+        if (name === userDetails?.full_name) {
+            setFullNameError(null);
+            return;
+        }
+
+        const isAvailable = await checkFullNameAvailability(name, props.user?.id!);
+        if (!isAvailable) {
+            setFullNameError('This display name is already taken');
+        } else {
+            setFullNameError(null);
+        }
+    };
 
     // Fetch User and User Details on Load
     useEffect(() => {
@@ -90,6 +122,22 @@ export default function GeneralDetails(props: Props) {
         try {
             // Get all form data
             const formData = new FormData(e.currentTarget);
+            const newFullName = formData.get('fullName')?.toString();
+
+            // Check if full name is provided
+            if (!newFullName) {
+                toast.error('Display name is required');
+                setIsSubmitting(false);
+                return;
+            }
+
+            // Check if full name is available
+            const isNameAvailable = await checkFullNameAvailability(newFullName, props.user?.id!);
+            if (!isNameAvailable) {
+                toast.error('This display name is already taken. Please choose another.');
+                setIsSubmitting(false);
+                return;
+            }
 
             // First, fetch current user data to get existing preferences
             const { data: currentUser, error: fetchError } = await supabase
@@ -196,10 +244,22 @@ export default function GeneralDetails(props: Props) {
                                 <Input
                                     type="text"
                                     name="fullName"
-                                    defaultValue={userDetails?.full_name ?? ''}
+                                    value={fullNameInput}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        setFullNameInput(value);
+                                        // Debounce the validation to avoid too many database queries
+                                        const timeoutId = setTimeout(() => validateFullName(value), 500);
+                                        return () => clearTimeout(timeoutId);
+                                    }}
                                     placeholder="Enter display name"
-                                    className="w-full h-9 sm:h-10"
+                                    className={`w-full h-9 sm:h-10 ${fullNameError ? 'border-red-500' : ''}`}
                                 />
+                                {fullNameError && (
+                                    <span className="text-sm text-red-500 mt-1">
+                                        {fullNameError}
+                                    </span>
+                                )}
                             </FormField>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

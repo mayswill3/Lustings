@@ -241,3 +241,31 @@ BEGIN
     RETURN current_credits + increment_amount;
 END;
 $$;
+
+CREATE POLICY "Allow all users to read" ON users
+FOR SELECT
+USING (true);
+
+-- Drop existing functions
+DROP FUNCTION IF EXISTS add_credits;
+DROP FUNCTION IF EXISTS increment_credits;
+
+-- Ensure users table has credits column
+alter table users add column if not exists credits integer default 0;
+alter table users add column if not exists updated_at timestamp with time zone default timezone('utc'::text, now());
+
+-- Create credit_changes table for audit trail
+create table if not exists credit_changes (
+    id uuid default gen_random_uuid() primary key,
+    user_id uuid references users(id) not null,
+    change_amount integer not null,
+    source text not null,
+    created_at timestamp with time zone default timezone('utc'::text, now()),
+    metadata jsonb default '{}'::jsonb
+);
+
+-- Add indexes for better query performance
+create index if not exists credit_changes_user_id_idx on credit_changes(user_id);
+create index if not exists credit_changes_created_at_idx on credit_changes(created_at);
+
+ALTER TABLE users ADD CONSTRAINT unique_full_name UNIQUE (full_name);
