@@ -1,81 +1,62 @@
-import Stripe from 'stripe';
-import { stripe } from '@/utils/stripe/config';
-import {
-  upsertProductRecord,
-  upsertPriceRecord,
-  manageSubscriptionStatusChange
-} from '@/utils/supabase-admin';
+// app/api/webhook/route.ts
+import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
 
-const relevantEvents = new Set([
-  'product.created',
-  'product.updated',
-  'price.created',
-  'price.updated',
-  'checkout.session.completed',
-  'customer.subscription.created',
-  'customer.subscription.updated',
-  'customer.subscription.deleted'
-]);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: Request) {
-  const body = await req.text();
-  const sig = headers().get('Stripe-Signature') as string;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  let event: Stripe.Event;
-
   try {
-    if (!sig || !webhookSecret) return;
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-  } catch (err) {
-    console.log(`❌ Error message: ${err.message}`);
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
-  }
+    const body = await req.text();
+    const signature = headers().get('stripe-signature');
 
-  if (relevantEvents.has(event.type)) {
-    try {
-      switch (event.type) {
-        case 'product.created':
-        case 'product.updated':
-          await upsertProductRecord(event.data.object as Stripe.Product);
-          break;
-        case 'price.created':
-        case 'price.updated':
-          await upsertPriceRecord(event.data.object as Stripe.Price);
-          break;
-        case 'customer.subscription.created':
-        case 'customer.subscription.updated':
-        case 'customer.subscription.deleted':
-          const subscription = event.data.object as Stripe.Subscription;
-          await manageSubscriptionStatusChange(
-            subscription.id,
-            subscription.customer as string,
-            event.type === 'customer.subscription.created'
-          );
-          break;
-        case 'checkout.session.completed':
-          const checkoutSession = event.data.object as Stripe.Checkout.Session;
-          if (checkoutSession.mode === 'subscription') {
-            const subscriptionId = checkoutSession.subscription;
-            await manageSubscriptionStatusChange(
-              subscriptionId as string,
-              checkoutSession.customer as string,
-              true
-            );
-          }
-          break;
-        default:
-          throw new Error('Unhandled relevant event!');
-      }
-    } catch (error) {
-      console.log(error);
-      return new Response(
-        'Webhook handler failed. View your nextjs function logs.',
-        {
-          status: 400
-        }
-      );
+    if (!signature) {
+      return NextResponse.json({ error: 'No signature' }, { status: 400 });
     }
+
+    const event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      webhookSecret
+    );
+
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
+
+      if (!session.metadata?.userId || !session.metadata?.credits) {
+        return NextResponse.json(
+          { error: 'Missing required metadata' },
+          { status: 400 }
+        );
+      }
+
+      const { userId, credits } = session.metadata;
+
+      const { error: transactionError } = await supabase.rpc('add_credits', {
+        user_id: userId,
+        amount: parseInt(credits)
+      });
+
+      if (transactionError) {
+        throw transactionError;
+      }
+
+      return NextResponse.json({ success: true });
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return NextResponse.json(
+      { error: 'Webhook handler failed' },
+      { status: 500 }
+    );
   }
-  return new Response(JSON.stringify({ received: true }));
 }
