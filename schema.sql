@@ -269,3 +269,39 @@ create index if not exists credit_changes_user_id_idx on credit_changes(user_id)
 create index if not exists credit_changes_created_at_idx on credit_changes(created_at);
 
 ALTER TABLE users ADD CONSTRAINT unique_full_name UNIQUE (full_name);
+
+-- Enable RLS on storage.objects
+alter table storage.objects enable row level security;
+
+-- Policy to allow authenticated users to upload profile pictures
+create policy "Allow authenticated users to upload profile pictures"
+on storage.objects for insert 
+to authenticated
+with check (
+  bucket_id = 'profile-pictures' AND 
+  auth.uid() = owner
+);
+
+-- Policy to allow public read access to profile pictures
+create policy "Allow public read access to profile pictures"
+on storage.objects for select
+to authenticated
+using (bucket_id = 'profile-pictures');
+
+-- Policy to allow users to update their own profile pictures
+create policy "Allow users to update their own profile pictures"
+on storage.objects for update
+to authenticated
+using (
+  bucket_id = 'profile-pictures' AND 
+  owner = auth.uid()
+);
+
+-- Policy to allow users to delete their own profile pictures
+create policy "Allow users to delete their own profile pictures"
+on storage.objects for delete
+to authenticated
+using (
+  bucket_id = 'profile-pictures' AND 
+  owner = auth.uid()
+);
