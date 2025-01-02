@@ -125,19 +125,28 @@ export default function Settings(props: Props) {
             <Card className="overflow-hidden bg-white dark:bg-zinc-800 shadow-sm">
               {/* Tabs Navigation */}
               <>
-                {/* Mobile Select */}
-                <div className="sm:hidden border-b border-gray-200 dark:border-zinc-700 p-2">
-                  <select
-                    value={activeTab}
-                    onChange={(e) => setActiveTab(e.target.value)}
-                    className="w-full p-2 bg-white dark:bg-zinc-800 rounded border border-gray-200 dark:border-zinc-700"
-                  >
+                {/* Mobile Buttons Grid */}
+                <div className="sm:hidden border-b border-gray-200 dark:border-zinc-700 p-4">
+                  <div className="grid grid-cols-2 gap-2">
                     {tabs.map((tab) => (
-                      <option key={tab.id} value={tab.id}>
-                        {tab.label}
-                      </option>
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`
+                          flex items-center justify-center gap-2 px-3 py-3 
+                          rounded-lg text-sm font-medium transition-all duration-200
+                          ${activeTab === tab.id
+                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800'
+                            : 'bg-white dark:bg-zinc-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700'
+                          }
+                          border
+                        `}
+                      >
+                        {tab.icon}
+                        <span className="truncate">{tab.label}</span>
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
 
                 {/* Desktop Tabs */}

@@ -55,6 +55,7 @@ const config = {
         sidebar: 'calc(100vh - 32px)'
       },
       colors: {
+        customGrey: '#EFF0F4',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
