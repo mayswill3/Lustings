@@ -180,28 +180,34 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 
                 <RatesSection userDetails={fetchedUserDetails} />
 
-
-
-                {/* Mobile Select */}
+                {/* Mobile Navigation */}
                 <div className="space-y-6">
                     <div className="md:hidden">
-                        <select
-                            value={activeTab}
-                            onChange={(e) => setActiveTab(e.target.value)}
-                            className="w-full p-2 bg-gray-100 dark:bg-zinc-800 rounded-lg border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500"
-                        >
+                        <div className="grid grid-cols-2 gap-2 mb-4">
                             {tabItems.map(tab => (
-                                <option key={tab.value} value={tab.value}>
+                                <button
+                                    key={tab.value}
+                                    onClick={() => setActiveTab(tab.value)}
+                                    className={`
+                                        px-4 py-3 rounded-lg text-sm font-medium
+                                        transition-colors duration-200 w-full
+                                        ${activeTab === tab.value
+                                            ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 shadow-sm'
+                                            : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700'
+                                        }
+                                    `}
+                                >
                                     {tab.label}
-                                </option>
+                                </button>
                             ))}
-                        </select>
+                        </div>
 
                         {/* Mobile Content - Only shows on mobile */}
                         <div className="md:hidden mt-6">
                             {renderTabContent(activeTab)}
                         </div>
                     </div>
+
                     {/* Desktop Tabs */}
                     <div className="hidden md:block">
                         <Tabs defaultValue="profile"  >

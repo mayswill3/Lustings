@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { MapPin, ChevronDown, ChevronRight } from 'lucide-react';
+import { MapPin, ChevronDown, ChevronRight, X } from 'lucide-react';
 import DashboardLayout from '@/components/layout';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,8 +47,15 @@ export default function FilteredEscortPage() {
 
     // Location state
     const [expandedRegions, setExpandedRegions] = useState({});
+    const [expandedCounties, setExpandedCounties] = useState({});
     const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
     const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
+    const [selectedTown, setSelectedTown] = useState<string | null>(null);
+
+    const [showRegionDropdown, setShowRegionDropdown] = useState(false);
+    const [showCountyDropdown, setShowCountyDropdown] = useState(false);
+    const [showTownDropdown, setShowTownDropdown] = useState(false);
+
 
     // Filter state
     const [filters, setFilters] = useState<FilterState>({
@@ -147,6 +154,7 @@ export default function FilteredEscortPage() {
             // Location filters
             if (selectedRegion && escort.location?.region !== selectedRegion) return false;
             if (selectedCounty && escort.location?.county !== selectedCounty) return false;
+            if (selectedTown && escort.location?.town !== selectedTown) return false;
 
             // Basic filters
             if (filters.searchTerm && !escort.full_name?.toLowerCase().includes(filters.searchTerm.toLowerCase())) return false;
@@ -273,19 +281,49 @@ export default function FilteredEscortPage() {
         applyFilters();
     }, [filters, selectedRegion, selectedCounty]);
 
-    // Region/County handlers
+    // Region/County/Town handlers
     const toggleRegion = (region: string) => {
         setExpandedRegions(prev => ({ ...prev, [region]: !prev[region] }));
+    };
+
+    const toggleCounty = (county: string) => {
+        setExpandedCounties(prev => ({ ...prev, [county]: !prev[county] }));
     };
 
     const handleRegionClick = (region: string) => {
         setSelectedRegion(region === selectedRegion ? null : region);
         setSelectedCounty(null);
+        setSelectedTown(null);
     };
 
     const handleCountyClick = (county: string) => {
         setSelectedCounty(county === selectedCounty ? null : county);
+        setSelectedTown(null);
     };
+
+    const handleTownClick = (town: string) => {
+        setSelectedTown(town === selectedTown ? null : town);
+    };
+
+    const handleOutsideClick = () => {
+        setShowRegionDropdown(false);
+        setShowCountyDropdown(false);
+        setShowTownDropdown(false);
+    };
+
+    const getCurrentRegionCounties = () => {
+        return selectedRegion ? UK_REGIONS[selectedRegion]?.counties || [] : [];
+    };
+
+    const getCurrentCountyTowns = () => {
+        if (!selectedRegion || !selectedCounty) return [];
+        const escortsInCounty = escorts.filter(e =>
+            e.location?.region === selectedRegion &&
+            e.location?.county === selectedCounty
+        );
+        return [...new Set(escortsInCounty.map(e => e.location?.town).filter(Boolean))];
+    };
+
 
     return (
         <DashboardLayout
@@ -324,64 +362,177 @@ export default function FilteredEscortPage() {
                     loading={loading}
                 />
 
-                <Card className="mb-8 p-4">
-                    <div className="space-y-2">
-                        {Object.entries(UK_REGIONS).map(([regionName, regionData]) => {
-                            const escortsInRegion = escorts.filter(e => e.location?.region === regionName);
-                            if (escortsInRegion.length === 0) return null;
+                <Card className="mb-8">
+                    {/* Location Filter Header */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4">
+                        {/* Label */}
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <MapPin className="h-5 w-5 text-purple-500" />
+                            <span className="font-medium">Location:</span>
+                        </div>
 
-                            return (
-                                <div key={regionName} className="border-b border-gray-100 last:border-0">
-                                    <button
-                                        onClick={() => {
-                                            toggleRegion(regionName);
-                                            handleRegionClick(regionName);
-                                        }}
-                                        className={`w-full flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors ${selectedRegion === regionName ? 'bg-purple-50' : ''
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <MapPin className="h-4 w-4 text-purple-500" />
-                                            <span className="font-medium">{regionName}</span>
-                                            <Badge variant="primary" className="ml-2">
-                                                {escortsInRegion.length}
-                                            </Badge>
-                                        </div>
-                                        {regionData.counties.length > 0 && (
-                                            expandedRegions[regionName]
-                                                ? <ChevronDown className="h-4 w-4 text-gray-400" />
-                                                : <ChevronRight className="h-4 w-4 text-gray-400" />
+                        {/* Filters Container */}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
+                            {/* Region Dropdown */}
+                            <div className="relative w-full sm:w-auto">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowRegionDropdown(!showRegionDropdown);
+                                        setShowCountyDropdown(false);
+                                        setShowTownDropdown(false);
+                                    }}
+                                    className="w-full sm:w-auto flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
+                                >
+                                    <span className="truncate">{selectedRegion || 'Select Region'}</span>
+                                    <ChevronDown className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                                </button>
+
+                                {showRegionDropdown && (
+                                    <div className="absolute z-50 top-full left-0 right-0 sm:right-auto mt-1 sm:w-64 max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg">
+                                        {Object.entries(UK_REGIONS).map(([regionName, regionData]) => {
+                                            const escortsInRegion = escorts.filter(e => e.location?.region === regionName);
+                                            const hasEscorts = escortsInRegion.length > 0;
+
+                                            return (
+                                                <button
+                                                    key={regionName}
+                                                    onClick={() => {
+                                                        if (hasEscorts) {
+                                                            handleRegionClick(regionName);
+                                                            setShowRegionDropdown(false);
+                                                        }
+                                                    }}
+                                                    className={`w-full flex items-center justify-between p-3 text-left hover:bg-gray-50
+                                                        ${selectedRegion === regionName ? 'bg-purple-50' : ''}
+                                                        ${!hasEscorts ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    disabled={!hasEscorts}
+                                                >
+                                                    <span className="truncate font-medium">{regionName}</span>
+                                                    <Badge variant="primary" className="ml-2 flex-shrink-0">
+                                                        {escortsInRegion.length}
+                                                    </Badge>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            {selectedRegion && (
+                                <>
+                                    <ChevronRight className="hidden sm:block h-4 w-4 text-gray-400" />
+
+                                    {/* County Dropdown */}
+                                    <div className="relative w-full sm:w-auto">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowCountyDropdown(!showCountyDropdown);
+                                                setShowTownDropdown(false);
+                                            }}
+                                            className="w-full sm:w-auto flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
+                                        >
+                                            <span className="truncate">{selectedCounty || 'Select County'}</span>
+                                            <ChevronDown className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                                        </button>
+
+                                        {showCountyDropdown && (
+                                            <div className="absolute z-50 top-full left-0 right-0 sm:right-auto mt-1 sm:w-64 max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg">
+                                                {getCurrentRegionCounties().map(county => {
+                                                    const escortsInCounty = escorts.filter(e =>
+                                                        e.location?.region === selectedRegion &&
+                                                        e.location?.county === county
+                                                    );
+                                                    const hasCountyEscorts = escortsInCounty.length > 0;
+
+                                                    return (
+                                                        <button
+                                                            key={county}
+                                                            onClick={() => {
+                                                                if (hasCountyEscorts) {
+                                                                    handleCountyClick(county);
+                                                                    setShowCountyDropdown(false);
+                                                                }
+                                                            }}
+                                                            className={`w-full flex items-center justify-between p-3 text-left hover:bg-gray-50
+                                                                ${selectedCounty === county ? 'bg-purple-50' : ''}
+                                                                ${!hasCountyEscorts ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                            disabled={!hasCountyEscorts}
+                                                        >
+                                                            <span className="truncate">{county}</span>
+                                                            <Badge variant="primary" className="ml-2 flex-shrink-0">
+                                                                {escortsInCounty.length}
+                                                            </Badge>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
                                         )}
-                                    </button>
+                                    </div>
+                                </>
+                            )}
 
-                                    {expandedRegions[regionName] && (
-                                        <div className="ml-6 mb-2 space-y-1">
-                                            {regionData.counties.map(county => {
-                                                const countyCount = escorts.filter(e =>
-                                                    e.location?.county === county &&
-                                                    e.location?.region === regionName
-                                                ).length;
-                                                if (countyCount === 0) return null;
+                            {selectedCounty && (
+                                <>
+                                    <ChevronRight className="hidden sm:block h-4 w-4 text-gray-400" />
 
-                                                return (
-                                                    <button
-                                                        key={county}
-                                                        onClick={() => handleCountyClick(county)}
-                                                        className={`w-full flex items-center justify-between p-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md ${selectedCounty === county ? 'bg-purple-50' : ''
-                                                            }`}
-                                                    >
-                                                        <span>{county}</span>
-                                                        <Badge variant="primary" className="bg-gray-50">
-                                                            {countyCount}
-                                                        </Badge>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                                    {/* Town Dropdown */}
+                                    <div className="relative w-full sm:w-auto">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setShowTownDropdown(!showTownDropdown);
+                                            }}
+                                            className="w-full sm:w-auto flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
+                                        >
+                                            <span className="truncate">{selectedTown || 'Select Town'}</span>
+                                            <ChevronDown className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                                        </button>
+
+                                        {showTownDropdown && (
+                                            <div className="absolute z-50 top-full left-0 right-0 sm:right-auto mt-1 sm:w-64 max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg">
+                                                {getCurrentCountyTowns().map(town => {
+                                                    const escortsInTown = escorts.filter(e =>
+                                                        e.location?.region === selectedRegion &&
+                                                        e.location?.county === selectedCounty &&
+                                                        e.location?.town === town
+                                                    );
+
+                                                    return (
+                                                        <button
+                                                            key={town}
+                                                            onClick={() => {
+                                                                handleTownClick(town);
+                                                                setShowTownDropdown(false);
+                                                            }}
+                                                            className={`w-full flex items-center justify-between p-3 text-left hover:bg-gray-50
+                                                                ${selectedTown === town ? 'bg-purple-50' : ''}`}
+                                                        >
+                                                            <span className="truncate">{town}</span>
+                                                            <Badge variant="primary" className="ml-2 flex-shrink-0">
+                                                                {escortsInTown.length}
+                                                            </Badge>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Clear Button */}
+                            {(selectedRegion || selectedCounty || selectedTown) && (
+                                <button
+                                    onClick={clearFilters}
+                                    className="flex items-center justify-center p-2 rounded-md hover:bg-gray-100 border border-gray-200 sm:ml-2"
+                                    title="Clear location filters"
+                                >
+                                    <X className="h-4 w-4 text-gray-400" />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </Card>
 

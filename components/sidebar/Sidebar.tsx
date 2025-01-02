@@ -30,7 +30,7 @@ function Sidebar(props: SidebarProps) {
       <button
         onClick={() => router.push(path)}
         className={`
-          w-full px-6 py-4 text-left
+          w-full px-4 py-4 text-left
           rounded transition-all duration-200
           flex items-center gap-3 shadow-md
           ${isActive
