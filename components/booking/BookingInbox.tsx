@@ -1,6 +1,3 @@
-// components/booking/BookingInbox.tsx
-'use client'
-
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { getActiveRoute } from '@/utils/navigation';
@@ -27,13 +24,6 @@ export const BookingInbox = () => {
         handleStatusChange,
         handleEmailNotification
     } = useBookings();
-    const userWithMetadata: User = {
-        ...user,
-        app_metadata: {},
-        user_metadata: {},
-        aud: 'authenticated',
-        created_at: new Date().toISOString()
-    };
 
     const getFilteredBookings = (bookings: Booking[]) => {
         if (!bookings || !user) return [];
@@ -50,25 +40,27 @@ export const BookingInbox = () => {
         });
     };
 
-    if (!user) return <div>Please log in to view your bookings</div>;
-    if (loading) return <div>Loading bookings...</div>;
-    if (error) return <div>Error: {error}</div>;
+    const userWithMetadata: User | null = user ? {
+        ...user,
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString()
+    } : null;
 
-    const filteredBookings = getFilteredBookings(bookings);
+    const renderContent = () => {
+        if (!user) {
+            return <div className="flex-1 flex items-center justify-center">Please log in to view your bookings</div>;
+        }
+        if (loading) {
+            return <div className="flex-1 flex items-center justify-center">Loading bookings...</div>;
+        }
+        if (error) {
+            return <div className="flex-1 flex items-center justify-center">Error: {error}</div>;
+        }
 
-    return (
-        <>
-            <UserContext.Provider value={userWithMetadata}>
-                <OpenContext.Provider value={{ open, setOpen }}>
-                    <div className="flex h-full w-full flex-col dark:bg-zinc-900">
-                        <Navbar
-                            className="mb-24"
-                            brandText={getActiveRoute(routes, pathname)}
-                        />
-                    </div>
-                </OpenContext.Provider>
-            </UserContext.Provider>
-            <div className="max-w-7xl mx-auto mt-20 px-4">
+        return (
+            <div className="max-w-7xl mx-auto px-4">
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Desktop Filters */}
                     <div className="hidden lg:block lg:w-64 flex-shrink-0">
@@ -96,7 +88,7 @@ export const BookingInbox = () => {
                     {/* Main Content */}
                     <div className="flex-1">
                         <BookingList
-                            bookings={filteredBookings}
+                            bookings={getFilteredBookings(bookings)}
                             user={user}
                             handleStatusChange={handleStatusChange}
                             handleEmailNotification={handleEmailNotification}
@@ -104,7 +96,23 @@ export const BookingInbox = () => {
                     </div>
                 </div>
             </div>
-        </>
+        );
+    };
+
+    return (
+        <OpenContext.Provider value={{ open, setOpen }}>
+            <UserContext.Provider value={userWithMetadata}>
+                <div className="flex h-full w-full flex-col dark:bg-zinc-900">
+                    <Navbar
+                        className="mb-24"
+                        brandText={getActiveRoute(routes, pathname)}
+                    />
+                    <div className="flex-1 mt-20">
+                        {renderContent()}
+                    </div>
+                </div>
+            </UserContext.Provider>
+        </OpenContext.Provider>
     );
 };
 

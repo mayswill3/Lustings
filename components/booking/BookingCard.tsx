@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from 'date-fns';
-import { CheckCircle, XCircle, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { CheckCircle, XCircle, ArrowUpRight, ArrowDownLeft, Check } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { StatusBadge } from './StatusBadge';
@@ -58,6 +58,51 @@ const BookingCard = ({ booking, user, handleStatusChange }: BookingCardProps) =>
                 {isSentBooking ? "Rate Your Experience" : "Rate This Meeting"}
             </Button>
         );
+    };
+
+    const renderActionButtons = () => {
+        if (isSentBooking) return null;
+
+        if (booking.status === 'pending') {
+            return (
+                <>
+                    <Button
+                        variant="destructive"
+                        size="lg"
+                        onClick={() => handleStatusChange(booking.id, 'declined')}
+                        className="flex items-center"
+                    >
+                        <XCircle className="mr-2 h-4 w-4" />
+                        Decline
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        size="lg"
+                        onClick={() => handleStatusChange(booking.id, 'accepted')}
+                        className="flex items-center"
+                    >
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Accept
+                    </Button>
+                </>
+            );
+        }
+
+        if (booking.status === 'accepted') {
+            return (
+                <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={() => handleStatusChange(booking.id, 'completed')}
+                    className="flex items-center"
+                >
+                    <Check className="mr-2 h-4 w-4" />
+                    Mark as Complete
+                </Button>
+            );
+        }
+
+        return null;
     };
 
     return (
@@ -141,28 +186,7 @@ const BookingCard = ({ booking, user, handleStatusChange }: BookingCardProps) =>
                 )}
 
                 <div className="flex justify-end space-x-3">
-                    {!isSentBooking && booking.status === 'pending' && (
-                        <>
-                            <Button
-                                variant="destructive"
-                                size='lg'
-                                onClick={() => handleStatusChange(booking.id, 'declined')}
-                                className="flex items-center"
-                            >
-                                <XCircle className="mr-2 h-4 w-4" />
-                                Decline
-                            </Button>
-                            <Button
-                                variant="secondary"
-                                size='lg'
-                                onClick={() => handleStatusChange(booking.id, 'accepted')}
-                                className="flex items-center"
-                            >
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Accept
-                            </Button>
-                        </>
-                    )}
+                    {renderActionButtons()}
                     {renderFeedbackButton()}
                 </div>
 

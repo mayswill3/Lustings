@@ -63,19 +63,19 @@ export async function POST(request: Request) {
         <body>
           <div class="container">
             <div class="header">
-              <div class="logo">TinselMeet</div>
+              <div class="logo">TinselLink</div>
             </div>
             
             <p>Hi,</p>
             
-            <p>You've received a new message from the TinselMeet.com website. Please take a moment to review it by clicking the link below:</p>
+            <p>You've received a new message from the TinselLink.com website. Please take a moment to review it by clicking the link below:</p>
             
             <div style="text-align: center;">
-              <a href="https://tinselmeet.com/bookings" class="button">View Message</a>
+              <a href="https://tinsellink.com/bookings" class="button">View Message</a>
             </div>
             
             <div class="footer">
-              <p>Best regards,<br>The TinselMeet Team</p>
+              <p>Best regards,<br>The TinselLink Team</p>
             </div>
           </div>
         </body>
@@ -83,9 +83,9 @@ export async function POST(request: Request) {
     `;
 
     const { data, error } = await resend.emails.send({
-      from: 'TinselMeet <hello@crowdfighter.com>',
+      from: 'TinselLink <info@tinsellink.com>',
       to: recipientEmail,
-      subject: 'New Message from TinselMeet',
+      subject: 'New Message from TinselLink',
       html: emailTemplate
     });
 
