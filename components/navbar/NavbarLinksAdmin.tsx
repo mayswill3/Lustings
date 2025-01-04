@@ -135,13 +135,14 @@ export default function HeaderLinks(props: { [x: string]: any }) {
           </Avatar>
         </button>
       ) : (
-        <Button
+        <button
           onClick={() => router.push('/dashboard/signin/password_signin')}
-          variant="default"
-          size="sm"
+          className="text-blue-500 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400 font-medium"
         >
           Sign in
-        </Button>
+        </button>
+
+
       )}
     </div>
   );
@@ -336,13 +337,14 @@ export default function HeaderLinks(props: { [x: string]: any }) {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Button
+        <button
           onClick={() => router.push('/dashboard/signin/password_signin')}
-          variant="default"
-          size="sm"
+          className="text-blue-500 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400 font-medium"
         >
           Sign in
-        </Button>
+        </button>
+
+
       )}
     </div>
   );
