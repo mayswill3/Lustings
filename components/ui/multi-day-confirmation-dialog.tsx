@@ -46,8 +46,10 @@ export const MultiDayConfirmationDialog: React.FC<MultiDayConfirmationProps> = (
         }
     };
 
-    const canUseRegularCredits = credits.regular >= selectedDays;
-    const canUseTrialCredits = credits.trial >= selectedDays;
+    // Calculate required credits (2 per day)
+    const requiredCredits = selectedDays * 2;
+    const canUseRegularCredits = credits.regular >= requiredCredits;
+    const canUseTrialCredits = credits.trial >= requiredCredits;
 
     return (
         <>
@@ -57,7 +59,7 @@ export const MultiDayConfirmationDialog: React.FC<MultiDayConfirmationProps> = (
                         <DialogTitle>Confirm Availability Selection</DialogTitle>
                         <DialogDescription>
                             You are about to set availability for {selectedDays} day{selectedDays !== 1 ? 's' : ''}.
-                            This will require {selectedDays} credit{selectedDays !== 1 ? 's' : ''}.
+                            This will require {requiredCredits} credit{requiredCredits !== 1 ? 's' : ''} ({2} credits per day).
                         </DialogDescription>
                     </DialogHeader>
 
@@ -94,7 +96,7 @@ export const MultiDayConfirmationDialog: React.FC<MultiDayConfirmationProps> = (
                                 <div className="text-left">
                                     <p className="font-medium">Use Regular Credits</p>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {credits.regular} available / {selectedDays} required
+                                        {credits.regular} available / {requiredCredits} required
                                     </p>
                                 </div>
                             </div>
@@ -115,7 +117,7 @@ export const MultiDayConfirmationDialog: React.FC<MultiDayConfirmationProps> = (
                                 <div className="text-left">
                                     <p className="font-medium">Use Trial Credits</p>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {credits.trial} available / {selectedDays} required
+                                        {credits.trial} available / {requiredCredits} required
                                     </p>
                                 </div>
                             </div>

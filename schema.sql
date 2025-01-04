@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS users (
 
     -- Credits system
     credits BIGINT DEFAULT 0,
-    trial_credits BIGINT DEFAULT 3,
+    trial_credits BIGINT DEFAULT 0,
 
     -- JSON stored objects
     billing_address JSONB,

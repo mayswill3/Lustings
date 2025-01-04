@@ -56,6 +56,12 @@ export const AvailabilityStatus: React.FC<AvailabilityStatusProps> = ({
             return;
         }
 
+        if (checked && credits.regular < 2 && credits.trial < 2) {
+            // Show error toast if user doesn't have enough credits
+            toast.error('You need at least 2 credits to set availability');
+            return;
+        }
+
         if (checked) {
             // When turning on availability, show the credit purchase dialog
             setIsDialogOpen(true);
@@ -116,8 +122,8 @@ export const AvailabilityStatus: React.FC<AvailabilityStatusProps> = ({
                         id="availability-toggle"
                         checked={isAvailable}
                         onCheckedChange={handleAvailabilityToggle}
-                        disabled={availabilityLoading}
-                        label="Available Today (Until Midnight)"
+                        disabled={availabilityLoading || (credits.regular < 2 && credits.trial < 2)}
+                        label="Available Today (Until Midnight - 2 Credits Required)"
                         className="w-full justify-between"
                     />
                 </div>

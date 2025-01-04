@@ -38,8 +38,8 @@ export const CreditPurchaseDialog: React.FC<CreditPurchaseDialogProps> = ({
     const [loading, setLoading] = useState<string | null>(null);
     const [view, setView] = useState<'use' | 'purchase'>('use');
 
-    const canUseRegularCredits = credits.regular > 0;
-    const canUseTrialCredits = credits.trial > 0;
+    const canUseRegularCredits = credits.regular >= 2;
+    const canUseTrialCredits = credits.trial >= 2;
 
     const handlePurchase = async (useTrialCredits: boolean) => {
         if (!userId) return;
@@ -49,13 +49,13 @@ export const CreditPurchaseDialog: React.FC<CreditPurchaseDialogProps> = ({
             const creditType = useTrialCredits ? 'trial_credits' : 'credits';
             const currentAmount = useTrialCredits ? credits.trial : credits.regular;
 
-            if (currentAmount <= 0) {
-                throw new Error(`No ${useTrialCredits ? 'trial' : 'regular'} credits available`);
+            if (currentAmount < 2) {
+                throw new Error(`Insufficient ${useTrialCredits ? 'trial' : 'regular'} credits available`);
             }
 
             const { error } = await supabase
                 .from('users')
-                .update({ [creditType]: currentAmount - 1 })
+                .update({ [creditType]: currentAmount - 2 })
                 .eq('id', userId);
 
             if (error) throw error;
@@ -138,9 +138,9 @@ export const CreditPurchaseDialog: React.FC<CreditPurchaseDialogProps> = ({
                 <div className="space-y-4">
                     <button
                         onClick={() => handlePurchase(false)}
-                        disabled={isProcessing || credits.regular <= 0}
+                        disabled={isProcessing || credits.regular < 2}
                         className={`w-full p-4 rounded-lg border transition-colors duration-200 flex items-center justify-between
-                            ${credits.regular > 0
+                            ${credits.regular >= 2
                                 ? 'hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
                                 : 'opacity-50 cursor-not-allowed'}
                             ${isProcessing ? 'opacity-50 cursor-wait' : ''}
@@ -155,14 +155,14 @@ export const CreditPurchaseDialog: React.FC<CreditPurchaseDialogProps> = ({
                                 </p>
                             </div>
                         </div>
-                        <span className="text-blue-500 font-medium">Use 1 Credit</span>
+                        <span className="text-blue-500 font-medium">Use 2 Credits</span>
                     </button>
 
                     <button
                         onClick={() => handlePurchase(true)}
-                        disabled={isProcessing || credits.trial <= 0}
+                        disabled={isProcessing || credits.trial < 2}
                         className={`w-full p-4 rounded-lg border transition-colors duration-200 flex items-center justify-between
-                            ${credits.trial > 0
+                            ${credits.trial >= 2
                                 ? 'hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                                 : 'opacity-50 cursor-not-allowed'}
                             ${isProcessing ? 'opacity-50 cursor-wait' : ''}
@@ -177,7 +177,7 @@ export const CreditPurchaseDialog: React.FC<CreditPurchaseDialogProps> = ({
                                 </p>
                             </div>
                         </div>
-                        <span className="text-purple-500 font-medium">Use 1 Credit</span>
+                        <span className="text-purple-500 font-medium">Use 2 Credits</span>
                     </button>
                 </div>
             </div>

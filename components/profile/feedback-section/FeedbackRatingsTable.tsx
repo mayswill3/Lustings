@@ -14,7 +14,15 @@ export const FeedbackRatingsTable: React.FC<FeedbackRatingsTableProps> = ({
     getFeedbackCounts
 }) => {
     const getTotalCounts = () => {
-        const allFeedbacks = Object.values(feedbackPeriods).flat();
+        // Get unique feedbacks to avoid counting duplicates across periods
+        const allFeedbacks = Object.values(feedbackPeriods).reduce((acc, periodFeedbacks) => {
+            periodFeedbacks.forEach(feedback => {
+                if (!acc.some(f => f.id === feedback.id)) {
+                    acc.push(feedback);
+                }
+            });
+            return acc;
+        }, []);
         return getFeedbackCounts(allFeedbacks);
     };
 
