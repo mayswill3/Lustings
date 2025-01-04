@@ -362,13 +362,12 @@ export default function FilteredEscortPage() {
                     loading={loading}
                 />
 
-                <Card className="mb-8">
-                    {/* Location Filter Header */}
+                <Card className="mb-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4">
                         {/* Label */}
                         <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <MapPin className="h-5 w-5 text-purple-500" />
-                            <span className="font-medium">Location:</span>
+                            <MapPin className="h-5 w-5 text-purple-500 dark:text-purple-400" />
+                            <span className="font-medium text-gray-900 dark:text-gray-100">Location:</span>
                         </div>
 
                         {/* Filters Container */}
@@ -382,14 +381,21 @@ export default function FilteredEscortPage() {
                                         setShowCountyDropdown(false);
                                         setShowTownDropdown(false);
                                     }}
-                                    className="w-full sm:w-auto flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
+                                    className="w-full sm:w-auto flex items-center justify-between gap-2 px-3 py-2 rounded-md
+                            border border-gray-200 dark:border-gray-600
+                            bg-white dark:bg-gray-800 
+                            hover:bg-gray-50 dark:hover:bg-gray-700
+                            text-gray-900 dark:text-gray-100"
                                 >
                                     <span className="truncate">{selectedRegion || 'Select Region'}</span>
-                                    <ChevronDown className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                                    <ChevronDown className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-500" />
                                 </button>
 
                                 {showRegionDropdown && (
-                                    <div className="absolute z-50 top-full left-0 right-0 sm:right-auto mt-1 sm:w-64 max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg">
+                                    <div className="absolute z-50 top-full left-0 right-0 sm:right-auto mt-1 sm:w-64 max-h-64 overflow-y-auto
+                            bg-white dark:bg-gray-800 
+                            border border-gray-200 dark:border-gray-600 
+                            rounded-md shadow-lg">
                                         {Object.entries(UK_REGIONS).map(([regionName, regionData]) => {
                                             const escortsInRegion = escorts.filter(e => e.location?.region === regionName);
                                             const hasEscorts = escortsInRegion.length > 0;
@@ -403,9 +409,10 @@ export default function FilteredEscortPage() {
                                                             setShowRegionDropdown(false);
                                                         }
                                                     }}
-                                                    className={`w-full flex items-center justify-between p-3 text-left hover:bg-gray-50
-                                                        ${selectedRegion === regionName ? 'bg-purple-50' : ''}
-                                                        ${!hasEscorts ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    className={`w-full flex items-center justify-between p-3 text-left
+                                            ${selectedRegion === regionName ? 'bg-purple-50 dark:bg-purple-900' : ''}
+                                            ${hasEscorts ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}
+                                            text-gray-900 dark:text-gray-100`}
                                                     disabled={!hasEscorts}
                                                 >
                                                     <span className="truncate font-medium">{regionName}</span>
@@ -421,7 +428,7 @@ export default function FilteredEscortPage() {
 
                             {selectedRegion && (
                                 <>
-                                    <ChevronRight className="hidden sm:block h-4 w-4 text-gray-400" />
+                                    <ChevronRight className="hidden sm:block h-4 w-4 text-gray-400 dark:text-gray-500" />
 
                                     {/* County Dropdown */}
                                     <div className="relative w-full sm:w-auto">
@@ -431,14 +438,21 @@ export default function FilteredEscortPage() {
                                                 setShowCountyDropdown(!showCountyDropdown);
                                                 setShowTownDropdown(false);
                                             }}
-                                            className="w-full sm:w-auto flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
+                                            className="w-full sm:w-auto flex items-center justify-between gap-2 px-3 py-2 rounded-md
+                                    border border-gray-200 dark:border-gray-600
+                                    bg-white dark:bg-gray-800 
+                                    hover:bg-gray-50 dark:hover:bg-gray-700
+                                    text-gray-900 dark:text-gray-100"
                                         >
                                             <span className="truncate">{selectedCounty || 'Select County'}</span>
-                                            <ChevronDown className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                                            <ChevronDown className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-500" />
                                         </button>
 
                                         {showCountyDropdown && (
-                                            <div className="absolute z-50 top-full left-0 right-0 sm:right-auto mt-1 sm:w-64 max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg">
+                                            <div className="absolute z-50 top-full left-0 right-0 sm:right-auto mt-1 sm:w-64 max-h-64 overflow-y-auto
+                                    bg-white dark:bg-gray-800 
+                                    border border-gray-200 dark:border-gray-600 
+                                    rounded-md shadow-lg">
                                                 {getCurrentRegionCounties().map(county => {
                                                     const escortsInCounty = escorts.filter(e =>
                                                         e.location?.region === selectedRegion &&
@@ -455,9 +469,10 @@ export default function FilteredEscortPage() {
                                                                     setShowCountyDropdown(false);
                                                                 }
                                                             }}
-                                                            className={`w-full flex items-center justify-between p-3 text-left hover:bg-gray-50
-                                                                ${selectedCounty === county ? 'bg-purple-50' : ''}
-                                                                ${!hasCountyEscorts ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                            className={`w-full flex items-center justify-between p-3 text-left
+                                                    ${selectedCounty === county ? 'bg-purple-50 dark:bg-purple-900' : ''}
+                                                    ${hasCountyEscorts ? 'hover:bg-gray-50 dark:hover:bg-gray-700' : 'opacity-50 cursor-not-allowed'}
+                                                    text-gray-900 dark:text-gray-100`}
                                                             disabled={!hasCountyEscorts}
                                                         >
                                                             <span className="truncate">{county}</span>
@@ -475,7 +490,7 @@ export default function FilteredEscortPage() {
 
                             {selectedCounty && (
                                 <>
-                                    <ChevronRight className="hidden sm:block h-4 w-4 text-gray-400" />
+                                    <ChevronRight className="hidden sm:block h-4 w-4 text-gray-400 dark:text-gray-500" />
 
                                     {/* Town Dropdown */}
                                     <div className="relative w-full sm:w-auto">
@@ -484,14 +499,21 @@ export default function FilteredEscortPage() {
                                                 e.stopPropagation();
                                                 setShowTownDropdown(!showTownDropdown);
                                             }}
-                                            className="w-full sm:w-auto flex items-center justify-between gap-2 px-3 py-2 rounded-md border border-gray-200 hover:bg-gray-50"
+                                            className="w-full sm:w-auto flex items-center justify-between gap-2 px-3 py-2 rounded-md
+                                    border border-gray-200 dark:border-gray-600
+                                    bg-white dark:bg-gray-800 
+                                    hover:bg-gray-50 dark:hover:bg-gray-700
+                                    text-gray-900 dark:text-gray-100"
                                         >
                                             <span className="truncate">{selectedTown || 'Select Town'}</span>
-                                            <ChevronDown className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                                            <ChevronDown className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-500" />
                                         </button>
 
                                         {showTownDropdown && (
-                                            <div className="absolute z-50 top-full left-0 right-0 sm:right-auto mt-1 sm:w-64 max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg">
+                                            <div className="absolute z-50 top-full left-0 right-0 sm:right-auto mt-1 sm:w-64 max-h-64 overflow-y-auto
+                                    bg-white dark:bg-gray-800 
+                                    border border-gray-200 dark:border-gray-600 
+                                    rounded-md shadow-lg">
                                                 {getCurrentCountyTowns().map(town => {
                                                     const escortsInTown = escorts.filter(e =>
                                                         e.location?.region === selectedRegion &&
@@ -506,8 +528,10 @@ export default function FilteredEscortPage() {
                                                                 handleTownClick(town);
                                                                 setShowTownDropdown(false);
                                                             }}
-                                                            className={`w-full flex items-center justify-between p-3 text-left hover:bg-gray-50
-                                                                ${selectedTown === town ? 'bg-purple-50' : ''}`}
+                                                            className={`w-full flex items-center justify-between p-3 text-left
+                                                    ${selectedTown === town ? 'bg-purple-50 dark:bg-purple-900' : ''}
+                                                    hover:bg-gray-50 dark:hover:bg-gray-700
+                                                    text-gray-900 dark:text-gray-100`}
                                                         >
                                                             <span className="truncate">{town}</span>
                                                             <Badge variant="primary" className="ml-2 flex-shrink-0">
@@ -526,10 +550,13 @@ export default function FilteredEscortPage() {
                             {(selectedRegion || selectedCounty || selectedTown) && (
                                 <button
                                     onClick={clearFilters}
-                                    className="flex items-center justify-center p-2 rounded-md hover:bg-gray-100 border border-gray-200 sm:ml-2"
+                                    className="flex items-center justify-center p-2 rounded-md
+                            border border-gray-200 dark:border-gray-600
+                            hover:bg-gray-100 dark:hover:bg-gray-700
+                            sm:ml-2"
                                     title="Clear location filters"
                                 >
-                                    <X className="h-4 w-4 text-gray-400" />
+                                    <X className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                                 </button>
                             )}
                         </div>
