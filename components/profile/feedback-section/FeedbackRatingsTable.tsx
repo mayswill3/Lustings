@@ -13,11 +13,81 @@ export const FeedbackRatingsTable: React.FC<FeedbackRatingsTableProps> = ({
     feedbackPeriods,
     getFeedbackCounts
 }) => {
+    const getTotalCounts = () => {
+        const allFeedbacks = Object.values(feedbackPeriods).flat();
+        return getFeedbackCounts(allFeedbacks);
+    };
+
+    const totalCounts = getTotalCounts();
+    const totalFeedback = totalCounts.positive + totalCounts.neutral + totalCounts.negative;
+
     return (
         <div>
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
                 Feedback ratings
             </h2>
+
+            {/* Overview Section - Desktop */}
+            <div className="hidden md:grid grid-cols-3 gap-4 mb-6">
+                {[
+                    { type: 'positive', icon: '+', color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-50 dark:bg-green-900/20' },
+                    { type: 'neutral', icon: '○', color: 'text-gray-600 dark:text-gray-400', bgColor: 'bg-gray-50 dark:bg-gray-900/20' },
+                    { type: 'negative', icon: '-', color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-50 dark:bg-red-900/20' }
+                ].map(({ type, icon, color, bgColor }) => (
+                    <div
+                        key={type}
+                        className={`${bgColor} rounded-lg p-4 border border-gray-200 dark:border-gray-700`}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className={`text-xl ${color}`}>{icon}</span>
+                                <span className="capitalize text-gray-700 dark:text-gray-300">{type}</span>
+                            </div>
+                            <div className="flex flex-col items-end">
+                                <span className={`text-xl font-semibold ${color}`}>
+                                    {totalCounts[type as keyof typeof totalCounts]}
+                                </span>
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                    {totalFeedback > 0
+                                        ? `${Math.round((totalCounts[type as keyof typeof totalCounts] / totalFeedback) * 100)}%`
+                                        : '0%'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Overview Section - Mobile */}
+            <div className="md:hidden mb-6">
+                <div className="grid grid-cols-3 gap-2">
+                    {[
+                        { type: 'positive', icon: '+', color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-50 dark:bg-green-900/20' },
+                        { type: 'neutral', icon: '○', color: 'text-gray-600 dark:text-gray-400', bgColor: 'bg-gray-50 dark:bg-gray-900/20' },
+                        { type: 'negative', icon: '-', color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-50 dark:bg-red-900/20' }
+                    ].map(({ type, icon, color, bgColor }) => (
+                        <div
+                            key={type}
+                            className={`${bgColor} rounded-lg p-3 border border-gray-200 dark:border-gray-700`}
+                        >
+                            <div className="flex flex-col items-center">
+                                <div className="flex items-center gap-1 mb-1">
+                                    <span className={`text-lg ${color}`}>{icon}</span>
+                                    <span className="text-xs capitalize text-gray-700 dark:text-gray-300">{type}</span>
+                                </div>
+                                <span className={`text-lg font-semibold ${color}`}>
+                                    {totalCounts[type as keyof typeof totalCounts]}
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                    {totalFeedback > 0
+                                        ? `${Math.round((totalCounts[type as keyof typeof totalCounts] / totalFeedback) * 100)}%`
+                                        : '0%'}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
 
             {/* Desktop Table */}
             <div className="hidden md:block bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -63,40 +133,35 @@ export const FeedbackRatingsTable: React.FC<FeedbackRatingsTableProps> = ({
                 </table>
             </div>
 
-            {/* Mobile Responsive View */}
+            {/* Mobile Period View */}
             <div className="md:hidden space-y-4">
-                {[
-                    { type: 'positive', icon: '+', color: 'text-green-600 dark:text-green-400' },
-                    { type: 'neutral', icon: '○', color: 'text-gray-600 dark:text-gray-400' },
-                    { type: 'negative', icon: '-', color: 'text-red-600 dark:text-red-400' }
-                ].map(({ type, icon, color }) => (
-                    <div
-                        key={type}
-                        className="bg-gray-50 dark:bg-zinc-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
-                    >
-                        <div className="flex items-center gap-3 mb-3">
-                            <span className={`text-xl ${color}`}>{icon}</span>
-                            <span className="capitalize text-gray-700 dark:text-gray-300 font-semibold">
-                                {type} Feedback
-                            </span>
-                        </div>
-                        <div className="grid grid-cols-3 gap-2">
-                            {Object.keys(feedbackPeriods).map((period, index) => (
-                                <div
-                                    key={period}
-                                    className="text-center bg-gray-100 dark:bg-zinc-800 rounded p-2"
-                                >
-                                    <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                                        {period}
+                {Object.entries(feedbackPeriods).map(([period, periodFeedbacks]) => {
+                    const counts = getFeedbackCounts(periodFeedbacks);
+                    return (
+                        <div key={period} className="bg-gray-50 dark:bg-zinc-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                            <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">
+                                {period}
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                                {[
+                                    { type: 'positive', icon: '+', color: 'text-green-600 dark:text-green-400' },
+                                    { type: 'neutral', icon: '○', color: 'text-gray-600 dark:text-gray-400' },
+                                    { type: 'negative', icon: '-', color: 'text-red-600 dark:text-red-400' }
+                                ].map(({ type, icon, color }) => (
+                                    <div
+                                        key={type}
+                                        className="flex items-center justify-between bg-gray-100 dark:bg-zinc-800 rounded p-2"
+                                    >
+                                        <span className={`text-lg ${color}`}>{icon}</span>
+                                        <span className="text-blue-600 dark:text-blue-400 font-medium">
+                                            {counts[type as keyof typeof counts]}
+                                        </span>
                                     </div>
-                                    <div className="text-blue-600 dark:text-blue-400 font-medium">
-                                        {getFeedbackCounts(Object.values(feedbackPeriods)[index])[type as keyof ReturnType<typeof getFeedbackCounts>]}
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

@@ -151,7 +151,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         const date = new Date(createdAt);
         return date.toLocaleDateString('en-GB'); // formats as DD/MM/YYYY
     };
-    console.log(userDetails)
+
     return (
 
         <DashboardLayout user={user} userDetails={userDetails} title="Profile Page" description="View user details">
