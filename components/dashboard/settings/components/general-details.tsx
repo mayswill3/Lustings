@@ -17,6 +17,8 @@ import Toggle from '@/components/ui/toggle';
 import { MapPin, User2, Lock, Settings2, Clock } from 'lucide-react';
 import { NATIONALITIES, isValidNationality } from '@/constants/nationalities';
 import LocationDetailsSection from './general-details/location-details';
+import { DeleteProfileSection } from './general-details/delete-profile';
+import { HiddenCollapsible } from '@/components/ui/hidden-collapsible';
 
 interface Props {
     user: User | null | undefined;
@@ -556,7 +558,14 @@ export default function GeneralDetails(props: Props) {
                         </div>
                     </Card>
                 )}
-
+                <div className="mt-8 border-t pt-8">
+                    <HiddenCollapsible
+                        trigger="Advanced Account Settings"
+                    // className="text-right"
+                    >
+                        <DeleteProfileSection userId={props.user?.id ?? ''} />
+                    </HiddenCollapsible>
+                </div>
                 <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-3 sm:p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
                         <Button

@@ -305,3 +305,33 @@ using (
   bucket_id = 'profile-pictures' AND 
   owner = auth.uid()
 );
+
+CREATE OR REPLACE FUNCTION public.delete_user_profile(user_id UUID)
+RETURNS void AS $$
+BEGIN
+    -- Delete credit_changes
+    DELETE FROM public.credit_changes 
+    WHERE credit_changes.user_id = $1;
+    
+    -- Delete featured_profiles
+    DELETE FROM public.featured_profiles 
+    WHERE featured_profiles.user_id = $1;
+    
+    -- Delete availability_status
+    DELETE FROM public.availability_status 
+    WHERE availability_status.user_id = $1;
+    
+    -- Delete verification
+    DELETE FROM public.verification 
+    WHERE verification.id = $1;
+    
+    -- Finally delete the user record
+    DELETE FROM public.users 
+    WHERE users.id = $1;
+    
+    -- Note: Feedbacks table is intentionally not included to preserve feedback history
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Grant necessary permissions
+GRANT EXECUTE ON FUNCTION public.delete_user_profile(UUID) TO service_role;

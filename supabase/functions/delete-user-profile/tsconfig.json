@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "target": "ESNext",
+      "module": "ESNext",
+      "moduleResolution": "node",
+      "lib": ["ESNext", "DOM"],
+      "types": ["@supabase/supabase-js"],
+      "strict": true,
+      "noImplicitAny": true,
+      "noImplicitThis": true,
+      "alwaysStrict": true,
+      "strictNullChecks": true,
+      "strictFunctionTypes": true,
+      "allowJs": false
+    }
+  }
