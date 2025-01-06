@@ -14,7 +14,7 @@ interface EscortCardProps {
 
 export function EscortCard({ escort, isAvailable, calculateAge }: EscortCardProps) {
     return (
-        <Link href={`/profile/${encodeURIComponent(escort.full_name)}`}>
+        <Link href={`/profile/${escort.full_name.replace(/\s+/g, '-')}`}>
             <Card className="overflow-hidden hover:shadow-lg transition-shadow !p-2 h-full">
                 <div className="relative aspect-[3/4]">
                     <img
