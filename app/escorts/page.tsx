@@ -56,6 +56,26 @@ export default function EscortGrid() {
         return age;
     };
 
+    const getAgeRange = (dob: string) => {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        if (age >= 56) return '56+';
+        if (age >= 46) return '46-55';
+        if (age >= 41) return '41-45';
+        if (age >= 36) return '36-40';
+        if (age >= 31) return '31-35';
+        if (age >= 25) return '25-30';
+        if (age >= 18) return '18-24';
+        return '';
+    };
+
     // Handle postcode input and fetch coordinates
     const handlePostcodeChange = async (postcode: string) => {
         const cleanedPostcode = postcode.trim().toUpperCase();
@@ -163,7 +183,7 @@ export default function EscortGrid() {
                 !searchTerm || escort.full_name?.toLowerCase().includes(searchTerm.toLowerCase()),
                 !selectedGender || details.gender?.toLowerCase() === selectedGender.toLowerCase(),
                 !selectedEthnicity || escort.about_you.ethnicity?.toLowerCase() === selectedEthnicity.toLowerCase(),
-                !selectedAge || (details.dob && calculateAge(details.dob) === parseInt(selectedAge)),
+                !selectedAge || (details.dob && getAgeRange(details.dob) === selectedAge), // Keep only this age condition
                 !selectedCallType || preferences.rates?.[selectedCallType],
                 !selectedBookingLength || preferences.rates?.inCall?.[selectedBookingLength] || preferences.rates?.outCall?.[selectedBookingLength],
                 !selectedNationality || escort.nationality?.toLowerCase() === selectedNationality.toLowerCase(),
@@ -220,7 +240,7 @@ export default function EscortGrid() {
             </div>
         );
     }
-
+    console.log(filteredEscorts)
     return (
         <DashboardLayout user={user} userDetails={userDetails} title="All Escorts" description="Browse all available escorts">
             <div className="w-full max-w-screen-xl mx-auto px-2 pb-8">
