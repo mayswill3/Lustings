@@ -91,8 +91,8 @@ const VerificationUploader = ({ user }: Props) => {
                     return;
                 }
 
-                // Add random number to filename for uniqueness
-                const fullFilename = `user_${user.id}/verification_${index + 1}_${randomNumber}.${fileExtension}`;
+                // Modified: Remove "user_" prefix to keep pure UUID
+                const fullFilename = `${user.id}/verification_${index + 1}_${randomNumber}.${fileExtension}`;
 
                 const { data, error } = await supabase.storage
                     .from('verifications')
