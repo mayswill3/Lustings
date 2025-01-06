@@ -34,6 +34,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     const [loading, setLoading] = useState(true);
     const [showMobile, setShowMobile] = useState(false);
     const [activeTab, setActiveTab] = useState('profile');
+    const decodedName = full_name.replace(/-/g, ' ');
 
     const tabItems = [
         { value: 'profile', label: 'Profile' },
@@ -77,7 +78,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                         verified
                     )
                 `)
-                .eq('full_name', full_name)
+                .or(`full_name.eq.${decodedName},full_name.eq.${full_name}`)
                 .single();
 
             if (userResponse.error) throw userResponse.error;
