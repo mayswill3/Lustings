@@ -90,6 +90,26 @@ export default function FilteredEscortPage() {
         return age;
     };
 
+    const getAgeRange = (dob: string) => {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        if (age >= 56) return '56+';
+        if (age >= 46) return '46-55';
+        if (age >= 41) return '41-45';
+        if (age >= 36) return '36-40';
+        if (age >= 31) return '31-35';
+        if (age >= 25) return '25-30';
+        if (age >= 18) return '18-24';
+        return '';
+    };
+
     // Handlers
     const handlePostcodeChange = async (postcode: string) => {
         const cleanedPostcode = postcode.trim().toUpperCase();
@@ -162,10 +182,10 @@ export default function FilteredEscortPage() {
             if (filters.ethnicity && escort.about_you?.ethnicity?.toLowerCase() !== filters.ethnicity.toLowerCase()) return false;
             if (filters.nationality && escort.nationality?.toLowerCase() !== filters.nationality.toLowerCase()) return false;
 
-            // Age filter
+            // Age filter using age range
             if (filters.age && personalDetails.dob) {
-                const age = calculateAge(personalDetails.dob);
-                if (age !== parseInt(filters.age)) return false;
+                const ageRange = getAgeRange(personalDetails.dob);
+                if (ageRange !== filters.age) return false;
             }
 
             // Booking length filter

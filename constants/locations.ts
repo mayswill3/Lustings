@@ -19,7 +19,10 @@ export const UK_REGIONS = {
         'Glossop',
         'Ilkeston',
         'Long Eaton',
-        'Matlock'
+        'Matlock',
+        'Belper',
+        'Ripley',
+        'Dronfield'
       ],
       Leicestershire: [
         'Leicester',
@@ -29,7 +32,10 @@ export const UK_REGIONS = {
         'Melton Mowbray',
         'Market Harborough',
         'Wigston',
-        'Ashby-de-la-Zouch'
+        'Ashby-de-la-Zouch',
+        'Oadby',
+        'Birstall',
+        'Castle Donington'
       ],
       Lincolnshire: [
         'Lincoln',
@@ -39,7 +45,10 @@ export const UK_REGIONS = {
         'Scunthorpe',
         'Skegness',
         'Spalding',
-        'Stamford'
+        'Stamford',
+        'Sleaford',
+        'Louth',
+        'Horncastle'
       ],
       Northamptonshire: [
         'Northampton',
@@ -48,7 +57,10 @@ export const UK_REGIONS = {
         'Wellingborough',
         'Rushden',
         'Daventry',
-        'Brackley'
+        'Brackley',
+        'Towcester',
+        'Oundle',
+        'Thrapston'
       ],
       Nottinghamshire: [
         'Nottingham',
@@ -57,9 +69,15 @@ export const UK_REGIONS = {
         'Newark-on-Trent',
         'Sutton-in-Ashfield',
         'Retford',
-        'Beeston'
+        'Beeston',
+        'Arnold',
+        'Carlton',
+        'Eastwood'
       ],
-      Rutland: ['Oakham', 'Uppingham']
+      Rutland: [
+        'Oakham',
+        'Uppingham'
+      ]
     }
   },
   'East of England': {
@@ -79,7 +97,9 @@ export const UK_REGIONS = {
         'Leighton Buzzard',
         'Biggleswade',
         'Sandy',
-        'Flitwick'
+        'Flitwick',
+        'Ampthill',
+        'Kempston'
       ],
       Cambridgeshire: [
         'Cambridge',
@@ -89,7 +109,9 @@ export const UK_REGIONS = {
         'St Neots',
         'Huntingdon',
         'Ely',
-        'St Ives'
+        'St Ives',
+        'Whittlesey',
+        'Chatteris'
       ],
       Essex: [
         'Chelmsford',
@@ -103,7 +125,17 @@ export const UK_REGIONS = {
         'Witham',
         'Maldon',
         'Wickford',
-        'Loughton'
+        'Loughton',
+        'Grays',
+        'Rayleigh',
+        'Harwich',
+        'Frinton-on-Sea',
+        'Saffron Walden',
+        'Epping',
+        'Thundersley',
+        'Great Dunmow',
+        'Tiptree',
+        'Tilbury'
       ],
       Hertfordshire: [
         'St Albans',
@@ -117,7 +149,10 @@ export const UK_REGIONS = {
         'Hertford',
         'Hoddesdon',
         'Cheshunt',
-        'Borehamwood'
+        'Borehamwood',
+        'Rickmansworth',
+        'Tring',
+        'Royston'
       ],
       Norfolk: [
         'Norwich',
@@ -127,7 +162,10 @@ export const UK_REGIONS = {
         'Dereham',
         'Wymondham',
         'North Walsham',
-        'Cromer'
+        'Cromer',
+        'Fakenham',
+        'Swaffham',
+        'Diss'
       ],
       Suffolk: [
         'Ipswich',
@@ -137,7 +175,10 @@ export const UK_REGIONS = {
         'Felixstowe',
         'Sudbury',
         'Stowmarket',
-        'Newmarket'
+        'Newmarket',
+        'Woodbridge',
+        'Beccles',
+        'Mildenhall'
       ]
     }
   },
@@ -181,7 +222,7 @@ export const UK_REGIONS = {
       ]
     }
   },
-  'North East': {
+ 'North East': {
     counties: ['County Durham', 'Northumberland', 'Tyne and Wear'],
     towns: {
       'County Durham': [
@@ -194,7 +235,10 @@ export const UK_REGIONS = {
         'Consett',
         'Newton Aycliffe',
         'Peterlee',
-        'Seaham'
+        'Seaham',
+        'Shildon',
+        'Crook',
+        'Stanley'
       ],
       Northumberland: [
         'Alnwick',
@@ -204,7 +248,11 @@ export const UK_REGIONS = {
         'Cramlington',
         'Hexham',
         'Morpeth',
-        'Prudhoe'
+        'Prudhoe',
+        'Seaton Delaval',
+        'Bedlington',
+        'Haltwhistle',
+        'Rothbury'
       ],
       'Tyne and Wear': [
         'Newcastle upon Tyne',
@@ -214,7 +262,11 @@ export const UK_REGIONS = {
         'North Shields',
         'Whitley Bay',
         'Wallsend',
-        'Jarrow'
+        'Jarrow',
+        'Tynemouth',
+        'Washington',
+        'Houghton-le-Spring',
+        'Hebburn'
       ]
     }
   },
@@ -237,7 +289,10 @@ export const UK_REGIONS = {
         'Northwich',
         'Winsford',
         'Nantwich',
-        'Sandbach'
+        'Sandbach',
+        'Congleton',
+        'Knutsford',
+        'Runcorn'
       ],
       Cumbria: [
         'Carlisle',
@@ -248,7 +303,10 @@ export const UK_REGIONS = {
         'Penrith',
         'Ulverston',
         'Maryport',
-        'Windermere'
+        'Windermere',
+        'Ambleside',
+        'Keswick',
+        'Cockermouth'
       ],
       'Greater Manchester': [
         'Manchester',
@@ -260,7 +318,10 @@ export const UK_REGIONS = {
         'Stockport',
         'Tameside',
         'Trafford',
-        'Wigan'
+        'Wigan',
+        'Altrincham',
+        'Ashton-under-Lyne',
+        'Middleton'
       ],
       Lancashire: [
         'Lancaster',
@@ -272,7 +333,10 @@ export const UK_REGIONS = {
         'Lytham St Annes',
         'Morecambe',
         'Nelson',
-        'Colne'
+        'Colne',
+        'Fleetwood',
+        'Accrington',
+        'Skelmersdale'
       ],
       Merseyside: [
         'Liverpool',
@@ -282,7 +346,10 @@ export const UK_REGIONS = {
         'Southport',
         'St Helens',
         'Wallasey',
-        'Huyton'
+        'Huyton',
+        'Widnes',
+        'Halewood',
+        'Prescot'
       ]
     }
   },
@@ -307,7 +374,10 @@ export const UK_REGIONS = {
         'Newbury',
         'Windsor',
         'Wokingham',
-        'Woodley'
+        'Woodley',
+        'Sandhurst',
+        'Thatcham',
+        'Crowthorne'
       ],
       Buckinghamshire: [
         'Aylesbury',
@@ -316,7 +386,10 @@ export const UK_REGIONS = {
         'Amersham',
         'Chesham',
         'Marlow',
-        'Beaconsfield'
+        'Beaconsfield',
+        'Buckingham',
+        'Newport Pagnell',
+        'Winslow'
       ],
       'East Sussex': [
         'Brighton',
@@ -326,7 +399,10 @@ export const UK_REGIONS = {
         'Lewes',
         'Bexhill-on-Sea',
         'Crowborough',
-        'Seaford'
+        'Seaford',
+        'Uckfield',
+        'Battle',
+        'Newhaven'
       ],
       Hampshire: [
         'Southampton',
@@ -338,7 +414,10 @@ export const UK_REGIONS = {
         'Gosport',
         'Andover',
         'Aldershot',
-        'Farnborough'
+        'Farnborough',
+        'Havant',
+        'Petersfield',
+        'Waterlooville'
       ],
       'Isle of Wight': [
         'Newport',
@@ -346,7 +425,9 @@ export const UK_REGIONS = {
         'Cowes',
         'Sandown',
         'Shanklin',
-        'Ventnor'
+        'Ventnor',
+        'Yarmouth',
+        'East Cowes'
       ],
       Kent: [
         'Maidstone',
@@ -365,7 +446,11 @@ export const UK_REGIONS = {
         'Sevenoaks',
         'Sittingbourne',
         'Tonbridge',
-        'Whitstable'
+        'Whitstable',
+        'Herne Bay',
+        'Sheerness',
+        'Faversham',
+        'Sandwich'
       ],
       Oxfordshire: [
         'Oxford',
@@ -375,7 +460,10 @@ export const UK_REGIONS = {
         'Didcot',
         'Abingdon',
         'Carterton',
-        'Henley-on-Thames'
+        'Henley-on-Thames',
+        'Kidlington',
+        'Thame',
+        'Chipping Norton'
       ],
       Surrey: [
         'Guildford',
@@ -389,7 +477,10 @@ export const UK_REGIONS = {
         'Kingston upon Thames',
         'Richmond',
         'Farnham',
-        'Leatherhead'
+        'Leatherhead',
+        'Camberley',
+        'Esher',
+        'Walton-on-Thames'
       ],
       'West Sussex': [
         'Chichester',
@@ -400,7 +491,10 @@ export const UK_REGIONS = {
         'Littlehampton',
         'East Grinstead',
         'Haywards Heath',
-        'Shoreham-by-Sea'
+        'Shoreham-by-Sea',
+        'Arundel',
+        'Burgess Hill',
+        'Steyning'
       ]
     }
   },
@@ -421,7 +515,11 @@ export const UK_REGIONS = {
         'Weston-super-Mare',
         'Clevedon',
         'Portishead',
-        'Nailsea'
+        'Nailsea',
+        'Bradley Stoke',
+        'Yate',
+        'Fishponds',
+        'Stoke Bishop'
       ],
       Cornwall: [
         'Truro',
@@ -433,7 +531,10 @@ export const UK_REGIONS = {
         'Redruth',
         'St Ives',
         'Bodmin',
-        'Liskeard'
+        'Liskeard',
+        'Launceston',
+        'Helston',
+        'Padstow'
       ],
       Devon: [
         'Exeter',
@@ -445,7 +546,11 @@ export const UK_REGIONS = {
         'Newton Abbot',
         'Tiverton',
         'Bideford',
-        'Sidmouth'
+        'Sidmouth',
+        'Okehampton',
+        'Teignmouth',
+        'Totnes',
+        'South Molton'
       ],
       Dorset: [
         'Bournemouth',
@@ -455,7 +560,9 @@ export const UK_REGIONS = {
         'Bridport',
         'Sherborne',
         'Wimborne Minster',
-        'Swanage'
+        'Swanage',
+        'Ferndown',
+        'Corfe Castle'
       ],
       Gloucestershire: [
         'Gloucester',
@@ -464,7 +571,10 @@ export const UK_REGIONS = {
         'Cirencester',
         'Tewkesbury',
         'Dursley',
-        'Stow-on-the-Wold'
+        'Stow-on-the-Wold',
+        'Cinderford',
+        'Lydney',
+        'Mitcheldean'
       ],
       Somerset: [
         'Taunton',
@@ -476,7 +586,10 @@ export const UK_REGIONS = {
         'Wells',
         'Minehead',
         'Street',
-        'Shepton Mallet'
+        'Shepton Mallet',
+        'Somerton',
+        'Castle Cary',
+        'Chard'
       ],
       Wiltshire: [
         'Swindon',
@@ -486,7 +599,10 @@ export const UK_REGIONS = {
         'Warminster',
         'Melksham',
         'Devizes',
-        'Marlborough'
+        'Marlborough',
+        'Calne',
+        'Royal Wootton Bassett',
+        'Corsham'
       ]
     }
   },
@@ -506,7 +622,10 @@ export const UK_REGIONS = {
         'Ross-on-Wye',
         'Ledbury',
         'Bromyard',
-        'Kington'
+        'Kington',
+        'Abergavenny',
+        'Colwall',
+        'Pembridge'
       ],
       Shropshire: [
         'Shrewsbury',
@@ -516,7 +635,9 @@ export const UK_REGIONS = {
         'Market Drayton',
         'Ludlow',
         'Wellington',
-        'Whitchurch'
+        'Whitchurch',
+        'Shifnal',
+        'Much Wenlock'
       ],
       Staffordshire: [
         'Stoke-on-Trent',
@@ -526,7 +647,9 @@ export const UK_REGIONS = {
         'Lichfield',
         'Newcastle-under-Lyme',
         'Tamworth',
-        'Uttoxeter'
+        'Uttoxeter',
+        'Stone',
+        'Rugeley'
       ],
       Warwickshire: [
         'Warwick',
@@ -536,7 +659,9 @@ export const UK_REGIONS = {
         'Stratford-upon-Avon',
         'Bedworth',
         'Kenilworth',
-        'Atherstone'
+        'Atherstone',
+        'Alcester',
+        'Shipston-on-Stour'
       ],
       'West Midlands': [
         'Birmingham',
@@ -546,7 +671,11 @@ export const UK_REGIONS = {
         'Walsall',
         'West Bromwich',
         'Wolverhampton',
-        'Stourbridge'
+        'Stourbridge',
+        'Brierley Hill',
+        'Sutton Coldfield',
+        'Wednesbury',
+        'Halesowen'
       ],
       Worcestershire: [
         'Worcester',
@@ -556,7 +685,9 @@ export const UK_REGIONS = {
         'Malvern',
         'Evesham',
         'Droitwich Spa',
-        'Stourport-on-Severn'
+        'Stourport-on-Severn',
+        'Pershore',
+        'Bromyard'
       ]
     }
   },
@@ -576,7 +707,9 @@ export const UK_REGIONS = {
         'Driffield',
         'Hornsea',
         'Withernsea',
-        'Market Weighton'
+        'Market Weighton',
+        'Pocklington',
+        'Howden'
       ],
       'North Yorkshire': [
         'York',
@@ -588,7 +721,9 @@ export const UK_REGIONS = {
         'Whitby',
         'Ripon',
         'Thirsk',
-        'Malton'
+        'Malton',
+        'Knaresborough',
+        'Pickering'
       ],
       'South Yorkshire': [
         'Sheffield',
@@ -598,7 +733,9 @@ export const UK_REGIONS = {
         'Wombwell',
         'Mexborough',
         'Wath upon Dearne',
-        'Hoyland'
+        'Hoyland',
+        'Chapeltown',
+        'Dinnington'
       ],
       'West Yorkshire': [
         'Leeds',
@@ -610,7 +747,9 @@ export const UK_REGIONS = {
         'Keighley',
         'Castleford',
         'Pontefract',
-        'Batley'
+        'Batley',
+        'Ilkley',
+        'Shipley'
       ]
     }
   }
