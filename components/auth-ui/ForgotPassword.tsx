@@ -1,14 +1,14 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
 import { requestPasswordUpdate } from '@/utils/auth-helpers/server';
 import { handleRequest } from '@/utils/auth-helpers/client';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
 
-// Define prop type with allowEmail boolean
 interface ForgotPasswordProps {
   allowEmail: boolean;
   redirectMethod: string;
@@ -20,11 +20,99 @@ export default function ForgotPassword({
   redirectMethod
 }: ForgotPasswordProps) {
   const router = redirectMethod === 'client' ? useRouter() : null;
+  const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({
+    email: '',
+    general: ''
+  });
+  const [success, setSuccess] = useState('');
+
+  // Check for error or success in URL params
+  useEffect(() => {
+    const error = searchParams?.get('error');
+    const message = searchParams?.get('message');
+
+    if (error) {
+      setErrors(prev => ({ ...prev, general: decodeURIComponent(error) }));
+    }
+    if (message) {
+      setSuccess(decodeURIComponent(message));
+    }
+  }, [searchParams]);
+
+  const validateForm = (email: string) => {
+    const newErrors = {
+      email: '',
+      general: ''
+    };
+
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    return newErrors;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    setIsSubmitting(true); // Disable the button while the request is being handled
-    await handleRequest(e, requestPasswordUpdate, router);
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrors({ email: '', general: '' });
+    setSuccess('');
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+
+    // Validate form
+    const formErrors = validateForm(email);
+    setErrors(formErrors);
+
+    // If there are validation errors, don't submit
+    if (Object.values(formErrors).some(error => error !== '')) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await requestPasswordUpdate(formData);
+
+      // Handle string response format
+      if (typeof response === 'string') {
+        const decodedResponse = decodeURIComponent(response);
+        const params = new URLSearchParams(decodedResponse);
+
+        const error = params.get('error');
+        const errorDescription = params.get('error_description');
+        const message = params.get('message');
+
+        if (error || errorDescription) {
+          setErrors({
+            ...errors,
+            general: errorDescription || error || 'Failed to send reset email. Please try again.'
+          });
+        } else if (message) {
+          setSuccess(message);
+        } else {
+          setSuccess('Password reset instructions have been sent to your email.');
+        }
+      } else if (response.ok) {
+        setSuccess('Password reset instructions have been sent to your email.');
+      } else {
+        const data = await response.json();
+        setErrors({
+          ...errors,
+          general: data.error || 'Failed to send reset email. Please try again.'
+        });
+      }
+    } catch (error) {
+      setErrors({
+        ...errors,
+        general: 'An unexpected error occurred. Please try again.'
+      });
+    }
+
     setIsSubmitting(false);
   };
 
@@ -33,24 +121,46 @@ export default function ForgotPassword({
       <form
         noValidate={true}
         className="mb-4"
-        onSubmit={(e) => handleSubmit(e)}
+        onSubmit={handleSubmit}
       >
         <div className="grid gap-2">
+          {errors.general && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{errors.general}</AlertDescription>
+            </Alert>
+          )}
+
+          {success && (
+            <Alert className="mb-4 bg-green-50 border-green-200">
+              <AlertDescription className="text-green-800">{success}</AlertDescription>
+            </Alert>
+          )}
+
           <div className="grid gap-1">
             <label className="text-zinc-950 dark:text-white" htmlFor="email">
               Email
             </label>
             <Input
-              className="mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400"
+              className={`mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400 ${errors.email ? 'border-red-500' : ''
+                }`}
               id="email"
               placeholder="name@example.com"
               type="email"
               name="email"
               autoComplete="email"
+              aria-invalid={errors.email ? 'true' : 'false'}
+              aria-describedby={errors.email ? 'email-error' : undefined}
             />
+            {errors.email && (
+              <p id="email-error" className="text-sm text-red-500 mt-1">
+                {errors.email}
+              </p>
+            )}
           </div>
+
           <Button
             type="submit"
+            disabled={isSubmitting}
             className="mt-2 flex h-[unset] w-full items-center justify-center rounded-lg px-4 py-4 text-sm font-medium"
           >
             {isSubmitting ? (
@@ -77,6 +187,7 @@ export default function ForgotPassword({
           </Button>
         </div>
       </form>
+
       <p>
         <Link
           href="/dashboard/signin/password_signin"
