@@ -1,13 +1,10 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { signInWithPassword } from '@/utils/auth-helpers/server';
-import { handleRequest } from '@/utils/auth-helpers/client';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { Input } from '../ui/input';
 
-// Define prop type with allowEmail boolean
 interface PasswordSignInProps {
   allowEmail: boolean;
   redirectMethod: string;
@@ -19,33 +16,139 @@ export default function PasswordSignIn({
 }: PasswordSignInProps) {
   const router = redirectMethod === 'client' ? useRouter() : null;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({
+    email: '',
+    password: '',
+    general: ''
+  });
+
+  const validateForm = (email: string, password: string) => {
+    const newErrors = {
+      email: '',
+      password: '',
+      general: ''
+    };
+
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    return newErrors;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    setIsSubmitting(true); // Disable the button while the request is being handled
-    await handleRequest(e, signInWithPassword, router);
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrors({ email: '', password: '', general: '' });
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    // Validate form
+    const formErrors = validateForm(email, password);
+    setErrors(formErrors);
+
+    // If there are validation errors, don't submit
+    if (Object.values(formErrors).some(error => error !== '')) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await signInWithPassword(formData);
+
+      // Handle string response type
+      if (typeof response === 'string') {
+        const decodedResponse = decodeURIComponent(response);
+        const params = new URLSearchParams(decodedResponse);
+
+        const error = params.get('error');
+        const errorDescription = params.get('error_description');
+
+        if (error || errorDescription) {
+          setErrors({
+            ...errors,
+            general: errorDescription || error || 'Failed to sign in. Please try again.'
+          });
+        }
+      }
+      // Handle Response type
+      else if (response && typeof response === 'object' && 'ok' in response) {
+        const res = response as Response;  // Explicitly cast to Response
+        if (res.ok) {
+          if (router) {
+            router.push('/dashboard');
+          }
+        } else {
+          const data = await res.json();
+          setErrors({
+            ...errors,
+            general: data.error || 'Failed to sign in. Please try again.'
+          });
+        }
+      }
+      // Handle unknown response type
+      else {
+        setErrors({
+          ...errors,
+          general: 'Failed to process request. Please try again.'
+        });
+      }
+    } catch (error) {
+      setErrors({
+        ...errors,
+        general: 'An unexpected error occurred. Please try again.'
+      });
+    }
+
     setIsSubmitting(false);
   };
+
 
   return (
     <div>
       <form
         noValidate={true}
         className="mb-4"
-        onSubmit={(e) => handleSubmit(e)}
+        onSubmit={handleSubmit}
       >
         <div className="grid gap-2">
+          {errors.general && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{errors.general}</AlertDescription>
+            </Alert>
+          )}
+
           <div className="grid gap-1">
             <label className="text-zinc-950 dark:text-white" htmlFor="email">
               Email
             </label>
             <Input
-              className="mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400"
+              className={`mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400 ${errors.email ? 'border-red-500' : ''
+                }`}
               id="email"
               placeholder="name@example.com"
               type="email"
               name="email"
               autoComplete="email"
+              aria-invalid={errors.email ? 'true' : 'false'}
+              aria-describedby={errors.email ? 'email-error' : undefined}
             />
+            {errors.email && (
+              <p id="email-error" className="text-sm text-red-500 mt-1">
+                {errors.email}
+              </p>
+            )}
+
             <label
               className="text-zinc-950 mt-2 dark:text-white"
               htmlFor="password"
@@ -58,11 +161,21 @@ export default function PasswordSignIn({
               type="password"
               name="password"
               autoComplete="current-password"
-              className="mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400"
+              className={`mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400 ${errors.password ? 'border-red-500' : ''
+                }`}
+              aria-invalid={errors.password ? 'true' : 'false'}
+              aria-describedby={errors.password ? 'password-error' : undefined}
             />
+            {errors.password && (
+              <p id="password-error" className="text-sm text-red-500 mt-1">
+                {errors.password}
+              </p>
+            )}
           </div>
+
           <Button
             type="submit"
+            disabled={isSubmitting}
             className="mt-2 flex h-[unset] w-full items-center justify-center rounded-lg px-4 py-4 text-sm font-medium"
           >
             {isSubmitting ? (
@@ -89,6 +202,7 @@ export default function PasswordSignIn({
           </Button>
         </div>
       </form>
+
       <p>
         <a
           href="/dashboard/signin/forgot_password"
