@@ -78,7 +78,7 @@ export default function ForgotPassword({
     try {
       const response = await requestPasswordUpdate(formData);
 
-      // Handle string response format
+      // Handle string response type
       if (typeof response === 'string') {
         const decodedResponse = decodeURIComponent(response);
         const params = new URLSearchParams(decodedResponse);
@@ -97,13 +97,25 @@ export default function ForgotPassword({
         } else {
           setSuccess('Password reset instructions have been sent to your email.');
         }
-      } else if (response.ok) {
-        setSuccess('Password reset instructions have been sent to your email.');
-      } else {
-        const data = await response.json();
+      }
+      // Handle Response type
+      else if (response && typeof response === 'object' && 'ok' in response) {
+        const res = response as Response;  // Explicitly cast to Response
+        if (res.ok) {
+          setSuccess('Password reset instructions have been sent to your email.');
+        } else {
+          const data = await res.json();
+          setErrors({
+            ...errors,
+            general: data.error || 'Failed to send reset email. Please try again.'
+          });
+        }
+      }
+      // Handle unknown response type
+      else {
         setErrors({
           ...errors,
-          general: data.error || 'Failed to send reset email. Please try again.'
+          general: 'Failed to process request. Please try again.'
         });
       }
     } catch (error) {

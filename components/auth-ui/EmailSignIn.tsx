@@ -44,6 +44,7 @@ export default function EmailSignIn({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrors({ email: '', general: '' });
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
@@ -61,27 +62,41 @@ export default function EmailSignIn({
     try {
       const response = await signInWithEmail(formData);
 
-      // Assuming response is a string like "error=Sign%20in%20failed.&error_description=Invalid%20login%20credentials"
+      // Handle string response type
       if (typeof response === 'string') {
-        // Decode the response
         const decodedResponse = decodeURIComponent(response);
         const params = new URLSearchParams(decodedResponse);
-        const errorDescription = params.get('error_description') || 'An unexpected error occurred. Please try again.';
 
-        setErrors({
-          ...errors,
-          general: errorDescription
-        });
-      } else if (response.ok) {
-        // If response is ok, navigate to dashboard
-        if (router) {
-          router.push('/dashboard');
+        const error = params.get('error');
+        const errorDescription = params.get('error_description');
+
+        if (error || errorDescription) {
+          setErrors({
+            ...errors,
+            general: errorDescription || error || 'Failed to send magic link. Please try again.'
+          });
         }
-      } else {
-        const data = await response.json();
+      }
+      // Handle Response type
+      else if (response && typeof response === 'object' && 'ok' in response) {
+        const res = response as Response;  // Explicitly cast to Response
+        if (res.ok) {
+          if (router) {
+            router.push('/dashboard');
+          }
+        } else {
+          const data = await res.json();
+          setErrors({
+            ...errors,
+            general: data.error || 'Failed to send magic link. Please try again.'
+          });
+        }
+      }
+      // Handle unknown response type
+      else {
         setErrors({
           ...errors,
-          general: data.error || 'Failed to send magic link. Please try again.'
+          general: 'Failed to process request. Please try again.'
         });
       }
     } catch (error) {
