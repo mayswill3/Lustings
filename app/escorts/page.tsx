@@ -179,17 +179,22 @@ export default function EscortGrid() {
             const details = escort.personal_details || {};
             const preferences = escort.preferences?.escorting || {};
 
+            const escortActivities = details.activities?.map(act => act.toLowerCase()) || [];
+            const normalizedSelectedActivities = selectedActivities.map(act => act.toLowerCase());
+
+
             const matches = [
                 !searchTerm || escort.full_name?.toLowerCase().includes(searchTerm.toLowerCase()),
                 !selectedGender || details.gender?.toLowerCase() === selectedGender.toLowerCase(),
-                !selectedEthnicity || escort.about_you.ethnicity?.toLowerCase() === selectedEthnicity.toLowerCase(),
+                !selectedEthnicity || escort.about_you?.ethnicity?.toLowerCase() === selectedEthnicity.toLowerCase(),
                 !selectedAge || (details.dob && getAgeRange(details.dob) === selectedAge), // Keep only this age condition
                 !selectedCallType || preferences.rates?.[selectedCallType],
                 !selectedBookingLength || preferences.rates?.inCall?.[selectedBookingLength] || preferences.rates?.outCall?.[selectedBookingLength],
                 !selectedNationality || escort.nationality?.toLowerCase() === selectedNationality.toLowerCase(),
-                !selectedActivities.length || selectedActivities.every((activity) =>
-                    details.activities?.includes(activity.toLowerCase())
+                !normalizedSelectedActivities.length || normalizedSelectedActivities.every(activity =>
+                    escortActivities.includes(activity)
                 )
+
             ];
 
             return matches.every(Boolean);
@@ -197,6 +202,24 @@ export default function EscortGrid() {
 
         setFilteredEscorts(filtered);
     };
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            applyFilters();
+        }, 100); // Small debounce to batch filter operations
+
+        return () => clearTimeout(timeoutId);
+    }, [
+        searchTerm,
+        selectedGender,
+        selectedAge,
+        selectedEthnicity,
+        selectedCallType,
+        selectedBookingLength,
+        selectedNationality,
+        selectedActivities,
+        escorts // Add escorts to dependency array
+    ]);
 
     // Clear all filters
     const clearFilters = () => {
