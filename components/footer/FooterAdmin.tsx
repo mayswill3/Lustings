@@ -16,7 +16,7 @@ export default function Footer() {
           <li>
             <a
               target="blank"
-              href="mailto:hello@simmmple.com"
+              href="mailto:info@tinslelink.com"
               className="text-sm font-medium text-zinc-500 hover:text-zinc-950 dark:text-zinc-400"
             >
               FAQs
@@ -25,7 +25,7 @@ export default function Footer() {
           <li>
             <a
               target="blank"
-              href="https://horizon-ui.com/"
+              href="/privacy-policy"
               className="text-sm font-medium text-zinc-500 hover:text-zinc-950 dark:text-zinc-400"
             >
               Privacy Policy
@@ -34,13 +34,13 @@ export default function Footer() {
           <li>
             <a
               target="blank"
-              href="https://horizon-ui.com/boilerplate"
+              href="/terms"
               className="text-sm font-medium text-zinc-500 hover:text-zinc-950 dark:text-zinc-400"
             >
               Terms & Conditions
             </a>
           </li>
-          <li>
+          {/* <li>
             <a
               target="blank"
               href="https://blog.horizon-ui.com/"
@@ -48,7 +48,7 @@ export default function Footer() {
             >
               Refund Policy
             </a>
-          </li>
+          </li> */}
         </ul>
       </div>
     </div>
