@@ -8,7 +8,7 @@ export default function Footer() {
           <a
             className="text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm"
             target="_blank"
-            href="https://horizon-ui.notion.site/Terms-Conditions-c671e573673746e19d2fc3e4cba0c161"
+            href="/terms"
           >
             Terms & Conditions
           </a>
@@ -17,12 +17,12 @@ export default function Footer() {
           <a
             className="text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm"
             target="_blank"
-            href="https://horizon-ui.notion.site/Privacy-Policy-c22ff04f55474ae3b35ec45feca62bad"
+            href="/privacy-policy"
           >
             Privacy Policy
           </a>
         </li>
-        <li className="mr-4 md:mr-[44px]">
+        {/* <li className="mr-4 md:mr-[44px]">
           <a
             className="text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm"
             target="_blank"
@@ -30,8 +30,8 @@ export default function Footer() {
           >
             License
           </a>
-        </li>
-        <li>
+        </li> */}
+        {/* <li>
           <a
             className="text-[10px] font-medium text-zinc-950 dark:text-zinc-400 lg:text-sm"
             target="_blank"
@@ -39,7 +39,7 @@ export default function Footer() {
           >
             Refund Policy
           </a>
-        </li>
+        </li> */}
       </ul>
     </div>
   );
