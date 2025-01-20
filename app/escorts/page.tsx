@@ -9,6 +9,8 @@ import { UserX } from 'lucide-react';
 import { getPostcodeCoordinates, calculateDistance } from '@/utils/location';
 import { FilterSection } from '@/components/search/FilterSectionProps';
 import { getUserDetails, getUser } from '@/utils/supabase/queries';
+import LocationFilter from '@/components/LocationFilter';
+import { UK_REGIONS } from '@/constants/locations';
 
 const supabase = createClient();
 const [user, userDetails] = await Promise.all([
@@ -29,7 +31,12 @@ export default function EscortGrid() {
     const [loading, setLoading] = useState(true);
     const [showFilters, setShowFilters] = useState(false);
 
-    // Filters state
+    // Location state
+    const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+    const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
+    const [selectedTown, setSelectedTown] = useState<string | null>(null);
+
+    // Existing filters state
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedGender, setSelectedGender] = useState('');
     const [selectedAge, setSelectedAge] = useState('');
@@ -44,7 +51,7 @@ export default function EscortGrid() {
     const [isLoadingPostcode, setIsLoadingPostcode] = useState(false);
     const [searchCoordinates, setSearchCoordinates] = useState<Coordinates | null>(null);
 
-    // Utility to calculate age from DOB
+    // Existing utility functions
     const calculateAge = (dob: string) => {
         const birthDate = new Date(dob);
         const today = new Date();
@@ -76,7 +83,7 @@ export default function EscortGrid() {
         return '';
     };
 
-    // Handle postcode input and fetch coordinates
+    // Existing handlers
     const handlePostcodeChange = async (postcode: string) => {
         const cleanedPostcode = postcode.trim().toUpperCase();
         setSearchPostcode(cleanedPostcode);
@@ -100,7 +107,7 @@ export default function EscortGrid() {
         }
     };
 
-    // Fetch escorts and availability data
+    // Fetch escorts
     useEffect(() => {
         const fetchEscortsAndAvailability = async () => {
             try {
@@ -130,7 +137,6 @@ export default function EscortGrid() {
                     `)
                     .eq('member_type', 'Offering Services');
 
-
                 setEscorts(escortData || []);
                 setAvailableEscorts(new Set(availableIds?.map(a => a.user_id) || []));
                 setFeaturedEscorts(new Set(featuredIds?.map(f => f.user_id) || []));
@@ -146,7 +152,7 @@ export default function EscortGrid() {
         return () => clearInterval(interval);
     }, []);
 
-    // Apply distance-based filter
+    // Filter functions
     const filterByDistance = async () => {
         if (!searchCoordinates || !selectedDistance) return;
 
@@ -173,28 +179,30 @@ export default function EscortGrid() {
         }
     };
 
-    // Apply all filters
     const applyFilters = () => {
         const filtered = escorts.filter((escort) => {
             const details = escort.personal_details || {};
             const preferences = escort.preferences?.escorting || {};
 
+            // Location filters
+            if (selectedRegion && escort.location?.region !== selectedRegion) return false;
+            if (selectedCounty && escort.location?.county !== selectedCounty) return false;
+            if (selectedTown && escort.location?.town !== selectedTown) return false;
+
             const escortActivities = details.activities?.map(act => act.toLowerCase()) || [];
             const normalizedSelectedActivities = selectedActivities.map(act => act.toLowerCase());
-
 
             const matches = [
                 !searchTerm || escort.full_name?.toLowerCase().includes(searchTerm.toLowerCase()),
                 !selectedGender || details.gender?.toLowerCase() === selectedGender.toLowerCase(),
                 !selectedEthnicity || escort.about_you?.ethnicity?.toLowerCase() === selectedEthnicity.toLowerCase(),
-                !selectedAge || (details.dob && getAgeRange(details.dob) === selectedAge), // Keep only this age condition
+                !selectedAge || (details.dob && getAgeRange(details.dob) === selectedAge),
                 !selectedCallType || preferences.rates?.[selectedCallType],
                 !selectedBookingLength || preferences.rates?.inCall?.[selectedBookingLength] || preferences.rates?.outCall?.[selectedBookingLength],
                 !selectedNationality || escort.nationality?.toLowerCase() === selectedNationality.toLowerCase(),
                 !normalizedSelectedActivities.length || normalizedSelectedActivities.every(activity =>
                     escortActivities.includes(activity)
                 )
-
             ];
 
             return matches.every(Boolean);
@@ -202,24 +210,6 @@ export default function EscortGrid() {
 
         setFilteredEscorts(filtered);
     };
-
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            applyFilters();
-        }, 100); // Small debounce to batch filter operations
-
-        return () => clearTimeout(timeoutId);
-    }, [
-        searchTerm,
-        selectedGender,
-        selectedAge,
-        selectedEthnicity,
-        selectedCallType,
-        selectedBookingLength,
-        selectedNationality,
-        selectedActivities,
-        escorts // Add escorts to dependency array
-    ]);
 
     // Clear all filters
     const clearFilters = () => {
@@ -234,17 +224,23 @@ export default function EscortGrid() {
         setSearchPostcode('');
         setSelectedDistance('');
         setSearchCoordinates(null);
+        setSelectedRegion(null);
+        setSelectedCounty(null);
+        setSelectedTown(null);
         setFilteredEscorts(escorts);
     };
 
-    // Initialize filtered escorts on first load
+    // Effects
     useEffect(() => {
         setFilteredEscorts(escorts);
     }, [escorts]);
 
-    // Re-apply filters when dependencies change
     useEffect(() => {
-        applyFilters();
+        const timeoutId = setTimeout(() => {
+            applyFilters();
+        }, 100);
+
+        return () => clearTimeout(timeoutId);
     }, [
         searchTerm,
         selectedGender,
@@ -254,6 +250,10 @@ export default function EscortGrid() {
         selectedBookingLength,
         selectedNationality,
         selectedActivities,
+        selectedRegion,
+        selectedCounty,
+        selectedTown,
+        escorts
     ]);
 
     if (loading) {
@@ -263,11 +263,10 @@ export default function EscortGrid() {
             </div>
         );
     }
-    console.log(filteredEscorts)
+
     return (
         <DashboardLayout user={user} userDetails={userDetails} title="All Escorts" description="Browse all available escorts">
             <div className="w-full max-w-screen-xl mx-auto px-2 pb-8">
-
                 <FilterSection
                     {...{
                         searchTerm,
@@ -297,6 +296,18 @@ export default function EscortGrid() {
                         setShowFilters,
                         loading,
                     }}
+                />
+
+                <LocationFilter
+                    escorts={escorts}
+                    selectedRegion={selectedRegion}
+                    selectedCounty={selectedCounty}
+                    selectedTown={selectedTown}
+                    onRegionSelect={setSelectedRegion}
+                    onCountySelect={setSelectedCounty}
+                    onTownSelect={setSelectedTown}
+                    onClearFilters={clearFilters}
+                    ukRegions={UK_REGIONS}
                 />
 
                 {filteredEscorts.length === 0 ? (

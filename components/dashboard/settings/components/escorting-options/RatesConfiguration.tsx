@@ -1,7 +1,5 @@
-// RatesConfiguration.tsx
 import React from 'react';
 import { Clock } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectItem } from '@/components/ui/select';
 import { CollapsibleSection } from '@/components/ui/collapsible-section';
@@ -44,8 +42,27 @@ export const RatesConfiguration: React.FC<RatesConfigurationProps> = ({
         { id: 'overnight', label: 'O/N' },
     ];
 
-    const handleNumberInput = (e: React.ChangeEvent<HTMLInputElement>, type: 'inCall' | 'outCall', timeSlot: string) => {
-        const value = e.target.value.replace(/[^0-9]/g, '');
+    // Generate rate options from 50 to 2000
+    const generateRateOptions = () => {
+        const options = [];
+        // First, add 50-500 in steps of 50
+        for (let i = 50; i <= 500; i += 50) {
+            options.push(i);
+        }
+        // Then add 550-1000 in steps of 50
+        for (let i = 550; i <= 1000; i += 50) {
+            options.push(i);
+        }
+        // Finally add 1100-2000 in steps of 100
+        for (let i = 1100; i <= 2000; i += 100) {
+            options.push(i);
+        }
+        return options;
+    };
+
+    const rateOptions = generateRateOptions();
+
+    const handleRateChange = (value: string, type: 'inCall' | 'outCall', timeSlot: string) => {
         setRates(prev => ({
             ...prev,
             [type]: {
@@ -56,23 +73,32 @@ export const RatesConfiguration: React.FC<RatesConfigurationProps> = ({
     };
 
     const RateCard = ({ type, rates }: { type: 'inCall' | 'outCall', rates: RateType }) => (
-        <div className="bg-white dark:bg-zinc-800 rounded-lg p-4 mb-4">
-            <h3 className="font-medium mb-3">{type === 'inCall' ? 'In-call' : 'Out-call'}</h3>
-            <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-zinc-800 rounded-lg p-4">
+            <h3 className="font-medium mb-4 text-base text-gray-900 dark:text-white">
+                {type === 'inCall' ? 'In-call' : 'Out-call'}
+            </h3>
+            <div className="space-y-3">
                 {timeSlots.map(({ id, label }) => (
-                    <div key={id} className="flex items-center">
-                        <span className="text-sm flex-1">{label}</span>
-                        <Input
-                            type="text"
-                            value={rates[id]}
-                            onChange={(e) => handleNumberInput(e, type, id)}
-                            className="w-20 h-8 text-sm"
-                        />
+                    <div key={id} className="flex items-center justify-between gap-3">
+                        <Label className="w-12 text-sm text-gray-600 dark:text-gray-400">{label}</Label>
+                        <Select
+                            value={rates[id] || ''}
+                            onValueChange={(value) => handleRateChange(value, type, id)}
+                            className="flex-1 text-sm max-w-[140px]"
+                        >
+                            <SelectItem value="" className="text-sm">Select</SelectItem>
+                            {rateOptions.map((rate) => (
+                                <SelectItem key={rate} value={rate.toString()} className="text-sm">
+                                    {rate} {currency}
+                                </SelectItem>
+                            ))}
+                        </Select>
                     </div>
                 ))}
             </div>
         </div>
     );
+
     return (
         <CollapsibleSection
             title="Rate Configuration"
@@ -80,10 +106,11 @@ export const RatesConfiguration: React.FC<RatesConfigurationProps> = ({
             defaultOpen={false}
         >
             {/* Mobile View */}
-            <div className="sm:hidden">
+            <div className="sm:hidden space-y-4">
                 <RateCard type="inCall" rates={rates.inCall} />
                 <RateCard type="outCall" rates={rates.outCall} />
             </div>
+
             {/* Desktop View */}
             <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full text-sm">
@@ -100,12 +127,18 @@ export const RatesConfiguration: React.FC<RatesConfigurationProps> = ({
                             <td className="px-2 py-1 text-gray-900 dark:text-white">In-call</td>
                             {timeSlots.map(({ id }) => (
                                 <td key={id} className="px-1 py-1">
-                                    <Input
-                                        type="text"
-                                        value={rates.inCall[id]}
-                                        onChange={(e) => handleNumberInput(e, 'inCall', id)}
-                                        className="w-16 h-8 text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                                    />
+                                    <Select
+                                        value={rates.inCall[id] || ''}
+                                        onValueChange={(value) => handleRateChange(value, 'inCall', id)}
+                                        className="text-sm w-28"
+                                    >
+                                        <SelectItem value="" className="text-sm">Select</SelectItem>
+                                        {rateOptions.map((rate) => (
+                                            <SelectItem key={rate} value={rate.toString()} className="text-sm">
+                                                {rate} {currency}
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
                                 </td>
                             ))}
                         </tr>
@@ -113,12 +146,18 @@ export const RatesConfiguration: React.FC<RatesConfigurationProps> = ({
                             <td className="px-2 py-1 text-gray-900 dark:text-white">Out-call</td>
                             {timeSlots.map(({ id }) => (
                                 <td key={id} className="px-1 py-1">
-                                    <Input
-                                        type="text"
-                                        value={rates.outCall[id]}
-                                        onChange={(e) => handleNumberInput(e, 'outCall', id)}
-                                        className="w-16 h-8 text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                                    />
+                                    <Select
+                                        value={rates.outCall[id] || ''}
+                                        onValueChange={(value) => handleRateChange(value, 'outCall', id)}
+                                        className="text-sm w-28"
+                                    >
+                                        <SelectItem value="" className="text-sm">Select</SelectItem>
+                                        {rateOptions.map((rate) => (
+                                            <SelectItem key={rate} value={rate.toString()} className="text-sm">
+                                                {rate} {currency}
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
                                 </td>
                             ))}
                         </tr>

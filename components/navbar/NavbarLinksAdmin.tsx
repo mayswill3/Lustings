@@ -135,14 +135,20 @@ export default function HeaderLinks(props: { [x: string]: any }) {
           </Avatar>
         </button>
       ) : (
-        <button
-          onClick={() => router.push('/dashboard/signin/password_signin')}
-          className="text-blue-500 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400 font-medium"
-        >
-          Sign in
-        </button>
-
-
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push('/dashboard/signin/password_signin')}
+            className="text-blue-500 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400 text-sm font-medium"
+          >
+            Sign in
+          </button>
+          <button
+            onClick={() => router.push('/dashboard/signin/signup')}
+            className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700 rounded-full px-4 py-1 text-sm font-medium"
+          >
+            Sign up
+          </button>
+        </div>
       )}
     </div>
   );
@@ -337,12 +343,20 @@ export default function HeaderLinks(props: { [x: string]: any }) {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <button
-          onClick={() => router.push('/dashboard/signin/password_signin')}
-          className="text-blue-500 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400 font-medium"
-        >
-          Sign in
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push('/dashboard/signin/password_signin')}
+            className="text-blue-500 hover:text-blue-600 dark:text-blue-500 dark:hover:text-blue-400 font-medium"
+          >
+            Sign in
+          </button>
+          <button
+            onClick={() => router.push('/dashboard/signin/signup')}
+            className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700 rounded-full px-4 py-2 font-medium"
+          >
+            Sign up
+          </button>
+        </div>
 
 
       )}
