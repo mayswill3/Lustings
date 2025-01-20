@@ -8,6 +8,8 @@ import { FilterSection } from '@/components/search/FilterSectionProps';
 import { createClient } from '@/utils/supabase/client';
 import { getPostcodeCoordinates, calculateDistance } from '@/utils/location';
 import { getUserDetails, getUser } from '@/utils/supabase/queries';
+import LocationFilter from '@/components/LocationFilter';
+import { UK_REGIONS } from '@/constants/locations';
 
 interface Coordinates {
     latitude: number;
@@ -25,6 +27,9 @@ interface FilterState {
     activities: string[];
     distance: number | '';
     postcode: string;
+    region: string | null;
+    county: string | null;
+    town: string | null;
 }
 
 const supabase = createClient();
@@ -50,7 +55,10 @@ export default function AvailableEscorts() {
         nationality: '',
         activities: [],
         distance: '',
-        postcode: ''
+        postcode: '',
+        region: null,
+        county: null,
+        town: null
     });
 
     // UI state
@@ -154,6 +162,11 @@ export default function AvailableEscorts() {
             const personalDetails = escort.personal_details || {};
             const preferences = escort.preferences?.escorting || {};
 
+            // Location filters
+            if (filters.region && escort.location?.region !== filters.region) return false;
+            if (filters.county && escort.location?.county !== filters.county) return false;
+            if (filters.town && escort.location?.town !== filters.town) return false;
+
             // Basic filters
             if (filters.searchTerm && !escort.full_name?.toLowerCase().includes(filters.searchTerm.toLowerCase()))
                 return false;
@@ -204,13 +217,15 @@ export default function AvailableEscorts() {
             nationality: '',
             activities: [],
             distance: '',
-            postcode: ''
+            postcode: '',
+            region: null,
+            county: null,
+            town: null
         });
         setSearchCoordinates(null);
         setPostcodeError('');
         setFilteredEscorts(escorts);
     };
-
     // Data fetching
     const fetchAvailableEscorts = async () => {
         try {
@@ -306,6 +321,18 @@ export default function AvailableEscorts() {
                     showFilters={showFilters}
                     setShowFilters={setShowFilters}
                     loading={loading}
+                />
+
+                <LocationFilter
+                    escorts={escorts}
+                    selectedRegion={filters.region}
+                    selectedCounty={filters.county}
+                    selectedTown={filters.town}
+                    onRegionSelect={(region) => setFilters(prev => ({ ...prev, region, county: null, town: null }))}
+                    onCountySelect={(county) => setFilters(prev => ({ ...prev, county, town: null }))}
+                    onTownSelect={(town) => setFilters(prev => ({ ...prev, town }))}
+                    onClearFilters={clearFilters}
+                    ukRegions={UK_REGIONS}
                 />
 
                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

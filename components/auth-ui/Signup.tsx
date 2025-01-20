@@ -18,6 +18,8 @@ interface SignUpProps {
 export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
   const router = redirectMethod === 'client' ? useRouter() : null;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
   const [errors, setErrors] = useState({
     email: '',
     password: '',
@@ -50,10 +52,14 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
     e.preventDefault();
     setIsSubmitting(true);
     setErrors({ email: '', password: '', general: '' });
+    setSignupSuccess(false);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+
+    // Save email for success message
+    setUserEmail(email);
 
     // Validate form
     const formErrors = validateForm(email, password);
@@ -81,15 +87,15 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
             ...errors,
             general: errorDescription || error || 'Failed to sign up. Please try again.'
           });
+        } else {
+          setSignupSuccess(true);
         }
       }
       // Handle Response type
       else if (response && typeof response === 'object' && 'ok' in response) {
-        const res = response as Response;  // Explicitly cast to Response
+        const res = response as Response;
         if (res.ok) {
-          if (router) {
-            router.push('/dashboard');
-          }
+          setSignupSuccess(true);
         } else {
           const data = await res.json();
           setErrors({
@@ -115,6 +121,24 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
     setIsSubmitting(false);
   };
 
+  if (signupSuccess) {
+    return (
+      <Alert className="mb-4 bg-green-50 text-green-700 border border-green-200">
+        <AlertDescription className="flex flex-col gap-2">
+          <p className="font-medium">Thanks for signing up!</p>
+          <p>We've sent a verification email to <span className="font-medium">{userEmail}</span>.</p>
+          <p>Please check your inbox (and spam folder) to verify your account.</p>
+          <Button
+            onClick={() => router?.push('/dashboard/signin/password_signin')}
+            variant="outline"
+            className="mt-2 w-full sm:w-auto"
+          >
+            Go to Sign In
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="mb-8">
@@ -135,8 +159,7 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
               Email
             </label>
             <Input
-              className={`mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400 ${errors.email ? 'border-red-500' : ''
-                }`}
+              className={`mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400 ${errors.email ? 'border-red-500' : ''}`}
               id="email"
               placeholder="name@example.com"
               type="email"
@@ -151,10 +174,7 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
               </p>
             )}
 
-            <label
-              className="text-zinc-950 mt-2 dark:text-white"
-              htmlFor="password"
-            >
+            <label className="text-zinc-950 mt-2 dark:text-white" htmlFor="password">
               Password
             </label>
             <Input
@@ -162,9 +182,8 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
               placeholder="Password"
               type="password"
               name="password"
-              autoComplete="current-password"
-              className={`mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400 ${errors.password ? 'border-red-500' : ''
-                }`}
+              autoComplete="new-password"
+              className={`mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400 ${errors.password ? 'border-red-500' : ''}`}
               aria-invalid={errors.password ? 'true' : 'false'}
               aria-describedby={errors.password ? 'password-error' : undefined}
             />
