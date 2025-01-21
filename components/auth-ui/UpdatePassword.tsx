@@ -6,9 +6,16 @@ import { handleRequest } from '@/utils/auth-helpers/client';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { Input } from '../ui/input';
+import { Eye, EyeOff } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface UpdatePasswordProps {
   redirectMethod: string;
+}
+
+interface ValidationErrors {
+  password?: string;
+  passwordConfirm?: string;
 }
 
 export default function UpdatePassword({
@@ -16,9 +23,38 @@ export default function UpdatePassword({
 }: UpdatePasswordProps) {
   const router = redirectMethod === 'client' ? useRouter() : null;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [errors, setErrors] = useState<ValidationErrors>({});
+
+  const validateForm = (): boolean => {
+    const newErrors: ValidationErrors = {};
+
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters long';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+    }
+
+    if (!passwordConfirm) {
+      newErrors.passwordConfirm = 'Please confirm your password';
+    } else if (password !== passwordConfirm) {
+      newErrors.passwordConfirm = 'Passwords do not match';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    setIsSubmitting(true); // Disable the button while the request is being handled
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
     await handleRequest(e, updatePassword, router);
     setIsSubmitting(false);
   };
@@ -28,36 +64,78 @@ export default function UpdatePassword({
       <form
         noValidate={true}
         className="mb-4"
-        onSubmit={(e) => handleSubmit(e)}
+        onSubmit={handleSubmit}
       >
         <div className="grid gap-2">
           <div className="grid gap-1">
             <label className="text-zinc-950 dark:text-white" htmlFor="password">
               New Password
             </label>
-            <Input
-              className="mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400"
-              id="password"
-              placeholder="Password"
-              type="password"
-              name="password"
-              autoComplete="current-password"
-            />
+            <div className="relative">
+              <Input
+                className="mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 pr-10 focus:outline-0 dark:placeholder:text-zinc-400"
+                id="password"
+                placeholder="Password"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5 text-zinc-500" />
+                ) : (
+                  <Eye className="h-5 w-5 text-zinc-500" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <Alert variant="destructive">
+                <AlertDescription>{errors.password}</AlertDescription>
+              </Alert>
+            )}
+
             <label
               className="text-zinc-950 dark:text-white"
               htmlFor="passwordConfirm"
             >
               Confirm New Password
             </label>
-            <Input
-              className="mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 focus:outline-0 dark:placeholder:text-zinc-400"
-              id="passwordConfirm"
-              placeholder="Password"
-              type="password"
-              name="passwordConfirm"
-              autoComplete="current-password"
-            />
+            <div className="relative">
+              <Input
+                className="mr-2.5 mb-2 h-full min-h-[44px] w-full px-4 py-3 pr-10 focus:outline-0 dark:placeholder:text-zinc-400"
+                id="passwordConfirm"
+                placeholder="Confirm Password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                name="passwordConfirm"
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-5 w-5 text-zinc-500" />
+                ) : (
+                  <Eye className="h-5 w-5 text-zinc-500" />
+                )}
+              </button>
+            </div>
+            {errors.passwordConfirm && (
+              <Alert variant="destructive">
+                <AlertDescription>{errors.passwordConfirm}</AlertDescription>
+              </Alert>
+            )}
           </div>
+
           <Button
             type="submit"
             className="mt-2 flex h-[unset] w-full items-center justify-center rounded-lg px-4 py-4 text-sm font-medium"
