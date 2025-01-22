@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { CheckCircle } from 'lucide-react';
 import PlaceholderImage from '@/public/placeholder-image.jpg';
+import { getNationalityFlag } from '@/constants/nationalityToCode';
 
 interface EscortCardProps {
     escort: any;
@@ -36,7 +37,14 @@ export function EscortCard({ escort, isAvailable, calculateAge }: EscortCardProp
                         )}
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
-                        <h3 className="text-lg font-semibold text-white">{escort.full_name}</h3>
+                        <h3 className="text-lg font-semibold text-white">
+                            {escort.full_name}
+                            {escort.nationality && (
+                                <span className="ml-2" title={escort.nationality}>
+                                    {getNationalityFlag(escort.nationality)}
+                                </span>
+                            )}
+                        </h3>
                     </div>
                 </div>
 

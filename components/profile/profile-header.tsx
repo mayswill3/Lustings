@@ -1,5 +1,5 @@
 // components/profile/profile-header.tsx
-import { Phone, MapPin, Calendar, User2, Heart, CheckCircle } from 'lucide-react';
+import { Phone, MapPin, Calendar, User2, Heart, CheckCircle, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -36,8 +36,6 @@ const isAvailableNow = (availability: ProfileHeaderProps['availability']) => {
         }
     });
 };
-
-
 
 export const ProfileHeader = ({ userDetails, showMobile, setShowMobile, calculateAge, availability = [] }: ProfileHeaderProps) => {
     const isAvailable = isAvailableNow(availability);
@@ -101,7 +99,7 @@ export const ProfileHeader = ({ userDetails, showMobile, setShowMobile, calculat
             </div>
 
             {/* Personal Details */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-gray-500" />
                     <span className="text-sm text-gray-600 dark:text-gray-300">
@@ -120,6 +118,12 @@ export const ProfileHeader = ({ userDetails, showMobile, setShowMobile, calculat
                     <Heart className="w-4 h-4 text-gray-500" />
                     <span className="text-sm text-gray-600 dark:text-gray-300">
                         {userDetails.personal_details?.orientation || 'Not specified'}
+                    </span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm text-gray-600 dark:text-gray-300 capitalize">
+                        {userDetails.nationality || 'Nationality not specified'}
                     </span>
                 </div>
             </div>
