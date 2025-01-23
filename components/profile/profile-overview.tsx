@@ -35,19 +35,21 @@ export const ProfileOverview = ({ userDetails }: ProfileOverviewProps) => {
             {/* Overview Card */}
             <Card className="p-4">
                 <div className="space-y-4">
+                    {/* Header Section */}
                     <div className="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
                         <User2 className="w-5 h-5 text-blue-500" />
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Overview</h2>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+                    {/* Content Section */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
                         {/* I'm Into Section */}
-                        <div className="col-span-2 border-b border-gray-200 dark:border-gray-700 pb-2 mb-2">
+                        <div className="col-span-1 sm:col-span-2 border-b border-gray-200 dark:border-gray-700 pb-2 mb-2">
                             <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                                     I'm Into
                                 </span>
-                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
                                     {userDetails.personal_details?.with?.join(', ') || 'Not Specified'}
                                 </span>
                             </div>
@@ -65,10 +67,10 @@ export const ProfileOverview = ({ userDetails }: ProfileOverviewProps) => {
                             { label: "Pubic Hair", value: userDetails.about_you?.pubic_hair }
                         ].map((item, index) => (
                             <div key={index} className="flex justify-between items-center">
-                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                                     {item.label}
                                 </span>
-                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
                                     {item.value || 'Not Specified'}
                                 </span>
                             </div>
