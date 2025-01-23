@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout';
 import { Card } from '@/components/ui/card';
 import { User } from '@supabase/supabase-js';
-import { Settings2, User as UserIcon, Camera, Heart, Map, HelpCircle } from 'lucide-react';
+import { Settings2, User as UserIcon, Camera, Heart, Map, HelpCircle, Clock } from 'lucide-react';
 import GeneralDetails from './components/general-details';
 import PersonalDetails from './components/personal-details';
 import ProfilePictures from './components/profile-pictures';
 import AboutYou from './components/interview';
 import Escorts from './components/escorting-options';
 import FAQDetails from './components/faq-detail';
+import AvailabilitySettings from './components/availability-settings/availability-settings';
 
 interface Props {
   user: User | null | undefined;
@@ -75,6 +76,12 @@ export default function Settings(props: Props) {
   // Service provider specific tabs
   const serviceProviderTabs = [
     {
+      id: 'availability',
+      label: 'Availability',
+      icon: <Clock className="w-4 h-4" />,
+      component: <AvailabilitySettings user={props.user} userDetails={props.userDetails} />,
+    },
+    {
       id: 'escorts',
       label: 'Escorts',
       icon: <Map className="w-4 h-4" />,
@@ -84,7 +91,7 @@ export default function Settings(props: Props) {
       id: 'faq',
       label: 'FAQ',
       icon: <HelpCircle className="w-4 h-4" />,
-      component: <FAQDetails />, // You'll need to import this component
+      component: <FAQDetails />,
     },
   ];
 
@@ -93,13 +100,19 @@ export default function Settings(props: Props) {
     ? [...baseTabs, ...serviceProviderTabs]
     : baseTabs;
 
-  // If current active tab is 'escorts' but user is not offering services, reset to 'general'
+  // Set default tab to 'availability' if user is a service provider
   useEffect(() => {
-    if ((activeTab === 'escorts' || activeTab === 'faq') &&
-      props.user?.user_metadata?.member_type !== 'Offering Services') {
+    if (props.user?.user_metadata?.member_type === 'Offering Services') {
+      setActiveTab('availability');
+    }
+  }, [props.user?.user_metadata?.member_type]);
+
+  // If current active tab is not available for the user, reset to 'general'
+  useEffect(() => {
+    if (!tabs.some((tab) => tab.id === activeTab)) {
       setActiveTab('general');
     }
-  }, [props.user?.user_metadata?.member_type, activeTab]);
+  }, [tabs, activeTab]);
 
   return (
     <DashboardLayout
@@ -164,7 +177,6 @@ export default function Settings(props: Props) {
                   </div>
                 </div>
               </>
-
 
               {/* Tab Content */}
               <div className="p-3 sm:p-6">
