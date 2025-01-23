@@ -179,8 +179,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     </div>
                 </Card>
 
-                <RatesSection userDetails={fetchedUserDetails} />
-
                 {/* Mobile Navigation */}
                 <div className="space-y-6">
                     <div className="md:hidden">
@@ -233,6 +231,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                             ))}
                         </Tabs>
                     </div>
+                    <RatesSection userDetails={fetchedUserDetails} />
                 </div>
             </div>
         </DashboardLayout >
