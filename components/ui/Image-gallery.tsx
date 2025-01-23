@@ -20,11 +20,23 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className }) => {
     })).filter(img => img.url !== null);
 
     const selectedImageUrl = images[selectedImageIndex] || '/placeholder.jpg';
+    const [aspectRatio, setAspectRatio] = useState<number>(4 / 3);
+
+    const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+        const img = event.currentTarget;
+        const naturalWidth = img.naturalWidth;
+        const naturalHeight = img.naturalHeight;
+        setAspectRatio(naturalWidth / naturalHeight);
+    };
+
 
     return (
         <div className={classNames('space-y-4', className)}>
             {/* Main Image */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+            <div
+                className="relative w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800"
+                style={{ aspectRatio: aspectRatio }}
+            >
                 <Image
                     src={selectedImageUrl}
                     alt="Selected profile picture"
@@ -32,6 +44,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, className }) => {
                     objectFit="cover"
                     className="transition-all duration-300 ease-in-out"
                     priority
+                    onLoad={handleImageLoad}
                 />
             </div>
 
