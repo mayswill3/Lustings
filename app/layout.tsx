@@ -65,6 +65,15 @@ export default function RootLayout({
 
         <link rel="canonical" href="https://tinsellink.com" />
         <link rel="icon" href="/img/favicon.ico" />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-VHHJJEHJNP"></script>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-VHHJJEHJNP');
+          `
+        }} />
       </head>
       <body
         id="root"
