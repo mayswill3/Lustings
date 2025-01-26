@@ -1,3 +1,9 @@
-User-Agent: *
-Disallow:
-Sitemap: https://your-website.com
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.tinsellink.com
+
+# Sitemaps
+Sitemap: https://www.tinsellink.com/sitemap.xml
