@@ -97,12 +97,18 @@ export const PhysicalCharacteristics: React.FC<PhysicalCharacteristicsProps> = (
                 </div>
 
                 {/* Measurements */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 sm:gap-6">
                     <SelectField
                         label="Weight"
                         name="weight"
                         options={PHYSICAL_OPTIONS.WEIGHT}
                         value={userDetails?.weight}
+                    />
+                    <SelectField
+                        label="Dress Size"
+                        name="dressSize"
+                        options={PHYSICAL_OPTIONS.DRESS_SIZE}
+                        value={userDetails?.dress_size}
                     />
                     <SelectField
                         label="Leg"
