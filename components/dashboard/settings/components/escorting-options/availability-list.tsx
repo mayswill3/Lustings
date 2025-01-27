@@ -104,15 +104,16 @@ export function AvailabilityList({ userId }: DateListProps) {
       const datesToAdd = pendingDates.filter(d => !selectedDates.includes(d));
       const datesToRemove = selectedDates.filter(d => !pendingDates.includes(d));
 
-      // Calculate credits needed for new dates only
+      // Calculate credits needed for new dates only (2 credits per day)
       const today = startOfDay(new Date());
       const futureDatesToAdd = datesToAdd.filter(date =>
         new Date(date) >= today
       );
 
+      // Multiply by 2 to account for 2 credits per day
       const creditsNeeded = selectedDates.length === 0
-        ? pendingDates.filter(date => new Date(date) >= today).length
-        : futureDatesToAdd.length;
+        ? pendingDates.filter(date => new Date(date) >= today).length * 2
+        : futureDatesToAdd.length * 2;
 
       // Update credits if needed
       if (creditsNeeded > 0) {
