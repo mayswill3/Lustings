@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
+import { DeleteProfileDialog } from '@/components/ui/delete-profile-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { createClient } from '@/utils/supabase/client';
 import { getURL, getStatusRedirect } from '@/utils/helpers';
@@ -41,6 +42,7 @@ export default function GeneralDetails(props: Props) {
     const [showServices, setShowServices] = useState(false);
     const [fullNameInput, setFullNameInput] = useState('');
     const [fullNameError, setFullNameError] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const checkFullNameAvailability = async (fullName: string, userId: string) => {
         const { data, error } = await supabase
@@ -235,6 +237,33 @@ export default function GeneralDetails(props: Props) {
             </div>
         );
     }
+
+    const handleDeleteProfile = async () => {
+        try {
+            setIsDeleting(true);
+            const { data, error } = await supabase
+                .rpc('delete_user_profile', {
+                    target_user_id: user?.id
+                });
+
+            if (error) throw error;
+
+            if (data) {
+                // Sign out the user
+                await supabase.auth.signOut();
+
+                toast.success('Profile deleted successfully');
+                router.push('/');
+            } else {
+                toast.error('Profile not found or already deleted');
+            }
+        } catch (error) {
+            console.error('Error deleting profile:', error);
+            toast.error('Failed to delete profile');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     return (
         <div className="max-w-4xl mx-auto">
@@ -556,6 +585,43 @@ export default function GeneralDetails(props: Props) {
                         </div>
                     </Card>
                 )}
+
+                <Card className="p-6 shadow-sm">
+                    <SectionHeader
+                        icon={<Settings2 size={24} />}
+                        title="Advanced Options"
+                    />
+                    <div className="space-y-4">
+                        <div className="pt-2">
+                            <details className="group">
+                                <summary className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200">
+                                    <span className="flex-shrink-0">
+                                        <svg
+                                            className="w-5 h-5 transition-transform group-open:rotate-90"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M9 5l7 7-7 7"
+                                            />
+                                        </svg>
+                                    </span>
+                                    Account Status
+                                </summary>
+                                <div className="mt-4 pl-7">
+                                    <DeleteProfileDialog
+                                        onConfirmDelete={handleDeleteProfile}
+                                        isDeleting={isDeleting}
+                                    />
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </Card>
 
                 <div className="sticky bottom-4 z-10 bg-white dark:bg-zinc-900 p-3 sm:p-4 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
