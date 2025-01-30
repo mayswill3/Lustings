@@ -133,6 +133,8 @@ export default function AvailableEscorts() {
         try {
             const escortsWithValidPostcodes = await Promise.all(
                 escorts.map(async (escort) => {
+                    if (escort.is_deleted) return null;
+
                     const escortPostcode = escort.location?.postcode;
                     if (!escortPostcode) return null;
 
@@ -159,6 +161,9 @@ export default function AvailableEscorts() {
 
     const applyFilters = () => {
         const filtered = escorts.filter(escort => {
+            // First check if the profile is deleted
+            if (escort.is_deleted) return false;
+
             const personalDetails = escort.personal_details || {};
             const preferences = escort.preferences?.escorting || {};
 
@@ -205,6 +210,7 @@ export default function AvailableEscorts() {
 
         setFilteredEscorts(filtered);
     };
+
 
     const clearFilters = () => {
         setFilters({
@@ -254,7 +260,8 @@ export default function AvailableEscorts() {
                         id
                     )
                 `)
-                .in('id', availableIds.map(a => a.user_id));
+                .in('id', availableIds.map(a => a.user_id))
+                .eq('is_deleted', false);
 
             if (error) throw error;
 

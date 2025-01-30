@@ -305,3 +305,163 @@ using (
   bucket_id = 'profile-pictures' AND 
   owner = auth.uid()
 );
+
+-- Function to safely delete a user profile and disable auth
+CREATE OR REPLACE FUNCTION delete_user_profile(target_user_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+    user_exists BOOLEAN;
+    user_email TEXT;
+BEGIN
+    -- Check if user exists and is not already deleted
+    SELECT EXISTS (
+        SELECT 1 FROM users 
+        WHERE id = target_user_id 
+        AND is_deleted = false
+    ) INTO user_exists;
+
+    IF NOT user_exists THEN
+        RETURN false;
+    END IF;
+
+    -- Get user's email for auth update
+    SELECT email INTO user_email
+    FROM auth.users
+    WHERE id = target_user_id;
+
+    -- Disable auth user
+    UPDATE auth.users
+    SET raw_app_meta_data = 
+        jsonb_set(
+            COALESCE(raw_app_meta_data, '{}'::jsonb),
+            '{deleted}',
+            'true'
+        ),
+        raw_user_meta_data = 
+        jsonb_set(
+            COALESCE(raw_user_meta_data, '{}'::jsonb),
+            '{deleted}',
+            'true'
+        ),
+        email = 'DELETED_' || email,
+        phone = NULL,
+        encrypted_password = NULL
+    WHERE id = target_user_id;
+
+    -- Delete records that shouldn't be kept
+    DELETE FROM availability_status WHERE user_id = target_user_id;
+    DELETE FROM featured_profiles WHERE user_id = target_user_id;
+    DELETE FROM verification WHERE id = target_user_id;
+
+    -- Update user record to mark as deleted
+    UPDATE users 
+    SET is_deleted = true,
+        updated_at = NOW(),
+        email = 'DELETED_' || user_email,
+        -- Clear sensitive/personal information
+        phone_number = NULL,
+        avatar_url = NULL,
+        billing_address = NULL,
+        payment_method = NULL,
+        location = NULL,
+        privacy = NULL,
+        preferences = NULL,
+        personal_details = NULL,
+        profile_pictures = NULL,
+        private_gallery = NULL,
+        free_gallery = NULL
+    WHERE id = target_user_id;
+
+    RETURN true;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to reactivate a deleted user profile
+CREATE OR REPLACE FUNCTION reactivate_user_profile(target_id UUID, new_password TEXT)
+RETURNS BOOLEAN AS $$
+DECLARE
+    user_exists BOOLEAN;
+    original_email TEXT;
+BEGIN
+    -- Check if user exists and is deleted
+    SELECT EXISTS (
+        SELECT 1 FROM users 
+        WHERE id = target_id 
+        AND is_deleted = true
+    ) INTO user_exists;
+
+    IF NOT user_exists THEN
+        RETURN false;
+    END IF;
+
+    -- Get original email by removing 'DELETED_' prefix
+    SELECT REPLACE(email, 'DELETED_', '') INTO original_email
+    FROM users
+    WHERE id = target_id;
+
+    -- Reactivate auth user with new password
+    UPDATE auth.users
+    SET raw_app_meta_data = 
+        raw_app_meta_data - 'deleted',
+        raw_user_meta_data = 
+        raw_user_meta_data - 'deleted',
+        email = original_email,
+        encrypted_password = crypt(new_password, gen_salt('bf'))
+    WHERE id = target_id;
+
+    -- Update users table
+    UPDATE users 
+    SET is_deleted = false,
+        updated_at = NOW(),
+        email = original_email
+    WHERE id = target_id;
+
+    -- Recreate necessary records
+    INSERT INTO verification (id, verified, images_submitted)
+    VALUES (target_id, false, false)
+    ON CONFLICT (id) DO NOTHING;
+
+    -- Create initial availability status for current month
+    INSERT INTO availability_status (
+        user_id,
+        status_start,
+        status_end,
+        booking_date
+    )
+    VALUES (
+        target_id,
+        NOW(),
+        NOW() + INTERVAL '1 month',
+        CURRENT_DATE
+    )
+    ON CONFLICT (user_id, booking_date) DO NOTHING;
+
+    RETURN true;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to check and handle signup for deleted accounts
+CREATE OR REPLACE FUNCTION check_deleted_account(check_email TEXT)
+RETURNS TABLE (
+    is_deleted BOOLEAN,
+    user_id UUID
+) AS $$
+DECLARE
+    original_email TEXT;
+BEGIN
+    -- Remove DELETED_ prefix to check original email
+    original_email := REPLACE(check_email, 'DELETED_', '');
+    
+    RETURN QUERY
+    SELECT 
+        u.is_deleted,
+        u.id
+    FROM users u
+    WHERE u.email IN (
+        'DELETED_' || original_email,
+        original_email
+    )
+    AND u.is_deleted = true
+    LIMIT 1;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
