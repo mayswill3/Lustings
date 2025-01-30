@@ -107,7 +107,6 @@ export default function EscortGrid() {
         }
     };
 
-    // Fetch escorts
     useEffect(() => {
         const fetchEscortsAndAvailability = async () => {
             try {
@@ -135,7 +134,8 @@ export default function EscortGrid() {
                             id
                         )
                     `)
-                    .eq('member_type', 'Offering Services');
+                    .eq('member_type', 'Offering Services')
+                    .eq('is_deleted', false);
 
                 setEscorts(escortData || []);
                 setAvailableEscorts(new Set(availableIds?.map(a => a.user_id) || []));
@@ -181,6 +181,8 @@ export default function EscortGrid() {
 
     const applyFilters = () => {
         const filtered = escorts.filter((escort) => {
+            // First check if the profile is deleted
+            if (escort.is_deleted) return false;
             const details = escort.personal_details || {};
             const preferences = escort.preferences?.escorting || {};
 

@@ -25,11 +25,6 @@ export const AvailabilityStatus: React.FC<AvailabilityStatusProps> = ({
 }) => {
     const [credits, setCredits] = useState({ regular: 0, trial: 0 });
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    console.log(isAvailable,
-        setIsAvailable,
-        availabilityLoading,
-        setAvailabilityLoading,
-        userId)
     useEffect(() => {
         const fetchCredits = async () => {
             if (!userId) return;

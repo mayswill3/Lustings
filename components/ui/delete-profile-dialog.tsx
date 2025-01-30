@@ -50,9 +50,6 @@ export function DeleteProfileDialog({
                                 • Your profile and personal data will be permanently removed
                             </li>
                             <li className="flex items-start gap-2">
-                                • Your booking history and feedback will be preserved for record keeping
-                            </li>
-                            <li className="flex items-start gap-2">
                                 • You'll need to create a new account to use our services again
                             </li>
                         </ul>
