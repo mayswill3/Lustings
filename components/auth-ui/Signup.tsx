@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import React from 'react';
 import Link from 'next/link';
-import { signUp } from '@/utils/auth-helpers/server';
+import { requestPasswordUpdate, signUp } from '@/utils/auth-helpers/server';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { handleRequest } from '@/utils/auth-helpers/client';
 import { useRouter } from 'next/navigation';
@@ -78,32 +78,32 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
     }
   };
 
-  const handleReactivation = async () => {
+  const handleReactivationEmail = async (email: string) => {
     try {
       setIsSubmitting(true);
 
-      const formData = new FormData(document.querySelector('form') as HTMLFormElement);
-      const password = formData.get('password') as string;
-
-      const { data, error } = await supabase
-        .rpc('reactivate_user_profile', {
-          target_id: deletedAccountId,
-          new_password: password
+      // First, update the auth.users email back to original
+      const { data: updateData, error: updateError } = await supabase
+        .rpc('restore_original_email', {
+          target_id: deletedAccountId
         });
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
-      if (data) {
+      // Now send the password reset email
+      const formData = new FormData();
+      formData.append('email', email.replace('DELETED_', '')); // Remove DELETED_ prefix
+
+      const response = await requestPasswordUpdate(formData);
+
+      if (response) {
         setShowReactivateDialog(false);
-        setReactivationSuccess(true); // Set reactivation success instead of signup success
-        toast.success('Account reactivated successfully');
+        setReactivationSuccess(true);
+        toast.success('Password reset email sent. Please check your inbox.');
       }
     } catch (error) {
-      console.error('Error reactivating account:', error);
-      setErrors({
-        ...errors,
-        general: 'Failed to reactivate account. Please try again.'
-      });
+      console.error('Error in reactivation process:', error);
+      toast.error('Failed to send reset email. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -214,15 +214,9 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
     return (
       <Alert className="mb-4 bg-green-50 text-green-700 border border-green-200">
         <AlertDescription className="flex flex-col gap-2">
-          <p className="font-medium">Account Reactivated Successfully!</p>
-          <p>Your account has been reactivated and you can now sign in with your new password.</p>
-          <Button
-            onClick={() => router?.push('/dashboard/signin/password_signin')}
-            variant="outline"
-            className="mt-2 w-full sm:w-auto"
-          >
-            Go to Sign In
-          </Button>
+          <p className="font-medium">Password Reset Email Sent!</p>
+          <p>Please check your email for instructions on how to reset your password and reactivate your account.</p>
+          <p className="text-sm">Don't forget to check your spam folder if you don't see the email in your inbox.</p>
         </AlertDescription>
       </Alert>
     );
@@ -359,9 +353,10 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
       <Dialog open={showReactivateDialog} onOpenChange={setShowReactivateDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Reactivate Account</DialogTitle>
-            <DialogDescription>
-              We found a deactivated account with this email. Would you like to reactivate it?
+            <DialogTitle>Account Found</DialogTitle>
+            <DialogDescription className="space-y-2 pt-2">
+              <p>We found a deactivated account with this email address.</p>
+              <p>For security reasons, we'll need to verify your email before reactivating your account.</p>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2 sm:gap-0">
@@ -373,10 +368,14 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
               Cancel
             </Button>
             <Button
-              onClick={handleReactivation}
+              onClick={() => {
+                const formData = new FormData(document.querySelector('form') as HTMLFormElement);
+                const email = formData.get('email') as string;
+                handleReactivationEmail(email);
+              }}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Reactivating...' : 'Reactivate Account'}
+              {isSubmitting ? 'Sending...' : 'Send Reset Email'}
             </Button>
           </DialogFooter>
         </DialogContent>
