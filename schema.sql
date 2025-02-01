@@ -376,44 +376,29 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Function to reactivate a deleted user profile
-CREATE OR REPLACE FUNCTION reactivate_user_profile(target_id UUID, new_password TEXT)
+-- Function to restore original email and reactivate account
+CREATE OR REPLACE FUNCTION restore_original_email(target_id UUID)
 RETURNS BOOLEAN AS $$
 DECLARE
-    user_exists BOOLEAN;
     original_email TEXT;
 BEGIN
-    -- Check if user exists and is deleted
-    SELECT EXISTS (
-        SELECT 1 FROM users 
-        WHERE id = target_id 
-        AND is_deleted = true
-    ) INTO user_exists;
-
-    IF NOT user_exists THEN
-        RETURN false;
-    END IF;
-
-    -- Get original email by removing 'DELETED_' prefix
+    -- Get the original email by removing DELETED_ prefix
     SELECT REPLACE(email, 'DELETED_', '') INTO original_email
-    FROM users
+    FROM auth.users
     WHERE id = target_id;
 
-    -- Reactivate auth user with new password
+    -- Update auth.users email and metadata
     UPDATE auth.users
-    SET raw_app_meta_data = 
-        raw_app_meta_data - 'deleted',
-        raw_user_meta_data = 
-        raw_user_meta_data - 'deleted',
-        email = original_email,
-        encrypted_password = crypt(new_password, gen_salt('bf'))
+    SET email = original_email,
+        raw_app_meta_data = raw_app_meta_data - 'deleted',
+        raw_user_meta_data = raw_user_meta_data - 'deleted'
     WHERE id = target_id;
 
-    -- Update users table
+    -- Update users table email and reactivate account
     UPDATE users 
-    SET is_deleted = false,
-        updated_at = NOW(),
-        email = original_email
+    SET email = original_email,
+        is_deleted = false,
+        updated_at = NOW()
     WHERE id = target_id;
 
     -- Recreate necessary records
@@ -421,7 +406,7 @@ BEGIN
     VALUES (target_id, false, false)
     ON CONFLICT (id) DO NOTHING;
 
-    -- Create initial availability status for current month
+    -- Create initial availability status
     INSERT INTO availability_status (
         user_id,
         status_start,
