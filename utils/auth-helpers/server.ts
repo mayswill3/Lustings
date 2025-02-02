@@ -179,6 +179,25 @@ export async function signUp(formData: FormData) {
   }
 
   const supabase = createClient();
+
+  // Check for deleted account but don't redirect
+  const { data: checkData, error: checkError } = await supabase
+    .rpc('check_deleted_account', {
+      check_email: email
+    });
+
+  if (checkError) {
+    console.error('Error checking account:', checkError);
+  } else if (checkData && checkData.length > 0 && checkData[0].is_deleted) {
+    // Return special JSON response for deleted accounts
+    return JSON.stringify({
+      type: 'DELETED_ACCOUNT',
+      userId: checkData[0].user_id,
+      email: email
+    });
+  }
+
+  // Proceed with normal signup
   const { error, data } = await supabase.auth.signUp({
     email,
     password,
@@ -195,16 +214,13 @@ export async function signUp(formData: FormData) {
     );
   } else if (data.session) {
     redirectPath = getStatusRedirect('/', 'Success!', 'You are now signed in.');
-  } else if (
-    data.user &&
-    data.user.identities &&
-    data.user.identities.length == 0
-  ) {
-    redirectPath = getErrorRedirect(
-      '/dashboard/signin/signup',
-      'Sign up failed.',
-      'There is already an account associated with this email address. Try resetting your password.'
-    );
+  } else if (data.user?.identities?.length === 0) {
+    // For existing accounts, return as deleted account to show reactivation dialog
+    return JSON.stringify({
+      type: 'DELETED_ACCOUNT',
+      userId: data.user.id,
+      email: email
+    });
   } else if (data.user) {
     redirectPath = getStatusRedirect(
       '/',
