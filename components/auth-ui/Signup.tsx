@@ -135,15 +135,20 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
     }
 
     try {
-      // First check for deleted account
-      const isDeleted = await checkDeletedAccount(email);
-      if (isDeleted) {
-        setIsSubmitting(false);
-        return; // Stop here as the reactivation dialog will handle the rest
-      }
-
-      // If not a deleted account, proceed with normal signup
       const response = await signUp(formData);
+
+      try {
+        // Check if response is our special deleted account response
+        const parsedResponse = JSON.parse(response);
+        if (parsedResponse.type === 'DELETED_ACCOUNT') {
+          setDeletedAccountId(parsedResponse.userId);
+          setShowReactivateDialog(true);
+          setIsSubmitting(false);
+          return;
+        }
+      } catch (e) {
+        // Not JSON, process as normal response
+      }
 
       // Handle string response type
       if (typeof response === 'string') {
@@ -154,15 +159,6 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
         const errorDescription = params.get('error_description');
 
         if (error || errorDescription) {
-          // Check if error indicates email already in use
-          if (error === 'user_already_registered' || errorDescription?.includes('already')) {
-            // Double check if it's a deleted account that we missed
-            const deletedCheck = await checkDeletedAccount(email);
-            if (deletedCheck) {
-              setIsSubmitting(false);
-              return;
-            }
-          }
           setErrors({
             ...errors,
             general: errorDescription || error || 'Failed to sign up. Please try again.'
@@ -178,15 +174,6 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
           setSignupSuccess(true);
         } else {
           const data = await res.json();
-          // Check for email already registered error
-          if (data.error?.includes('already registered')) {
-            // Double check if it's a deleted account
-            const deletedCheck = await checkDeletedAccount(email);
-            if (deletedCheck) {
-              setIsSubmitting(false);
-              return;
-            }
-          }
           setErrors({
             ...errors,
             general: data.error || 'Failed to sign up. Please try again.'
@@ -201,13 +188,14 @@ export default function SignUp({ allowEmail, redirectMethod }: SignUpProps) {
         });
       }
     } catch (error) {
+      console.error('Signup error:', error);
       setErrors({
         ...errors,
         general: 'An unexpected error occurred. Please try again.'
       });
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   if (reactivationSuccess) {
