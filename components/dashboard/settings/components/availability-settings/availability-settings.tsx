@@ -15,7 +15,6 @@ interface Props {
     userDetails: { [x: string]: any } | null;
 }
 
-// Main Component
 export default function AvailabilitySettings(props: Props) {
     const [isAvailable, setIsAvailable] = useState(false);
     const [availabilityLoading, setAvailabilityLoading] = useState(true);
@@ -77,18 +76,25 @@ export default function AvailabilitySettings(props: Props) {
         setIsSubmitting(true);
 
         try {
-            // Prepare the escorting data (only availability in this case)
-            const escortingData = {
-                isAvailable,
-            };
+            // Get the current user data to ensure we have the latest state
+            const { data: currentUser, error: fetchError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', userDetails?.id)
+                .single();
 
-            // Combine with existing preferences
+            if (fetchError) throw fetchError;
+
+            // Preserve existing preferences and only update the isAvailable field
             const updatedPreferences = {
-                ...userDetails?.preferences,
-                escorting: escortingData,
+                ...currentUser.preferences, // Preserve all existing preferences
+                escorting: {
+                    ...currentUser.preferences?.escorting, // Preserve existing escorting preferences
+                    isAvailable, // Update only the isAvailable field
+                },
             };
 
-            // Update the database with new preferences
+            // Update the database with the merged preferences
             const { error } = await supabase
                 .from('users')
                 .update({ preferences: updatedPreferences })
