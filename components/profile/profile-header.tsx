@@ -2,6 +2,7 @@
 import { Phone, MapPin, Calendar, User2, Heart, CheckCircle, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import ContactButtons from '../contact-button/ContactButtons';
 
 interface ProfileHeaderProps {
     userDetails: any;
@@ -62,19 +63,14 @@ export const ProfileHeader = ({ userDetails, showMobile, setShowMobile, calculat
                 <div className="min-w-[200px] lg:w-auto">
                     {isAvailable ? (
                         showMobile ? (
-                            <div className="flex items-center justify-center lg:justify-end gap-2 bg-gray-100 dark:bg-zinc-800 px-4 py-2 rounded-md">
-                                <Phone className="w-4 h-4 text-gray-500" />
-                                <span className="text-sm font-medium">
-                                    {userDetails.phone_number || '07123 456789'}
-                                </span>
-                            </div>
+                            <ContactButtons phoneNumber={userDetails.phone_number} userName={userDetails.full_name} />
                         ) : (
                             <Button
                                 onClick={() => setShowMobile(true)}
                                 variant="secondary"
-                                className="w-full lg:w-auto flex items-center justify-center gap-2"
+                                className="w-full lg:min-w-[200px] lg:w-auto whitespace-nowrap flex items-center justify-center gap-2 px-4"
                             >
-                                <Phone className="w-4 h-4" />
+                                <Phone className="w-4 h-4 flex-shrink-0" />
                                 View Mobile Number
                             </Button>
                         )
