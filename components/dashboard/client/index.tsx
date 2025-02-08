@@ -6,6 +6,7 @@ import Navbar from '@/components/navbar/NavbarAdmin';
 import { getActiveRoute } from '@/utils/navigation';
 import { routes } from '@/components/routes';
 import Footer from '@/components/footer/FooterAdmin';
+import Image from 'next/image';
 
 const LocationCard = ({ city, imagePath }) => {
     const router = useRouter();
@@ -22,21 +23,20 @@ const LocationCard = ({ city, imagePath }) => {
     };
 
     return (
-        <div
+        <article
             onClick={() => router.push(getFormattedUrl(city))}
             className="relative rounded-xl overflow-hidden h-64 group transition-all duration-300 hover:scale-[1.02] cursor-pointer"
         >
-            {/* Background Image */}
-            <img
+            <Image
                 src={imagePath}
-                alt={`${city} escorts`}
-                className="absolute inset-0 w-full h-full object-cover"
+                alt={`Escort services in ${city}`}
+                fill
+                priority
+                className="object-cover"
             />
 
-            {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
 
-            {/* Content overlay */}
             <div className="absolute inset-0 flex flex-col justify-end p-6">
                 <div className="relative z-10">
                     <p className="text-sm font-medium text-white/90 mb-1">Escorts in</p>
@@ -44,12 +44,10 @@ const LocationCard = ({ city, imagePath }) => {
                 </div>
             </div>
 
-            {/* Hover effect overlay */}
             <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-        </div>
+        </article>
     );
 };
-
 
 export default function DashboardClient({ user, userDetails }) {
     const router = useRouter();
@@ -63,36 +61,43 @@ export default function DashboardClient({ user, userDetails }) {
     const locations = [
         {
             city: "LONDON",
-            image: "/london-escort.jpeg"
+            image: "/london-escort.jpeg",
+            description: "Discover escort services in Greater London"
         },
         {
             city: "MANCHESTER",
-            image: "/manchester-escort.jpeg"
+            image: "/manchester-escort.jpeg",
+            description: "Find escort services in Greater Manchester"
         },
         {
             city: "ESSEX",
-            image: "/essex-escort.jpeg"
+            image: "/essex-escort.jpeg",
+            description: "Browse escort services in Essex"
         },
         {
             city: "KENT",
-            image: "/kent-escort.jpeg"
+            image: "/kent-escort.jpeg",
+            description: "Explore escort services in Kent"
         }
     ];
 
-
     return (
         <>
-            <Navbar brandText={getActiveRoute(routes, pathname)} />
-            <div className="min-h-screen flex flex-col">
-                {/* Hero Section */}
-                <div className="relative h-[600px] bg-black/20">
-                    <img
+            <header>
+                <Navbar brandText={getActiveRoute(routes, pathname)} />
+            </header>
+
+            <main className="min-h-screen flex flex-col">
+                <section aria-label="Hero" className="relative h-[600px] bg-black/20">
+                    <Image
                         src="/hero-image.jpeg"
-                        alt="Hero backdrop"
-                        className="absolute inset-0 w-full h-full object-cover opacity-90"
+                        alt="Discover escorts across the UK"
+                        fill
+                        priority
+                        className="object-cover opacity-90"
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/50" />
-                    <div className="relative container mx-auto px-4 h-full flex items-center">
+                    <div className="relative container mx-auto px-4 md:px-32 h-full flex items-center">
                         <div className="max-w-2xl">
                             <h1 className="text-6xl font-bold text-white mb-6 drop-shadow-lg">
                                 Find Your Perfect Match
@@ -100,7 +105,7 @@ export default function DashboardClient({ user, userDetails }) {
                             <p className="text-2xl text-white drop-shadow-lg mb-8">
                                 Discover companions in your area across the United Kingdom
                             </p>
-                            <div className="flex gap-4">
+                            <nav className="flex gap-4">
                                 {categories.map((category) => {
                                     const Icon = category.icon;
                                     return (
@@ -111,18 +116,17 @@ export default function DashboardClient({ user, userDetails }) {
                                                      text-gray-900 rounded-lg font-semibold transition-all 
                                                      duration-200 hover:shadow-lg"
                                         >
-                                            <Icon className="w-5 h-5" />
-                                            {category.name}
+                                            <Icon className="w-5 h-5" aria-hidden="true" />
+                                            <span>{category.name}</span>
                                         </button>
                                     );
                                 })}
-                            </div>
+                            </nav>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                {/* Rest of the content remains the same */}
-                <div className="container mx-auto px-4 md:px-32 py-8">
+                <section aria-label="Popular Locations" className="container mx-auto px-4 md:px-32 py-8">
                     <h2 className="text-3xl font-bold text-center text-indigo-900 mb-8">
                         Most Searched locations in United Kingdom
                     </h2>
@@ -137,8 +141,8 @@ export default function DashboardClient({ user, userDetails }) {
                         ))}
                     </div>
                     <Footer />
-                </div>
-            </div>
+                </section>
+            </main>
         </>
     );
 }
