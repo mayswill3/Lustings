@@ -12,7 +12,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>
-          TinselLink - Connect with Independent Companions
+          TinselLink - Find & Book Verified Independent Escorts | Secure & Discreet
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -23,14 +23,14 @@ export default function RootLayout({
         />
         <meta
           name="description"
-          content="TinselLink - A professional platform connecting independent companions with verified clients. Safe, secure, and discreet booking service."
+          content="TinselLink is a premier escort directory for finding and booking verified independent escorts. Enjoy a secure, discreet, and seamless experience."
         />
 
         {/* Schema.org markup for Google+ */}
         <meta itemProp="name" content="TinselLink" />
         <meta
           itemProp="description"
-          content="Professional platform for independent companions and verified clients"
+          content="TinselLink is a premier escort directory for finding and booking verified independent escorts. Enjoy a secure, discreet, and seamless experience."
         />
         <meta
           itemProp="image"
@@ -42,7 +42,7 @@ export default function RootLayout({
         <meta name="twitter:title" content="TinselLink" />
         <meta
           name="twitter:description"
-          content="Professional platform for independent companions and verified clients"
+          content="TinselLink is a premier escort directory for finding and booking verified independent escorts. Enjoy a secure, discreet, and seamless experience."
         />
         <meta
           name="twitter:image"
@@ -57,10 +57,8 @@ export default function RootLayout({
           property="og:image"
           content="https://tinsellink.com/img/social-card.jpg"
         />
-        <meta
-          property="og:description"
-          content="Professional platform for independent companions and verified clients"
-        />
+        <meta property="og:description" content="Book verified independent escorts easily on TinselLink. Find trusted companions in London, Manchester, Birmingham, and more." />
+
         <meta property="og:site_name" content="TinselLink" />
 
         <link rel="canonical" href="https://tinsellink.com" />

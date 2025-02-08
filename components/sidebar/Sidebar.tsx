@@ -53,7 +53,7 @@ function Sidebar(props: SidebarProps) {
   };
 
   const MobileSidebar = () => (
-    <div className="mx-2 mb-4 mt-16 xl:mt-0 xl:hidden">
+    <div className="mx-2 mb-4 mt-20 xl:mt-0 xl:hidden">
       <div className="grid grid-cols-2 gap-3 p-4">
         {categories.map((category) => (
           <CategoryButton
@@ -72,7 +72,7 @@ function Sidebar(props: SidebarProps) {
     <div
       className={`
         hidden xl:block fixed top-0 left-0 h-full w-[300px]
-        pt-[70px] bg-transparent dark:bg-transparent
+        pt-[80px] bg-transparent dark:bg-transparent
         border-r border-gray-200 dark:border-zinc-800
         ${props.variant === 'auth' ? 'xl:hidden' : ''}
       `}
