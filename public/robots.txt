@@ -1,9 +1,4 @@
-# *
 User-agent: *
 Allow: /
 
-# Host
-Host: https://www.tinsellink.com
-
-# Sitemaps
-Sitemap: https://www.tinsellink.com/sitemap.xml
+Sitemap: https://www.tinsellink.com/api/sitemap-index
