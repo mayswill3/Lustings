@@ -12,7 +12,7 @@ import {
   UserContext,
   UserDetailsContext
 } from '@/contexts/layout';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface Props {
   children: React.ReactNode;
@@ -25,44 +25,52 @@ interface Props {
 const DashboardLayout: React.FC<Props> = (props: Props) => {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
+  const footerRef = useRef<HTMLDivElement>(null);
+
+  // Calculate and set the footer height as a CSS variable
+  useEffect(() => {
+    const updateFooterHeight = () => {
+      if (footerRef.current) {
+        const footerHeight = footerRef.current.offsetHeight;
+        document.documentElement.style.setProperty('--footer-height', `${footerHeight}px`);
+      }
+    };
+
+    // Update on mount and when window resizes
+    updateFooterHeight();
+    window.addEventListener('resize', updateFooterHeight);
+
+    return () => {
+      window.removeEventListener('resize', updateFooterHeight);
+    };
+  }, []);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <UserContext.Provider value={props.user}>
-        <UserDetailsContext.Provider value={props.userDetails}>
-          <OpenContext.Provider value={{ open, setOpen }}>
-            <Navbar brandText={getActiveRoute(routes, pathname)} />
-
-            <div className="flex-grow flex flex-row dark:bg-zinc-900">
-              {/* This div creates the full-height border */}
-              <div className="hidden xl:block w-[300px] border-r border-gray-200 dark:border-zinc-800">
-                {/* Sidebar is now a child of this div */}
-                <Sidebar routes={routes} setOpen={setOpen} />
-              </div>
-
-              {/* Mobile sidebar */}
-              <div className="xl:hidden w-full">
-                <Sidebar routes={routes} setOpen={setOpen} />
-              </div>
-
-              <div className="flex-grow dark:bg-zinc-900">
-                <main className={`mx-2.5 transition-all dark:bg-zinc-900 md:pr-2`}>
-                  <div className="mx-auto p-2 xl:!pt-[90px] md:p-2">
+    <>
+      <div className="flex h-full w-full flex-col dark:bg-zinc-900">
+        <UserContext.Provider value={props.user}>
+          <UserDetailsContext.Provider value={props.userDetails}>
+            <OpenContext.Provider value={{ open, setOpen }}>
+              <Navbar brandText={getActiveRoute(routes, pathname)} />
+              {/* Original Sidebar */}
+              <Sidebar routes={routes} setOpen={setOpen} />
+              <div className="h-full w-full dark:bg-zinc-900">
+                <main className={`mx-2.5 flex-none transition-all dark:bg-zinc-900 md:pr-2 xl:ml-[328px]`}>
+                  <div className="mx-auto min-h-screen p-2 xl:!pt-[90px] md:p-2">
                     {props.children}
                   </div>
                   <div className="p-3">
-                    {/* Additional spacing if needed */}
                   </div>
                 </main>
               </div>
-            </div>
-
-          </OpenContext.Provider>
-        </UserDetailsContext.Provider>
-      </UserContext.Provider>
-      {/* Footer is now outside the main content area but still within the flex column layout */}
-      <Footer />
-    </div>
+            </OpenContext.Provider>
+          </UserDetailsContext.Provider>
+        </UserContext.Provider>
+      </div>
+      <div ref={footerRef}>
+        <Footer />
+      </div>
+    </>
   );
 };
 

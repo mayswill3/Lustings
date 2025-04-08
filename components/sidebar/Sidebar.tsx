@@ -68,29 +68,34 @@ function Sidebar(props: SidebarProps) {
     </div>
   );
 
+  const DesktopSidebar = () => (
+    <div
+      className={`
+        hidden xl:block fixed top-0 left-0 w-[300px]
+        pt-[80px] bg-transparent dark:bg-transparent
+        border-r border-gray-200 dark:border-zinc-800
+        ${props.variant === 'auth' ? 'xl:hidden' : ''}
+        bottom-[var(--footer-height)]
+      `}
+      style={{ height: 'calc(100vh - var(--footer-height))' }}
+    >
+      <div className="flex flex-col gap-3 p-4">
+        {categories.map((category) => (
+          <CategoryButton
+            key={category.path}
+            name={category.name}
+            path={category.path}
+            icon={category.icon}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <>
       <MobileSidebar />
-      {/* We no longer use a fixed positioned sidebar */}
-      <div
-        className={`
-          hidden xl:block w-[300px] relative
-          ${props.variant === 'auth' ? 'xl:hidden' : ''}
-        `}
-      >
-        <div className="fixed top-0 left-0 w-[300px] pt-[80px] pb-8">
-          <div className="flex flex-col gap-3 p-4">
-            {categories.map((category) => (
-              <CategoryButton
-                key={category.path}
-                name={category.name}
-                path={category.path}
-                icon={category.icon}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+      <DesktopSidebar />
     </>
   );
 }
