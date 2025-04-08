@@ -140,7 +140,6 @@ export default function DashboardClient({ user, userDetails }) {
                             />
                         ))}
                     </div>
-                    <Footer />
                 </section>
             </main>
         </>
