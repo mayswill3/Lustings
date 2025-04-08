@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import DashboardClient from '@/components/dashboard/client';
 import { createClient } from '@/utils/supabase/server';
 import { getUserDetails, getUser } from '@/utils/supabase/queries';
+import Footer from '@/components/footer/FooterAdmin';
 
 // Static metadata
 export const metadata: Metadata = {
@@ -32,5 +33,5 @@ export default async function DashboardPage() {
     getUserDetails(supabase)
   ]);
 
-  return <DashboardClient user={user} userDetails={userDetails} />;
+  return <><DashboardClient user={user} userDetails={userDetails} />  <Footer /></>;
 }
