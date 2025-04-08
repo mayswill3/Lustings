@@ -71,11 +71,13 @@ function Sidebar(props: SidebarProps) {
   const DesktopSidebar = () => (
     <div
       className={`
-        hidden xl:block fixed top-0 left-0 h-full w-[300px]
+        hidden xl:block fixed top-0 left-0 w-[300px]
         pt-[80px] bg-transparent dark:bg-transparent
         border-r border-gray-200 dark:border-zinc-800
         ${props.variant === 'auth' ? 'xl:hidden' : ''}
+        bottom-[var(--footer-height)]
       `}
+      style={{ height: 'calc(100vh - var(--footer-height))' }}
     >
       <div className="flex flex-col gap-3 p-4">
         {categories.map((category) => (
