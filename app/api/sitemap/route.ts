@@ -62,6 +62,22 @@ function generateSitemapXml(escorts: any[], locations: any[]) {
         <changefreq>hourly</changefreq>
         <priority>0.9</priority>
       </url>
+          <!-- Classified Alternative Pages -->
+      <url>
+        <loc>https://www.tinsellink.com/classifieds/adultwork-alternative</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://www.tinsellink.com/classifieds/onlyfans-alternative</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://www.tinsellink.com/classifieds/vivastreet-alternative</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
 
       <!-- Location Pages -->
       ${Array.from(uniqueLocations)

@@ -18,6 +18,21 @@ module.exports = {
   additionalPaths: async (config) => [
     { loc: '/escorts/available-today', changefreq: 'daily', priority: 0.8 },
     { loc: '/escorts/', changefreq: 'daily', priority: 0.8 },
+    {
+      loc: '/classifieds/adultwork-alternative',
+      changefreq: 'weekly',
+      priority: 0.8
+    },
+    {
+      loc: '/classifieds/onlyfans-alternative',
+      changefreq: 'weekly',
+      priority: 0.8
+    },
+    {
+      loc: '/classifieds/vivastreet-alternative',
+      changefreq: 'weekly',
+      priority: 0.8
+    },
     { loc: '/terms', changefreq: 'monthly', priority: 0.5 },
     { loc: '/privacy-policy', changefreq: 'monthly', priority: 0.5 }
   ],
