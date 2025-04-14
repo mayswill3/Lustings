@@ -44,7 +44,7 @@ export const ProfileHeader = ({ userDetails, showMobile, setShowMobile, calculat
         <div className="mb-6">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-2">
                 <div className="flex items-center flex-wrap gap-2">
-                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
+                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-0">
                         {userDetails.full_name}
                     </h1>
                     {userDetails.verification?.verified && (
