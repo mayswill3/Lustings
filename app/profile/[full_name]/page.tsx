@@ -156,7 +156,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     return (
 
         <DashboardLayout user={user} userDetails={userDetails} title="Profile Page" description="View user details">
-            <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="max-w-7xl mx-auto px-4 md:py-8">
                 <Card className="p-6 mb-8">
                     <div className="flex flex-col md:flex-row gap-8">
                         <div className="w-full md:w-1/2">
