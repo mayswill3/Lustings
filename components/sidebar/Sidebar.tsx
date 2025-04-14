@@ -54,7 +54,7 @@ function Sidebar(props: SidebarProps) {
 
   const MobileSidebar = () => (
     <div className="mx-2 mb-4 mt-20 xl:mt-0 xl:hidden">
-      <div className="grid grid-cols-2 gap-3 p-4">
+      <div className="grid grid-cols-2 gap-3 p-4 pb-0">
         {categories.map((category) => (
           <CategoryButton
             key={category.path}
